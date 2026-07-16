@@ -1,3 +1,0 @@
-  @custom-media --mobile-break  (max-width: 599px);
-  @custom-media --tablet-break  (min-width: 600px);
-  @custom-media --desktop-break (min-width: 1200px);
