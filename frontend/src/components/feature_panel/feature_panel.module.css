@@ -1,0 +1,8 @@
+.feature_panel {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (--mobile-break) {
+    .feature_panel { flex-direction: row;}
+}

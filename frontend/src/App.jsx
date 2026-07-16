@@ -1,3 +1,8 @@
+import Layout from "./components/layout/Layout";
+
 export default function App() {
-  return <div>Hello Dashboard</div>
+  return(<Layout>
+    <div>Content</div>
+  </Layout>
+  );
 }

@@ -1,0 +1,41 @@
+.layout {
+  display: flex;
+}
+
+.bottombar {
+  position: fixed;
+  justify-content: center;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+@media (--mobile-break) {
+  .layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    display: none;
+  }
+  .bottombar {
+    display: flex;
+  }
+}
+
+@media (--tablet-break) {
+  .sidebar {
+    display: flex;
+  }
+  .bottombar {
+    display: none;
+  }
+}
+
+@media (--desktop-break) {
+  .sidebar {
+    display: flex;
+  }
+  .bottombar {
+    display: none;
+  }
+}
