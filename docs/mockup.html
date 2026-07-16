@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Home Dashboard — Mockup</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --panel: #ffffff;
+    --panel-2: #eef0f5;
+    --ink: #1a1d24;
+    --muted: #6b7280;
+    --accent: #6c4cff;
+    --accent-2: #2563eb;
+    --line: #e3e6ee;
+    --ok: #16a34a;
+    --warn: #ca8a04;
+    --danger: #dc2626;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    min-height: 100dvh;
+  }
+
+  /* ---------- Feature panel ---------- */
+  .feature_panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 16px 10px;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+  }
+  .feature_panel .icon {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    color: var(--muted);
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .feature_panel .icon.active { color: #fff; background: var(--accent); }
+  .feature_panel .icon:hover { color: var(--ink); background: var(--panel-2); }
+
+  /* ---------- Layout ---------- */
+  .layout { display: flex; flex-direction: row; width: 100%; }
+  .content { flex: 1; padding: 24px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .page-title { margin: 0 0 20px; font-size: 22px; font-weight: 700; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-top: 4px; font-weight: 400; }
+
+  /* hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+    background: linear-gradient(135deg, #ede7ff, #e0efff);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 26px;
+  }
+  .hero .greeting { color: var(--muted); font-size: 14px; letter-spacing: .04em; text-transform: uppercase; }
+  .hero .clock { font-size: 44px; font-weight: 700; margin: 4px 0 0; }
+  .hero .date { color: var(--muted); }
+  .weather { text-align: right; }
+  .weather .temp { font-size: 34px; font-weight: 700; }
+  .weather .cond { color: var(--muted); }
+  .weather .icon { font-size: 30px; }
+
+  /* cards */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+  }
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h2 .badge {
+    margin-left: auto; font-size: 11px; color: var(--accent-2);
+    text-transform: none; letter-spacing: 0;
+  }
+
+  /* home tiles */
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; cursor: pointer; }
+  .tile:hover { border-color: var(--accent); }
+  .tile .n { font-size: 30px; font-weight: 700; }
+  .tile .l { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+
+  /* calendar */
+  .event { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .event:first-of-type { border-top: 0; }
+  .event .when { width: 52px; text-align: center; }
+  .event .when .d { font-size: 20px; font-weight: 700; }
+  .event .when .m { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+  .event .what .title { font-weight: 600; }
+  .event .what .meta { color: var(--muted); font-size: 13px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 8px; }
+
+  /* shopping */
+  .shop li { list-style: none; padding: 8px 0; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .shop li:first-child { border-top: 0; }
+  .shop .chk { width: 18px; height: 18px; border-radius: 5px; border: 1px solid var(--muted); display: grid; place-items: center; font-size: 12px; color: #fff; cursor: pointer; }
+  .shop .chk.done { background: var(--ok); border-color: var(--ok); }
+  .shop .name.done { color: var(--muted); text-decoration: line-through; }
+  .shop .qty { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+  /* todos */
+  .todos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .todo h2 .who { color: var(--ink); }
+  .todo ul { list-style: none; margin: 0; padding: 0; }
+  .todo li { padding: 8px 0; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .todo li:first-child { border-top: 0; }
+  .todo .prio { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex: 0 0 auto; }
+  .todo .prio.hi { background: var(--danger); }
+  .todo .prio.mid { background: var(--warn); }
+  .todo .prio.lo { background: var(--ok); }
+  .todo .ttext { flex: 1; }
+  .todo .del { color: var(--muted); cursor: pointer; opacity: 0; font-size: 14px; }
+  .todo li:hover .del { opacity: 1; }
+  .todo .del:hover { color: var(--danger); }
+  .todo .add-row { display: flex; gap: 8px; margin-top: 12px; }
+  .todo input {
+    flex: 1; border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 10px; font: inherit; background: var(--bg); color: var(--ink);
+  }
+  .todo input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  .btn {
+    border: 0; border-radius: 8px; padding: 7px 12px; font: inherit; cursor: pointer;
+    background: var(--accent); color: #fff;
+  }
+  .btn.ghost { background: var(--panel-2); color: var(--ink); }
+  .btn.sm { padding: 6px 10px; font-size: 13px; }
+  .member-remove { margin-left: auto; color: var(--muted); cursor: pointer; font-size: 16px; }
+  .member-remove:hover { color: var(--danger); }
+  .add-member { margin-top: 20px; display: flex; gap: 8px; align-items: center; }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 599px) {
+    body { flex-direction: column; }
+    .layout { flex-direction: column-reverse; min-height: 100dvh; }
+    .feature_panel {
+      flex-direction: row;
+      border-right: 0;
+      border-top: 1px solid var(--line);
+      padding: 8px;
+      gap: 0;
+      justify-content: space-around;
+      width: 100%;
+    }
+    .feature_panel .icon { width: 56px; height: 48px; }
+    .content { padding: 16px; }
+    .hero { grid-template-columns: 1fr; text-align: left; }
+    .hero .clock { font-size: 34px; }
+    .weather { text-align: left; }
+    .grid, .tiles { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="feature_panel" id="nav">
+      <div class="icon active" data-view="home" title="Home">⌂</div>
+      <div class="icon" data-view="calendar" title="Calendar">📅</div>
+      <div class="icon" data-view="lists" title="Lists">🛒</div>
+      <div class="icon" data-view="todos" title="Todos">✓</div>
+    </nav>
+
+    <main class="content">
+      <!-- HOME -->
+      <section class="view active" id="view-home">
+        <div class="hero">
+          <div>
+            <div class="greeting">Good afternoon</div>
+            <div class="clock">14:32</div>
+            <div class="date">Wednesday, 16 July</div>
+          </div>
+          <div class="weather">
+            <div class="icon">⛅</div>
+            <div class="temp">21°</div>
+            <div class="cond">Partly cloudy · Berlin</div>
+          </div>
+        </div>
+        <div style="height:20px"></div>
+        <div class="tiles">
+          <div class="tile" data-go="calendar"><div class="n" id="cnt-events">3</div><div class="l">Upcoming events</div></div>
+          <div class="tile" data-go="lists"><div class="n" id="cnt-shop">4</div><div class="l">Items to buy</div></div>
+          <div class="tile" data-go="todos"><div class="n" id="cnt-todos">6</div><div class="l">Open tasks</div></div>
+        </div>
+      </section>
+
+      <!-- CALENDAR -->
+      <section class="view" id="view-calendar">
+        <h1 class="page-title">Calendar
+          <div class="page-sub">Upcoming events for the family</div>
+        </h1>
+        <div class="card">
+          <h2>📅 Upcoming <span class="badge">3 events</span></h2>
+          <div class="event">
+            <div class="when"><div class="d">17</div><div class="m">Jul</div></div>
+            <div class="dot"></div>
+            <div class="what"><div class="title">Dentist — Anna</div><div class="meta">10:00 · Dr. Müller</div></div>
+          </div>
+          <div class="event">
+            <div class="when"><div class="d">19</div><div class="m">Jul</div></div>
+            <div class="dot"></div>
+            <div class="what"><div class="title">Football practice</div><div class="meta">17:30 · Sports hall</div></div>
+          </div>
+          <div class="event">
+            <div class="when"><div class="d">22</div><div class="m">Jul</div></div>
+            <div class="dot"></div>
+            <div class="what"><div class="title">Grandma's birthday</div><div class="meta">All day</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LISTS -->
+      <section class="view" id="view-lists">
+        <h1 class="page-title">Lists
+          <div class="page-sub">Shopping and shared lists</div>
+        </h1>
+        <div class="card">
+          <h2>🛒 Shopping <span class="badge">4 left</span></h2>
+          <ul class="shop" id="shop">
+            <li><span class="chk done">✓</span><span class="name done">Milk</span><span class="qty">2 L</span></li>
+            <li><span class="chk"></span><span class="name">Bread</span><span class="qty">1 loaf</span></li>
+            <li><span class="chk"></span><span class="name">Eggs</span><span class="qty">6</span></li>
+            <li><span class="chk"></span><span class="name">Pasta</span><span class="qty">500 g</span></li>
+            <li><span class="chk"></span><span class="name">Tomatoes</span><span class="qty">1 kg</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TODOS -->
+      <section class="view" id="view-todos">
+        <h1 class="page-title">Todos
+          <div class="page-sub">Tasks per family member — add anyone</div>
+        </h1>
+        <div class="todos" id="todos"></div>
+        <div class="add-member">
+          <input id="new-member" placeholder="Add family member…" />
+          <button class="btn" id="add-member">+ Add member</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+  const nav = document.getElementById('nav');
+  const icons = nav.querySelectorAll('.icon');
+  const views = document.querySelectorAll('.view');
+
+  function show(name) {
+    views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+    icons.forEach(i => i.classList.toggle('active', i.dataset.view === name));
+    window.scrollTo(0, 0);
+  }
+  icons.forEach(i => i.addEventListener('click', () => show(i.dataset.view)));
+  document.querySelectorAll('[data-go]').forEach(t => t.addEventListener('click', () => show(t.dataset.go)));
+
+  // shopping toggle
+  document.getElementById('shop').addEventListener('click', e => {
+    const li = e.target.closest('li'); if (!li) return;
+    const chk = li.querySelector('.chk');
+    const name = li.querySelector('.name');
+    const done = chk.classList.toggle('done');
+    chk.textContent = done ? '✓' : '';
+    name.classList.toggle('done', done);
+  });
+
+  // todos state — scalable to any family
+  let members = [
+    { name: 'Anna', tasks: [
+      { t: 'Math homework', p: 'hi' },
+      { t: 'Tidy room', p: 'mid' },
+      { t: 'Water plants', p: 'lo' },
+    ]},
+    { name: 'Mark', tasks: [
+      { t: 'Pay electricity bill', p: 'hi' },
+      { t: 'Fix kitchen tap', p: 'mid' },
+      { t: 'Book car service', p: 'lo' },
+    ]},
+    { name: 'Lena', tasks: [
+      { t: 'Finish presentation', p: 'mid' },
+      { t: 'Pick up parcel', p: 'lo' },
+    ]},
+  ];
+
+  const PRIO = { hi: 'High', mid: 'Medium', lo: 'Low' };
+
+  function openCount() {
+    return members.reduce((n, m) => n + m.tasks.length, 0);
+  }
+  function updateCounts() {
+    document.getElementById('cnt-todos').textContent = openCount();
+  }
+
+  function renderTodos() {
+    const wrap = document.getElementById('todos');
+    wrap.innerHTML = '';
+    members.forEach((m, mi) => {
+      const card = document.createElement('div');
+      card.className = 'card todo';
+      card.innerHTML = `
+        <h2><span class="who">${escapeHtml(m.name)}</span>
+          <span class="badge">${m.tasks.length} open</span>
+          <span class="member-remove" title="Remove member">✕</span></h2>
+        <ul></ul>
+        <div class="add-row">
+          <input placeholder="new task…" data-mi="${mi}" />
+          <button class="btn sm" data-add="${mi}">Add</button>
+        </div>`;
+      const ul = card.querySelector('ul');
+      m.tasks.forEach((t, ti) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="prio ${t.p}"></span>
+          <span class="ttext">${escapeHtml(t.t)}</span>
+          <span class="del" title="Remove task">✕</span>`;
+        li.querySelector('.del').addEventListener('click', () => {
+          m.tasks.splice(ti, 1); renderTodos();
+        });
+        ul.appendChild(li);
+      });
+      card.querySelector('.member-remove').addEventListener('click', () => {
+        members.splice(mi, 1); renderTodos();
+      });
+      const input = card.querySelector('input');
+      const addBtn = card.querySelector('[data-add]');
+      const addTask = () => {
+        const v = input.value.trim(); if (!v) return;
+        m.tasks.push({ t: v, p: 'lo' }); input.value = ''; renderTodos();
+      };
+      addBtn.addEventListener('click', addTask);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+      wrap.appendChild(card);
+    });
+    updateCounts();
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+  }
+
+  const memberInput = document.getElementById('new-member');
+  function addMember() {
+    const v = memberInput.value.trim(); if (!v) return;
+    members.push({ name: v, tasks: [] });
+    memberInput.value = ''; renderTodos();
+  }
+  document.getElementById('add-member').addEventListener('click', addMember);
+  memberInput.addEventListener('keydown', e => { if (e.key === 'Enter') addMember(); });
+
+  renderTodos();
+</script>
+</body>
+</html>

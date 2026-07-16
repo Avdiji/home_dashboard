@@ -1,8 +1,24 @@
 .feature_panel {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  list-style: none;
+
+  height: fit-content;
+  justify-content: center;
+
+  background-color: brown;
 }
 
-@media (--mobile-break) {
-    .feature_panel { flex-direction: row;}
+.feature_panel img {
+  width: 50px;
+  height: 50px;
+}
+
+
+@media (--desktop) {
+  .feature_panel {
+    height: 100%;
+    flex-direction: column;
+  }
 }
