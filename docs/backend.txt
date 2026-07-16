@@ -1,0 +1,26 @@
+backend/
+├── main.go                 # entrypoint, wires everything together
+├── go.mod
+│
+├── internal/
+│   ├── task/
+│   │   ├── model.go         # Task struct
+│   │   ├── store.go         # SQLite queries for tasks
+│   │   └── handler.go       # HTTP handlers for /tasks
+│   ├── shopping/
+│   │   ├── model.go
+│   │   ├── store.go
+│   │   └── handler.go
+│   ├── event/
+│   │   ├── model.go
+│   │   ├── store.go
+│   │   └── handler.go
+│   │
+│   ├── db/
+│   │   └── db.go            # SQLite connection setup, migrations
+│   │
+│   └── ws/
+│       └── hub.go           # WebSocket connection manager, broadcast logic
+│
+└── migrations/
+    └── 001_init.sql

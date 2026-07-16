@@ -1,0 +1,64 @@
+src/
+├── main.tsx
+├── App.tsx
+├── index.css
+│
+├── views/
+│   ├── TodoView/
+│   │   ├── TodoView.tsx
+│   │   ├── TodoView.module.css
+│   │   ├── TaskGroup.tsx
+│   │   ├── TaskGroup.module.css
+│   │   ├── TaskItem.tsx
+│   │   ├── TaskItem.module.css
+│   │   └── useTasks.ts
+│   ├── ShoppingView/
+│   │   ├── ShoppingView.tsx
+│   │   ├── ShoppingView.module.css
+│   │   ├── ListCard.tsx
+│   │   ├── ListCard.module.css
+│   │   └── useShoppingLists.ts
+│   └── CalendarView/
+│       ├── CalendarView.tsx
+│       ├── CalendarView.module.css
+│       ├── MonthGrid.tsx
+│       ├── MonthGrid.module.css
+│       ├── Agenda.tsx
+│       ├── Agenda.module.css
+│       └── useEvents.ts
+│
+├── components/
+│   ├── Chip.tsx / .module.css
+│   ├── Checkbox.tsx / .module.css
+│   ├── StatusBar.tsx / .module.css
+│   ├── NavRail.tsx / .module.css
+│   └── PersonDot.tsx / .module.css
+│
+├── lib/
+│   ├── api.ts                  # fetch wrapper, returns raw DTOs
+│   ├── ws.ts
+│   │
+│   ├── dto/                    # shapes exactly as FastAPI returns them
+│   │   ├── task.dto.ts         # e.g. { id: string; label: string; is_done: boolean; due_date: string | null; assigned_to: string }
+│   │   ├── shoppingList.dto.ts
+│   │   ├── event.dto.ts
+│   │   └── person.dto.ts
+│   │
+│   ├── models/                 # shapes your components actually work with
+│   │   ├── Task.ts             # e.g. { id: string; label: string; isDone: boolean; dueDate: Date | null; assignedTo: Person }
+│   │   ├── ShoppingList.ts
+│   │   ├── Event.ts
+│   │   └── Person.ts
+│   │
+│   └── mappers/                # pure functions: dto -> model (and model -> dto for writes)
+│       ├── task.mapper.ts      # toTask(dto: TaskDTO): Task / toTaskDTO(model: Partial<Task>)
+│       ├── shoppingList.mapper.ts
+│       └── event.mapper.ts
+│
+├── theme/
+│   ├── tokens.css
+│   ├── fonts.css
+│   └── global.css
+│
+└── assets/
+    └── icons/
