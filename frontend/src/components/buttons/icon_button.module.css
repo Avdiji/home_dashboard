@@ -1,0 +1,43 @@
+/* shared — all breakpoints */
+.icon_button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+}
+
+.icon_button img {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.icon_button:hover {
+  color: var(--ink);
+  background: var(--panel-2);
+}
+
+.icon_button.active {
+  color: #fff;
+  background: var(--accent);
+}
+
+@media (--mobile) {
+  .icon_button {
+    width: 56px;
+    height: 48px;
+  }
+}
+
+
+@media (--desktop), (--tablet) {
+  .icon_button {
+    width: 44px;
+    height: 44px;
+  }
+}

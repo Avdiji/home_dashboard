@@ -1,24 +1,32 @@
+/* shared — all breakpoints */
 .feature_panel {
   display: flex;
-  flex-direction: row;
-  gap: 14px;
+  align-items: center;
+  margin: 0;
   list-style: none;
-
-  height: fit-content;
-  justify-content: center;
-
-  background-color: brown;
+  background: var(--panel);
 }
 
-.feature_panel img {
-  width: 50px;
-  height: 50px;
-}
-
-
-@media (--desktop) {
+@media (--mobile) {
   .feature_panel {
-    height: 100%;
+    flex-direction: row;
+    gap: 0;
+    justify-content: space-around;
+    width: 100%;
+    padding: 8px;
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (--desktop), (--tablet) {
+  .feature_panel {
     flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+    width: auto;
+    height: 100%;
+    padding: 16px 10px;
+    border-right: 1px solid var(--line);
+    border-top: 0;
   }
 }

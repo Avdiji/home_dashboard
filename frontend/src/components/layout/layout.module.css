@@ -1,20 +1,28 @@
+/* shared — all breakpoints */
 .layout {
-    display: flex;
-    flex-direction: column-reverse;
-
-    height: 100vh;
-    width: 100vw;
+  display: flex;
+  height: 100dvh;
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 .content {
-    flex: 1;
-    background-color: aqua;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+@media (--mobile) {
+  .layout {
+    flex-direction: column-reverse;
+  }
 }
 
 
-@media (--desktop) {
-    .layout {
-
-        flex-direction: row;
-    }
+@media (--desktop), (--tablet) {
+  .layout {
+    flex-direction: row;
+  }
 }
