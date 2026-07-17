@@ -3,11 +3,6 @@
   align-items: center;
   gap: 10px;
   padding: 10px 0;
-  border-top: 1px solid var(--line);
-}
-
-.item:first-child {
-  border-top: 0;
 }
 
 .chk {

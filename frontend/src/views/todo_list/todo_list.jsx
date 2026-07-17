@@ -54,19 +54,49 @@ export default function TodoList() {
   const personName = (id) =>
     persons.find((p) => p.id === id)?.name ?? "Unassigned";
 
-  const renderList = (items) => (
-    <ul className={classes.list}>
-      {items.map((todo) => (
-        <TaskItem
-          key={todo.id}
-          todo={todo}
-          personNames={todo.personIds.map(personName)}
-          onToggle={() => toggleTodo(todo.id)}
-          onRemove={() => removeTodo(todo.id)}
-        />
-      ))}
-    </ul>
+  const renderItem = (todo, showNames) => (
+    <TaskItem
+      key={todo.id}
+      todo={todo}
+      personNames={showNames ? todo.personIds.map(personName) : []}
+      onToggle={() => toggleTodo(todo.id)}
+      onRemove={() => removeTodo(todo.id)}
+    />
   );
+
+  // Group tasks: joint (multi-member) + unassigned first with no subtitle,
+  // then each member's solo tasks under a member-name subtitle.
+  const renderGrouped = (items) => {
+    const joint = items.filter((t) => t.personIds.length !== 1);
+    const solo = items.filter((t) => t.personIds.length === 1);
+    const byMember = new Map();
+    for (const t of solo) {
+      const pid = t.personIds[0];
+      if (!byMember.has(pid)) byMember.set(pid, []);
+      byMember.get(pid).push(t);
+    }
+    return (
+      <div className={classes.groups}>
+        {joint.length > 0 && (
+          <ul className={classes.list}>
+            {joint.map((t) => renderItem(t, true))}
+          </ul>
+        )}
+        {persons.map((p) => {
+          const list = byMember.get(p.id);
+          if (!list || list.length === 0) return null;
+          return (
+            <div className={classes.group} key={p.id}>
+              <div className={classes.group_title}>{p.name}</div>
+              <ul className={classes.list}>
+                {list.map((t) => renderItem(t, false))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className={classes.view}>
@@ -84,10 +114,10 @@ export default function TodoList() {
 
       <div className={classes.board}>
         <Card title="TODO" badge={`${open.length}`}>
-          {renderList(open)}
+          {renderGrouped(open)}
         </Card>
         <Card title="DONE" badge={`${done.length}`}>
-          {renderList(done)}
+          {renderGrouped(done)}
         </Card>
       </div>
 

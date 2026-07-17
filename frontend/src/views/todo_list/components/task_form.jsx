@@ -35,26 +35,28 @@ export default function TaskForm({ persons, onAdd }) {
           if (e.key === "Enter") submit();
         }}
       />
-      <AssignPicker
-        persons={persons}
-        selected={assigned}
-        onToggle={toggleAssign}
-      />
-      <select
-        className={classes.select}
-        value={frequency}
-        onChange={(e) => setFrequency(e.target.value)}
-        aria-label="Frequency"
-      >
-        {FREQUENCIES.map((f) => (
-          <option key={f.value} value={f.value}>
-            {f.label}
-          </option>
-        ))}
-      </select>
-      <AddButton size="sm" onClick={submit}>
-        +
-      </AddButton>
+      <div className={classes.controls}>
+        <AssignPicker
+          persons={persons}
+          selected={assigned}
+          onToggle={toggleAssign}
+        />
+        <select
+          className={classes.select}
+          value={frequency}
+          onChange={(e) => setFrequency(e.target.value)}
+          aria-label="Frequency"
+        >
+          {FREQUENCIES.map((f) => (
+            <option key={f.value} value={f.value}>
+              {f.label}
+            </option>
+          ))}
+        </select>
+        <AddButton size="sm" onClick={submit}>
+          +
+        </AddButton>
+      </div>
     </div>
   );
 }

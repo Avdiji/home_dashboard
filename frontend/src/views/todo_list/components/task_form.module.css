@@ -1,19 +1,24 @@
 .form {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .input {
-  flex: 1;
-  min-width: 160px;
+  width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 7px 10px;
   font: inherit;
-  background: var(--bg);
+  background: var(--panel);
   color: var(--ink);
 }
 
@@ -22,7 +27,7 @@
   border-radius: 8px;
   padding: 7px 10px;
   font: inherit;
-  background: var(--bg);
+  background: var(--panel);
   color: var(--ink);
   cursor: pointer;
 }
