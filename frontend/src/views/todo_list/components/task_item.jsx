@@ -1,9 +1,4 @@
-import { FREQUENCIES } from "../../../core/frequency";
 import classes from "./task_item.module.css";
-
-const FREQ_LABEL = Object.fromEntries(
-  FREQUENCIES.map((f) => [f.value, f.label])
-);
 
 export default function TaskItem({ todo, personNames, onToggle, onRemove }) {
   const done = todo.isDone;
@@ -19,9 +14,6 @@ export default function TaskItem({ todo, personNames, onToggle, onRemove }) {
         className={done ? `${classes.text} ${classes.crossed}` : classes.text}
       >
         {todo.label}
-        {todo.frequency !== "none" && (
-          <span className={classes.freq}>{FREQ_LABEL[todo.frequency]}</span>
-        )}
       </span>
       <span className={classes.who}>
         {personNames.map((n) => (

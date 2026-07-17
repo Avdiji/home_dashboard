@@ -14,13 +14,13 @@ const SEED_PERSONS = [
 ];
 
 const SEED_TODOS = [
-  new TodoDTO({ id: 1, label: "Math homework", is_done: false, personIds: [1], frequency: "none" }).toModel(),
-  new TodoDTO({ id: 2, label: "Brush teeth", is_done: false, personIds: [1, 3], frequency: "daily" }).toModel(),
-  new TodoDTO({ id: 3, label: "Tidy room", is_done: false, personIds: [1], frequency: "weekly" }).toModel(),
-  new TodoDTO({ id: 4, label: "Pay electricity bill", is_done: false, personIds: [2], frequency: "none" }).toModel(),
-  new TodoDTO({ id: 5, label: "Fix kitchen tap", is_done: true, personIds: [2], frequency: "none" }).toModel(),
-  new TodoDTO({ id: 6, label: "Clean room", is_done: false, personIds: [3, 1], frequency: "weekly" }).toModel(),
-  new TodoDTO({ id: 7, label: "Pick up parcel", is_done: false, personIds: [3], frequency: "none" }).toModel(),
+  new TodoDTO({ id: 1, label: "Math homework", is_done: false, personIds: [1] }).toModel(),
+  new TodoDTO({ id: 2, label: "Brush teeth", is_done: false, personIds: [1, 3] }).toModel(),
+  new TodoDTO({ id: 3, label: "Tidy room", is_done: false, personIds: [1] }).toModel(),
+  new TodoDTO({ id: 4, label: "Pay electricity bill", is_done: false, personIds: [2] }).toModel(),
+  new TodoDTO({ id: 5, label: "Fix kitchen tap", is_done: true, personIds: [2] }).toModel(),
+  new TodoDTO({ id: 6, label: "Clean room", is_done: false, personIds: [3, 1] }).toModel(),
+  new TodoDTO({ id: 7, label: "Pick up parcel", is_done: false, personIds: [3] }).toModel(),
 ];
 
 export default function TodoList() {
@@ -33,7 +33,7 @@ export default function TodoList() {
   // noop — remove todo wiring handled once backend lands
   const removeTodo = (todoId) => {};
   // noop — add todo wiring handled once backend lands
-  const addTodo = ({ label, personIds, frequency }) => {};
+  const addTodo = ({ label, personIds }) => {};
 
   const toggleFilter = (personId) => {
     const next = new Set(activeFilters);

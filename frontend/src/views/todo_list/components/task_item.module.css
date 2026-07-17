@@ -37,14 +37,6 @@
   text-decoration: line-through;
 }
 
-.freq {
-  font-size: 11px;
-  color: var(--accent-2);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 1px 7px;
-}
-
 .who {
   display: flex;
   flex-wrap: wrap;
