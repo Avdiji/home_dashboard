@@ -1,0 +1,52 @@
+.view {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.new_btn {
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent-2);
+  color: #fff;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.new_btn:hover {
+  filter: brightness(0.95);
+}
+
+.surface {
+  min-width: 0;
+}
+
+@media (--mobile) {
+  .view {
+    padding: 16px;
+  }
+  .toolbar {
+    align-items: stretch;
+  }
+  .right {
+    justify-content: space-between;
+  }
+}
