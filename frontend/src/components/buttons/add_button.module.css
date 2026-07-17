@@ -1,0 +1,45 @@
+.add_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font: inherit;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  transition: background 0.15s ease, color 0.15s ease, filter 0.15s ease;
+}
+
+.add_button:hover {
+  filter: brightness(1.08);
+}
+
+.add_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add_button:disabled:hover {
+  filter: none;
+}
+
+.ghost {
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+.ghost:hover {
+  filter: none;
+  background: #e2e5ee;
+}
+
+.sm {
+  padding: 6px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 32px;
+  min-height: 32px;
+}

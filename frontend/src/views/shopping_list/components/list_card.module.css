@@ -1,0 +1,56 @@
+.title_input {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.title_input:focus {
+  outline: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.list_remove {
+  margin-left: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.list_remove:hover {
+  color: var(--danger);
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.add_row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.add_input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.add_input:focus {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
+}

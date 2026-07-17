@@ -1,0 +1,55 @@
+.item {
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item:first-child {
+  border-top: 0;
+}
+
+.chk {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid var(--muted);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #fff;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.done {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+}
+
+.crossed {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.del {
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  font-size: 14px;
+  flex: 0 0 auto;
+}
+
+.item:hover .del {
+  opacity: 1;
+}
+
+.del:hover {
+  color: var(--danger);
+}
