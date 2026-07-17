@@ -47,7 +47,7 @@
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-md);
   padding: 8px;
   display: flex;
   flex-direction: column;
@@ -93,7 +93,7 @@
   display: grid;
   place-items: center;
   font-size: 11px;
-  color: #fff;
+  color: var(--on-accent);
   flex: 0 0 auto;
 }
 

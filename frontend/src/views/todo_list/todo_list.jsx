@@ -1,4 +1,5 @@
 import Card from "../../components/cards/card";
+import PageHeader from "../../components/page_header/page_header";
 import MemberFilter from "./components/member_filter";
 import TaskForm from "./components/task_form";
 import TaskItem from "./components/task_item";
@@ -65,10 +66,7 @@ export default function TodoList() {
 
   return (
     <div className={classes.view}>
-      <h1 className={classes.page_title}>
-        Todos
-        <div className={classes.page_sub}>Tasks per family member</div>
-      </h1>
+      <PageHeader title="Todos" subtitle="Tasks per family member" />
 
       <MemberFilter
         persons={persons}

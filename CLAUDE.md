@@ -156,12 +156,17 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
   the page bg.
 - **`AddButton`** (`components/buttons/add_button`): props `onClick`, `children`,
   `variant`, `size`, `disabled`. Variants/sizes map to CSS classes by name.
-- **`AssignPicker`** (`views/todo_list/components/assign_picker`): searchable-free
+- **`AssignPicker`** (`components/assign_picker/assign_picker`): searchable-free
   multi-select dropdown (popover + scrollable checkable list + outside-click close).
   **No search input** — the member list is shown directly. Reused by both the todo
-  task form and the calendar event form (imported across features; do not duplicate).
-- **`MemberFilter`**: multi-select chip filter (todo only — does not scale to 100+
-  members; flagged, not converted).
+  task form and the calendar event form (lives in shared `components/` because it is
+  cross-feature; do not duplicate).
+- **`PageHeader`** (`components/page_header/page_header`): props `title`, `subtitle`.
+  Page title + muted subtitle block used by every feature page (todo, shopping).
+  Extracted to shared `components/` — the `.page_title`/`.page_sub` CSS was previously
+  duplicated identically across feature CSS modules.
+- **`MemberFilter`** (`views/todo_list/components/member_filter`): multi-select chip
+  filter (todo only — does not scale to 100+ members; flagged, not converted).
 
 ## Styling rules
 
@@ -228,6 +233,12 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
 - **Why recurrence fast-forwards**: a daily event seeded 60 days in the past would
   otherwise iterate day-by-day up to the visible range. Jumping by computed
   day/week deltas (and looping for months) keeps it bounded.
-- **Why `AssignPicker` is cross-feature shared, not duplicated**: the user
-  explicitly wants scalable member assignment; duplicating the component would
-  drift. Search was removed from it on the user's request — do not re-add it.
+- **Why `AssignPicker` lives in shared `components/`, not a feature dir**: it is
+  imported by both the todo task form and the calendar event form. A feature-local
+  home would force one feature to reach across into another's dir. Putting it in
+  `components/` makes the cross-feature intent explicit. Search was removed from it
+  on the user's request — do not re-add it.
+- **Why `PageHeader` was extracted**: the `.page_title`/`.page_sub` block was
+  copy-pasted identically in the todo and shopping CSS modules. One shared
+  component + one CSS file removes the duplication; a new feature page just drops
+  in `<PageHeader title=… subtitle=… />`.

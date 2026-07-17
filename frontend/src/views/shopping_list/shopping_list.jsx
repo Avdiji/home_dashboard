@@ -1,4 +1,5 @@
 import AddButton from "../../components/buttons/add_button";
+import PageHeader from "../../components/page_header/page_header";
 import ListCard from "./components/list_card";
 import useShoppingList from "./hooks/use_shopping_list";
 import classes from "./shopping_list.module.css";
@@ -16,10 +17,7 @@ export default function ShoppingList() {
 
   return (
     <div className={classes.view}>
-      <h1 className={classes.page_title}>
-        Shopping List
-        <div className={classes.page_sub}>Shopping and shared lists</div>
-      </h1>
+      <PageHeader title="Shopping List" subtitle="Shopping and shared lists" />
 
       <div className={classes.grid}>
         {lists.map((list) => (
