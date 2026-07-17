@@ -115,9 +115,9 @@ Frequency reuses `core/frequency.js` (once/daily/weekly/monthly).
   breakpoints), members via `AssignPicker`, repeat, description. Edit mode adds a
   Delete button; new vs edit decided by whether an `event` prop is passed. No
   `autoFocus` anywhere.
-- Clicking an event opens the **edit** form; clicking empty day area opens the
-  **new** form. `getEvent(eventId)` noop marks where a single-event fetch goes if
-  the list ever becomes a summary (currently full data is in memory).
+- Clicking an event opens the **edit** form (edits the whole series — the
+  occurrence carries the full base event); clicking empty day area opens the
+  **new** form.
 - `EventChip` renders as a `<button>` when given an `onClick` (month/week, with
   `stopPropagation` so the click doesn't bubble into cell/day-card handlers) and as
   a non-interactive `<div>` when not (day view — the whole card is the clickable
@@ -222,9 +222,6 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
 - **Why noops carry full signatures**: the signature *is* the spec for the future
   backend call. Call sites already pass the right args, so wiring is just filling
   the body.
-- **Why `getEvent` is a noop even though full data is in memory**: the calendar
-  list could later become a summary (id/title/time only) for perf; the edit form
-  would then need a fetch. The noop marks that seam.
 - **Why `stopPropagation` on `EventChip`**: month cells have their own `onClick`
   (new-event). Without stopping propagation, clicking a chip fired edit, then the
   cell's new-event handler overwrote the form state → wrong popup.

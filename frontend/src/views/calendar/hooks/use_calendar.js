@@ -2,6 +2,12 @@ import { useMemo, useState } from "react";
 import { PersonDTO } from "../../../core/dto/person.dto";
 import { EventDTO } from "../../../core/dto/event.dto";
 import {
+  FREQUENCY_NONE,
+  FREQUENCY_DAILY,
+  FREQUENCY_WEEKLY,
+  FREQUENCY_MONTHLY,
+} from "../../../core/frequency";
+import {
   formatMonthTitle,
   formatWeekTitle,
   formatDayTitle,
@@ -36,7 +42,7 @@ const SEED_EVENTS = [
     start_at: at(0, 9),
     end_at: at(0, 10),
     person_ids: [1],
-    frequency: "none",
+    frequency: FREQUENCY_NONE,
   }).toModel(),
   new EventDTO({
     id: 2,
@@ -46,7 +52,7 @@ const SEED_EVENTS = [
     start_at: at(-30, 8),
     end_at: at(-30, 8, 30),
     person_ids: [],
-    frequency: "daily",
+    frequency: FREQUENCY_DAILY,
   }).toModel(),
   new EventDTO({
     id: 3,
@@ -56,7 +62,7 @@ const SEED_EVENTS = [
     start_at: at(1, 17),
     end_at: at(1, 18, 30),
     person_ids: [2, 3],
-    frequency: "weekly",
+    frequency: FREQUENCY_WEEKLY,
   }).toModel(),
   new EventDTO({
     id: 4,
@@ -66,7 +72,7 @@ const SEED_EVENTS = [
     start_at: at(5, 0),
     end_at: at(5, 0, 1),
     person_ids: [2],
-    frequency: "monthly",
+    frequency: FREQUENCY_MONTHLY,
   }).toModel(),
   new EventDTO({
     id: 5,
@@ -76,7 +82,7 @@ const SEED_EVENTS = [
     start_at: at(2, 12),
     end_at: at(2, 13),
     person_ids: [2],
-    frequency: "none",
+    frequency: FREQUENCY_NONE,
   }).toModel(),
   new EventDTO({
     id: 6,
@@ -86,7 +92,7 @@ const SEED_EVENTS = [
     start_at: at(-60, 14, 30),
     end_at: at(-60, 15),
     person_ids: [1, 3],
-    frequency: "weekly",
+    frequency: FREQUENCY_WEEKLY,
   }).toModel(),
 ];
 
@@ -99,9 +105,6 @@ export default function useCalendar() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [formStart, setFormStart] = useState(null);
 
-  // noop — fetch single full event (use if the list is a summary);
-  // full data already in `events` for now, so edit reads from memory.
-  const getEvent = (eventId) => events.find((e) => e.id === eventId) ?? null;
   // noop — add wiring handled once backend lands
   const addEvent = ({
     title,
@@ -112,8 +115,10 @@ export default function useCalendar() {
     personIds,
     frequency,
   }) => {};
+  
   // noop — update event wiring handled once backend lands
   const updateEvent = (eventId, patch) => {};
+  
   // noop — remove event wiring handled once backend lands
   const removeEvent = (eventId) => {};
 
@@ -142,10 +147,7 @@ export default function useCalendar() {
   };
 
   const openEditForm = (occ) => {
-    // Full data is in memory; getEvent noop shows where a fetch would go if
-    // the list becomes a summary.
-    const full = getEvent(occ.event.id);
-    setEditingEvent(full ?? occ.event);
+    setEditingEvent(occ.event);
     setFormStart(null);
     setFormOpen(true);
   };
