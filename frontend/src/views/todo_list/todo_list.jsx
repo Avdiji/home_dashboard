@@ -1,27 +1,9 @@
 import Card from "../../components/cards/card";
-import { PersonDTO } from "../../core/dto/person.dto";
-import { TodoDTO } from "../../core/dto/todo.dto";
 import MemberFilter from "./components/member_filter";
 import TaskForm from "./components/task_form";
 import TaskItem from "./components/task_item";
 import useTodoList from "./hooks/use_todo_list";
 import classes from "./todo_list.module.css";
-
-const SEED_PERSONS = [
-  new PersonDTO({ id: 1, name: "Anna" }).toModel(),
-  new PersonDTO({ id: 2, name: "Mark" }).toModel(),
-  new PersonDTO({ id: 3, name: "Lena" }).toModel(),
-];
-
-const SEED_TODOS = [
-  new TodoDTO({ id: 1, label: "Math homework", is_done: false, personIds: [1] }).toModel(),
-  new TodoDTO({ id: 2, label: "Brush teeth", is_done: false, personIds: [1, 3] }).toModel(),
-  new TodoDTO({ id: 3, label: "Tidy room", is_done: false, personIds: [1] }).toModel(),
-  new TodoDTO({ id: 4, label: "Pay electricity bill", is_done: false, personIds: [2] }).toModel(),
-  new TodoDTO({ id: 5, label: "Fix kitchen tap", is_done: true, personIds: [2] }).toModel(),
-  new TodoDTO({ id: 6, label: "Clean room", is_done: false, personIds: [3, 1] }).toModel(),
-  new TodoDTO({ id: 7, label: "Pick up parcel", is_done: false, personIds: [3] }).toModel(),
-];
 
 export default function TodoList() {
   const {
@@ -35,7 +17,7 @@ export default function TodoList() {
     open,
     done,
     personName,
-  } = useTodoList({ todos: SEED_TODOS, persons: SEED_PERSONS });
+  } = useTodoList();
 
   const renderItem = (todo, showNames) => (
     <TaskItem
