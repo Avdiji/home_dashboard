@@ -1,0 +1,42 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.controls {
+  display: flex;
+  gap: 4px;
+}
+
+.btn,
+.arrow {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.arrow {
+  padding: 6px 10px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.btn:hover,
+.arrow:hover {
+  border-color: var(--accent);
+  background: var(--panel-2);
+}

@@ -8,7 +8,6 @@ export default function AssignPicker({
   placeholder = "Assign members",
 }) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const ref = useRef(null);
 
   useEffect(() => {
@@ -23,10 +22,6 @@ export default function AssignPicker({
   const selectedNames = persons
     .filter((p) => selected.has(p.id))
     .map((p) => p.name);
-  const q = query.trim().toLowerCase();
-  const list = q
-    ? persons.filter((p) => p.name.toLowerCase().includes(q))
-    : persons;
 
   const label =
     selectedNames.length === 0
@@ -47,15 +42,8 @@ export default function AssignPicker({
       </button>
       {open && (
         <div className={classes.popover}>
-          <input
-            className={classes.search}
-            placeholder="Search…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoFocus
-          />
           <ul className={classes.list}>
-            {list.map((p) => {
+            {persons.map((p) => {
               const on = selected.has(p.id);
               return (
                 <li key={p.id}>
@@ -70,7 +58,7 @@ export default function AssignPicker({
                 </li>
               );
             })}
-            {list.length === 0 && <li className={classes.empty}>No members</li>}
+            {persons.length === 0 && <li className={classes.empty}>No members</li>}
           </ul>
         </div>
       )}
