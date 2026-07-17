@@ -110,7 +110,10 @@ Frequency reuses `core/frequency.js` (once/daily/weekly/monthly).
 - Three views: **month** (7×6 grid, "+N more"), **week** (7 day-columns, timed
   chips), **day** (single list of event cards). Default view is **day**.
 - **Today highlight**: accent-2 border + filled accent-2 day-number circle (month
-  /week) + "Today" pill (day). Today does **not** change card background color.
+  /week); "Today" pill (day). The day view panel uses the same `Card` styling as
+  other features (`--line-strong` border + `--shadow-card`) and does **not** get an
+  accent-2 border on today — only the pill marks it. Today never changes card
+  background color.
 - **Event form** (modal): title, location, start/end (stacked vertically on all
   breakpoints), members via `AssignPicker`, repeat, description. Edit mode adds a
   Delete button; new vs edit decided by whether an `event` prop is passed. No
