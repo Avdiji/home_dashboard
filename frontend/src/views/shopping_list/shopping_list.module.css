@@ -1,0 +1,32 @@
+.view {
+  padding: 24px;
+}
+
+.page_title {
+  margin: 0 0 20px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.page_sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.add_list {
+  margin-top: 20px;
+}
+
+@media (--mobile) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

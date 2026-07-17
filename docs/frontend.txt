@@ -34,7 +34,7 @@ src/
 │   ├── NavRail.tsx / .module.css
 │   └── PersonDot.tsx / .module.css
 │
-├── lib/
+├── core/
 │   ├── api.ts                  # fetch wrapper, returns raw DTOs
 │   ├── ws.ts
 │   │
