@@ -53,7 +53,7 @@ export default function ShoppingList() {
   return (
     <div className={classes.view}>
       <h1 className={classes.page_title}>
-        Lists
+        Shopping List
         <div className={classes.page_sub}>Shopping and shared lists</div>
       </h1>
 
