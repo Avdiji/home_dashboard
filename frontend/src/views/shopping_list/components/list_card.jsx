@@ -7,7 +7,6 @@ import classes from "./list_card.module.css";
 export default function ListCard(props) {
   const {
     list,
-    remaining,
     onToggleItem,
     onRemoveItem,
     onUpdateTitle,
@@ -26,7 +25,7 @@ export default function ListCard(props) {
           aria-label="List title"
         />
       }
-      badge={`${remaining(list)} left`}
+      badge={`${list.remainingItems} left`}
       headerActions={
         <span
           className={classes.list_remove}

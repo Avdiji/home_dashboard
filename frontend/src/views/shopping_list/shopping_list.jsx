@@ -1,11 +1,11 @@
 import { useState } from "react";
 import AddButton from "../../components/buttons/add_button";
-import { ShoppingList as ShoppingListModel } from "../../core/models/shopping_list";
+import { ShoppingListDTO } from "../../core/dto/shopping_list.dto";
 import ListCard from "./components/list_card";
 import classes from "./shopping_list.module.css";
 
 const SEED_LISTS = [
-  new ShoppingListModel({
+  new ShoppingListDTO({
     id: 1,
     title: "Groceries",
     items: [
@@ -15,29 +15,27 @@ const SEED_LISTS = [
       { id: 5, itemName: "Pasta", is_done: false },
       { id: 6, itemName: "Tomatoes", is_done: false },
     ],
-  }),
-  new ShoppingListModel({
+  }).toModel(),
+  new ShoppingListDTO({
     id: 2,
     title: "Hardware store",
     items: [
       { id: 1, itemName: "Screws M4", is_done: false },
       { id: 2, itemName: "Paintbrush", is_done: false },
     ],
-  }),
-  new ShoppingListModel({
+  }).toModel(),
+  new ShoppingListDTO({
     id: 3,
     title: "Edeka",
     items: [
       { id: 1, itemName: "Mie Noodles", is_done: false },
       { id: 2, itemName: "Tomatoes", is_done: true },
     ],
-  }),
+  }).toModel(),
 ];
 
 export default function ShoppingList() {
   const [lists] = useState(SEED_LISTS);
-
-  const remaining = (list) => list.items.filter((i) => !i.is_done).length;
 
   // noop — toggle wiring handled once backend lands
   const toggleItem = () => {};
@@ -64,7 +62,6 @@ export default function ShoppingList() {
           <ListCard
             key={list.id}
             list={list}
-            remaining={remaining}
             onToggleItem={toggleItem}
             onRemoveItem={removeItem}
             onUpdateTitle={updateTitle}
