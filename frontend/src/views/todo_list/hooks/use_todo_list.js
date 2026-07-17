@@ -9,8 +9,8 @@ const SEED_PERSONS = [
 ];
 
 const SEED_TODOS = [
-  new TodoDTO({ id: 1, label: "Math homework", is_done: false, personIds: [1] }).toModel(),
-  new TodoDTO({ id: 2, label: "Brush teeth", is_done: false, personIds: [1, 3] }).toModel(),
+  new TodoDTO({ id: 1, label: "Math homework", is_done: true, personIds: [1] }).toModel(),
+  new TodoDTO({ id: 2, label: "Brush teeth", is_done: true, personIds: [1, 3] }).toModel(),
   new TodoDTO({ id: 3, label: "Tidy room", is_done: false, personIds: [1] }).toModel(),
   new TodoDTO({ id: 4, label: "Pay electricity bill", is_done: false, personIds: [2] }).toModel(),
   new TodoDTO({ id: 5, label: "Fix kitchen tap", is_done: true, personIds: [2] }).toModel(),

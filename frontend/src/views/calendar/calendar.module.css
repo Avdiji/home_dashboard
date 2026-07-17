@@ -23,7 +23,7 @@
   border: 0;
   border-radius: 8px;
   background: var(--accent-2);
-  color: #fff;
+  color: var(--on-accent);
   padding: 7px 14px;
   font: inherit;
   font-size: 13px;
