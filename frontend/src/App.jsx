@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Dashboard from "./views/dashboard/dashboard";
 
-import {CALENDAR_PATH, DASHBOARD_PATH, SHOPPING_PATH, TODO_PATH} from "./core/constants";
+import {CALENDAR_PATH, DASHBOARD_PATH, SHOPPING_PATH, TODO_PATH} from "./core/nav_config";
 import Calendar from "./views/calendar/calendar";
 import ShoppingList from "./views/shopping_list/shopping_list";
 import TodoList from "./views/todo_list/todo_list";

@@ -2,20 +2,6 @@
   box-sizing: border-box;
 }
 
-:root {
-  --bg: #f5f6fa;
-  --panel: #ffffff;
-  --panel-2: #eef0f5;
-  --ink: #1a1d24;
-  --muted: #6b7280;
-  --accent: #b3a2ff;
-  --accent-2: #2563eb;
-  --line: #e3e6ee;
-  --ok: #16a34a;
-  --warn: #ca8a04;
-  --danger: #dc2626;
-}
-
 html, body, #root {
   height: 100%;
 }

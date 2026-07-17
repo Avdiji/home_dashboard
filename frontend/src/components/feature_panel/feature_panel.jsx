@@ -1,10 +1,6 @@
 import { useState } from "react";
 import classes from "./feature_panel.module.css";
 
-import home_icon from "../../assets/icons/home.svg";
-import calendar_icon from "../../assets/icons/calendar.svg";
-import shopping_cart_icon from "../../assets/icons/shopping_cart.svg";
-import todo_list_icon from "../../assets/icons/todo_list.svg";
 import IconButton from "../buttons/icon_button";
 import {
   CALENDAR_PATH,
@@ -13,7 +9,7 @@ import {
   TODO_PATH,
 
   FEATURES,
-} from "../../core/constants";
+} from "../../core/nav_config";
 import { useNavigate } from "react-router-dom";
 
 export default function FeaturePanel() {
