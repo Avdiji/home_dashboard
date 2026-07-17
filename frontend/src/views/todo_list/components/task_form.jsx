@@ -1,16 +1,27 @@
 import { useState } from "react";
 import AddButton from "../../../components/buttons/add_button";
 import { FREQUENCIES } from "../../../core/frequency";
+import AssignPicker from "./assign_picker";
 import classes from "./task_form.module.css";
 
 export default function TaskForm({ persons, onAdd }) {
   const [label, setLabel] = useState("");
-  const [personId, setPersonId] = useState(persons[0]?.id ?? "");
+  const [assigned, setAssigned] = useState(() => new Set());
   const [frequency, setFrequency] = useState("none");
 
+  const toggleAssign = (id) => {
+    setAssigned((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const submit = () => {
-    onAdd({ label, personId, frequency });
+    onAdd({ label, personIds: [...assigned], frequency });
     setLabel("");
+    setAssigned(new Set());
   };
 
   return (
@@ -24,18 +35,11 @@ export default function TaskForm({ persons, onAdd }) {
           if (e.key === "Enter") submit();
         }}
       />
-      <select
-        className={classes.select}
-        value={personId}
-        onChange={(e) => setPersonId(Number(e.target.value))}
-        aria-label="Assign to"
-      >
-        {persons.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </select>
+      <AssignPicker
+        persons={persons}
+        selected={assigned}
+        onToggle={toggleAssign}
+      />
       <select
         className={classes.select}
         value={frequency}

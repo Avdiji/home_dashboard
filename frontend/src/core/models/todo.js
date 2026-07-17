@@ -1,9 +1,9 @@
 export class Todo {
-  constructor({ id, label, isDone = false, personId, frequency = "none" } = {}) {
+  constructor({ id, label, isDone = false, personIds = [], frequency = "none" } = {}) {
     this.id = id;
     this.label = label;
     this.isDone = Boolean(isDone);
-    this.personId = personId;
+    this.personIds = Array.isArray(personIds) ? personIds.slice() : [];
     this.frequency = frequency;
   }
 }

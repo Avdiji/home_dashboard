@@ -51,9 +51,19 @@
 }
 
 .who {
-  color: var(--muted);
-  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
   flex: 0 0 auto;
+}
+
+.name_chip {
+  color: var(--muted);
+  font-size: 11px;
+  background: var(--panel-2);
+  border-radius: 999px;
+  padding: 1px 7px;
 }
 
 .del {

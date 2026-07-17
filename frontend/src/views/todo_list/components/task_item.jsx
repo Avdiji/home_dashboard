@@ -5,7 +5,7 @@ const FREQ_LABEL = Object.fromEntries(
   FREQUENCIES.map((f) => [f.value, f.label])
 );
 
-export default function TaskItem({ todo, personName, onToggle, onRemove }) {
+export default function TaskItem({ todo, personNames, onToggle, onRemove }) {
   const done = todo.isDone;
   return (
     <li className={classes.item}>
@@ -23,7 +23,13 @@ export default function TaskItem({ todo, personName, onToggle, onRemove }) {
           <span className={classes.freq}>{FREQ_LABEL[todo.frequency]}</span>
         )}
       </span>
-      <span className={classes.who}>{personName}</span>
+      <span className={classes.who}>
+        {personNames.map((n) => (
+          <span key={n} className={classes.name_chip}>
+            {n}
+          </span>
+        ))}
+      </span>
       <span className={classes.del} title="Remove" onClick={onRemove}>
         ✕
       </span>

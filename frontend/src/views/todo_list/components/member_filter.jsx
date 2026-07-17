@@ -2,11 +2,11 @@ import classes from "./member_filter.module.css";
 
 export default function MemberFilter({
   persons,
-  selectedMember,
+  activeFilters,
   onToggle,
   onAll,
 }) {
-  const allActive = selectedMember == null;
+  const allActive = activeFilters.size === 0;
 
   return (
     <div className={classes.filter}>
@@ -17,7 +17,7 @@ export default function MemberFilter({
         All
       </button>
       {persons.map((p) => {
-        const on = selectedMember === p.id;
+        const on = activeFilters.has(p.id);
         return (
           <button
             key={p.id}

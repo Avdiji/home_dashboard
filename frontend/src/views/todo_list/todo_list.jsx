@@ -14,36 +14,39 @@ const SEED_PERSONS = [
 ];
 
 const SEED_TODOS = [
-  new TodoDTO({ id: 1, label: "Math homework", is_done: false, personId: 1, frequency: "none" }).toModel(),
-  new TodoDTO({ id: 2, label: "Brush teeth", is_done: false, personId: 1, frequency: "daily" }).toModel(),
-  new TodoDTO({ id: 3, label: "Tidy room", is_done: false, personId: 1, frequency: "weekly" }).toModel(),
-  new TodoDTO({ id: 4, label: "Pay electricity bill", is_done: false, personId: 2, frequency: "none" }).toModel(),
-  new TodoDTO({ id: 5, label: "Fix kitchen tap", is_done: true, personId: 2, frequency: "none" }).toModel(),
-  new TodoDTO({ id: 6, label: "Clean room", is_done: false, personId: 3, frequency: "weekly" }).toModel(),
-  new TodoDTO({ id: 7, label: "Pick up parcel", is_done: false, personId: 3, frequency: "none" }).toModel(),
+  new TodoDTO({ id: 1, label: "Math homework", is_done: false, personIds: [1], frequency: "none" }).toModel(),
+  new TodoDTO({ id: 2, label: "Brush teeth", is_done: false, personIds: [1, 3], frequency: "daily" }).toModel(),
+  new TodoDTO({ id: 3, label: "Tidy room", is_done: false, personIds: [1], frequency: "weekly" }).toModel(),
+  new TodoDTO({ id: 4, label: "Pay electricity bill", is_done: false, personIds: [2], frequency: "none" }).toModel(),
+  new TodoDTO({ id: 5, label: "Fix kitchen tap", is_done: true, personIds: [2], frequency: "none" }).toModel(),
+  new TodoDTO({ id: 6, label: "Clean room", is_done: false, personIds: [3, 1], frequency: "weekly" }).toModel(),
+  new TodoDTO({ id: 7, label: "Pick up parcel", is_done: false, personIds: [3], frequency: "none" }).toModel(),
 ];
 
 export default function TodoList() {
   const [todos] = useState(SEED_TODOS);
   const [persons] = useState(SEED_PERSONS);
-  const [selectedMember, setSelectedMember] = useState(null);
+  const [activeFilters, setActiveFilters] = useState(() => new Set());
 
   // noop — toggle wiring handled once backend lands
-  const toggleTodo = () => {};
+  const toggleTodo = (todoId) => {};
   // noop — remove todo wiring handled once backend lands
-  const removeTodo = () => {};
+  const removeTodo = (todoId) => {};
   // noop — add todo wiring handled once backend lands
-  const addTodo = () => {};
+  const addTodo = ({ label, personIds, frequency }) => {};
 
   const toggleFilter = (personId) => {
-    setSelectedMember((cur) => (cur === personId ? null : personId));
+    const next = new Set(activeFilters);
+    if (next.has(personId)) next.delete(personId);
+    else next.add(personId);
+    setActiveFilters(next);
   };
-  const showAll = () => setSelectedMember(null);
+  const showAll = () => setActiveFilters(new Set());
 
   const filtered =
-    selectedMember == null
+    activeFilters.size === 0
       ? todos
-      : todos.filter((t) => t.personId === selectedMember);
+      : todos.filter((t) => t.personIds.some((id) => activeFilters.has(id)));
 
   const open = filtered.filter((t) => !t.isDone);
   const done = filtered.filter((t) => t.isDone);
@@ -57,7 +60,7 @@ export default function TodoList() {
         <TaskItem
           key={todo.id}
           todo={todo}
-          personName={personName(todo.personId)}
+          personNames={todo.personIds.map(personName)}
           onToggle={() => toggleTodo(todo.id)}
           onRemove={() => removeTodo(todo.id)}
         />
@@ -74,7 +77,7 @@ export default function TodoList() {
 
       <MemberFilter
         persons={persons}
-        selectedMember={selectedMember}
+        activeFilters={activeFilters}
         onToggle={toggleFilter}
         onAll={showAll}
       />
