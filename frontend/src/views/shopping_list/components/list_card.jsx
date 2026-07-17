@@ -58,7 +58,7 @@ export default function ListCard(props) {
           }}
         />
         <AddButton size="sm" onClick={() => onAddItem(list.id, draft)}>
-          Add
+          +
         </AddButton>
       </div>
     </Card>

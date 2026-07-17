@@ -1,4 +1,7 @@
 .add_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   border-radius: 8px;
   padding: 7px 12px;
@@ -34,5 +37,9 @@
 
 .sm {
   padding: 6px 10px;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 32px;
+  min-height: 32px;
 }

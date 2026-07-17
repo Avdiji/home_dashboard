@@ -14,7 +14,9 @@ export class ShoppingListDTO {
     return new ShoppingList({
       id: this.id,
       title: this.title,
-      items: this.items.map((i) => i.toModel()),
+      items: [...this.items]
+        .sort((a, b) => Number(a.is_done) - Number(b.is_done))
+        .map((i) => i.toModel()),
       remainingItems: this.items.filter((i) => !i.is_done).length,
     });
   }
