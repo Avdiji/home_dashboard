@@ -1,10 +1,10 @@
-import { useState } from "react";
 import Card from "../../components/cards/card";
 import { PersonDTO } from "../../core/dto/person.dto";
 import { TodoDTO } from "../../core/dto/todo.dto";
 import MemberFilter from "./components/member_filter";
 import TaskForm from "./components/task_form";
 import TaskItem from "./components/task_item";
+import useTodoList from "./hooks/use_todo_list";
 import classes from "./todo_list.module.css";
 
 const SEED_PERSONS = [
@@ -24,35 +24,18 @@ const SEED_TODOS = [
 ];
 
 export default function TodoList() {
-  const [todos] = useState(SEED_TODOS);
-  const [persons] = useState(SEED_PERSONS);
-  const [activeFilters, setActiveFilters] = useState(() => new Set());
-
-  // noop — toggle wiring handled once backend lands
-  const toggleTodo = (todoId) => {};
-  // noop — remove todo wiring handled once backend lands
-  const removeTodo = (todoId) => {};
-  // noop — add todo wiring handled once backend lands
-  const addTodo = ({ label, personIds }) => {};
-
-  const toggleFilter = (personId) => {
-    const next = new Set(activeFilters);
-    if (next.has(personId)) next.delete(personId);
-    else next.add(personId);
-    setActiveFilters(next);
-  };
-  const showAll = () => setActiveFilters(new Set());
-
-  const filtered =
-    activeFilters.size === 0
-      ? todos
-      : todos.filter((t) => t.personIds.some((id) => activeFilters.has(id)));
-
-  const open = filtered.filter((t) => !t.isDone);
-  const done = filtered.filter((t) => t.isDone);
-
-  const personName = (id) =>
-    persons.find((p) => p.id === id)?.name ?? "Unassigned";
+  const {
+    persons,
+    activeFilters,
+    toggleTodo,
+    removeTodo,
+    addTodo,
+    toggleFilter,
+    showAll,
+    open,
+    done,
+    personName,
+  } = useTodoList({ todos: SEED_TODOS, persons: SEED_PERSONS });
 
   const renderItem = (todo, showNames) => (
     <TaskItem

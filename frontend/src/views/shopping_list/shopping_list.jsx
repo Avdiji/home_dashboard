@@ -1,7 +1,7 @@
-import { useState } from "react";
 import AddButton from "../../components/buttons/add_button";
 import { ShoppingListDTO } from "../../core/dto/shopping_list.dto";
 import ListCard from "./components/list_card";
+import useShoppingList from "./hooks/use_shopping_list";
 import classes from "./shopping_list.module.css";
 
 const SEED_LISTS = [
@@ -35,20 +35,15 @@ const SEED_LISTS = [
 ];
 
 export default function ShoppingList() {
-  const [lists] = useState(SEED_LISTS);
-
-  // noop — toggle wiring handled once backend lands
-  const toggleItem = () => {};
-  // noop — remove item wiring handled once backend lands
-  const removeItem = () => {};
-  // noop — add item wiring handled once backend lands
-  const addItem = () => {};
-  // noop — update title wiring handled once backend lands
-  const updateTitle = () => {};
-  // noop — add list wiring handled once backend lands
-  const addList = () => {};
-  // noop — remove list wiring handled once backend lands
-  const removeList = () => {};
+  const {
+    lists,
+    toggleItem,
+    removeItem,
+    addItem,
+    updateTitle,
+    addList,
+    removeList,
+  } = useShoppingList({ lists: SEED_LISTS });
 
   return (
     <div className={classes.view}>
