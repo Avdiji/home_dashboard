@@ -1,0 +1,34 @@
+.form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.input {
+  flex: 1;
+  min-width: 160px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.select {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.input:focus,
+.select:focus {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
+}
