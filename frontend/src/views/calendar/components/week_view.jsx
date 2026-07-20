@@ -9,13 +9,14 @@ import {
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
 import { groupOccurrencesByDay, dayKey } from "../utils/group_by_day";
+import { DAYS_PER_WEEK } from "../../../core/constants";
 import EventChip from "./event_chip";
 import classes from "./week_view.module.css";
 
 export default function WeekView({ cursor, events, persons, onSelectOccurrence, onSelectDay }) {
   const days = useMemo(() => {
     const start = startOfWeek(cursor);
-    return Array.from({ length: 7 }, (_, i) => addDay(start, i));
+    return Array.from({ length: DAYS_PER_WEEK }, (_, i) => addDay(start, i));
   }, [cursor]);
 
   const rangeStart = startOfWeek(cursor);
@@ -49,7 +50,7 @@ export default function WeekView({ cursor, events, persons, onSelectOccurrence, 
                 className={classes.dayhead}
                 onClick={() => onSelectDay?.(day)}
               >
-                <span className={classes.wd}>{WEEKDAYS[(day.getDay() + 6) % 7]}</span>
+                <span className={classes.wd}>{WEEKDAYS[(day.getDay() + DAYS_PER_WEEK - 1) % DAYS_PER_WEEK]}</span>
                 <span className={classes.dnum}>{day.getDate()}</span>
               </button>
               <div className={classes.events}>

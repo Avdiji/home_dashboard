@@ -1,15 +1,21 @@
 import { formatTime24 } from "../../../core/utils/date_utils";
+import {
+  MS_PER_MINUTE,
+  MINUTES_PER_HOUR,
+  HOURS_PER_DAY,
+  TOMORROW_THRESHOLD_DAYS,
+} from "../../../core/constants";
 import EventCard from "../../../components/event_card/event_card";
 import classes from "./upcoming_card.module.css";
 
 const relative = (start, now) => {
-  const mins = (start.getTime() - now.getTime()) / 60000;
+  const mins = (start.getTime() - now.getTime()) / MS_PER_MINUTE;
   if (mins <= 0) return "now";
-  if (mins < 60) return `in ${Math.max(1, Math.round(mins))}m`;
-  const hours = mins / 60;
-  if (hours < 24) return `in ${Math.round(hours)}h`;
-  const days = hours / 24;
-  if (days < 2) return "tomorrow";
+  if (mins < MINUTES_PER_HOUR) return `in ${Math.max(1, Math.round(mins))}m`;
+  const hours = mins / MINUTES_PER_HOUR;
+  if (hours < HOURS_PER_DAY) return `in ${Math.round(hours)}h`;
+  const days = hours / HOURS_PER_DAY;
+  if (days < TOMORROW_THRESHOLD_DAYS) return "tomorrow";
   return `in ${Math.round(days)}d`;
 };
 

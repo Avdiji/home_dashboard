@@ -1,3 +1,4 @@
+import { SECONDS_PER_MINUTE } from "../../../core/constants";
 import classes from "./clock_card.module.css";
 
 const R_OUTER = 90;
@@ -7,7 +8,7 @@ const C_INNER = 2 * Math.PI * R_INNER;
 
 export default function ClockCard({ clock }) {
   const outerOffset = C_OUTER * (1 - clock.dayProgress / 100);
-  const innerOffset = C_INNER * (1 - Number(clock.seconds) / 60);
+  const innerOffset = C_INNER * (1 - Number(clock.seconds) / SECONDS_PER_MINUTE);
 
   return (
     <div className={classes.wrap}>

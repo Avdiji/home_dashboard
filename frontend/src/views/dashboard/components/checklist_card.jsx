@@ -1,7 +1,8 @@
+import { CHECKLIST_GLANCE_LIMIT } from "../../../core/constants";
 import classes from "./checklist_card.module.css";
 
-// View-only checklist glance for the dashboard. Up to 6 lists laid out
-// horizontally so the row fills the card width. Each cell shows the list title,
+// View-only checklist glance for the dashboard. Up to CHECKLIST_GLANCE_LIMIT lists
+// laid out horizontally so the row fills the card width. Each cell shows the list title,
 // a progress bar (done/total), and the remaining count. The whole card is a
 // link to the checklist feature — no per-item interaction here (view-only).
 export default function ChecklistCard({ lists, onOpen }) {
@@ -24,7 +25,7 @@ export default function ChecklistCard({ lists, onOpen }) {
       onKeyDown={onKeyDown}
     >
       <div className={classes.grid}>
-        {lists.slice(0, 6).map((l) => (
+        {lists.slice(0, CHECKLIST_GLANCE_LIMIT).map((l) => (
           <div key={l.id} className={classes.cell}>
             <div className={classes.title}>{l.title}</div>
             <div className={classes.bar}>

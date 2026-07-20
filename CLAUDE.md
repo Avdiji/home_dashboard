@@ -3,10 +3,12 @@
 A shared family home dashboard. Single-page React app with four features behind a
 left feature panel: **Dashboard**, **Calendar**, **Checklist**, **Meal Plan**.
 
-The frontend is built before the backend. All data is seeded in the feature hook
-via DTOs; every backend-bound mutation is a **noop** that documents its call contract.
+The frontend is built before the backend. All entity data is seeded in
+`core/seeds/` (via DTOs) and held in centralized Zustand stores (`src/store/`);
+every backend-bound mutation is a **noop** that documents its call contract.
 When the backend lands, swap seeds for fetches and fill the noop bodies — the UI
-wiring already matches.
+wiring already matches. A later websocket stage will push store updates across
+clients.
 
 ## Stack
 
@@ -24,10 +26,20 @@ frontend/src/
     models/                    # plain model classes — camelCase app shape
     seeds/persons.js          # shared family roster (SEED_PERSONS) — cross-feature
     seeds/events.js           # shared family calendar events (SEED_EVENTS) — cross-feature
+    seeds/checklists.js       # shared checklist lists (SEED_LISTS) — cross-feature
+    seeds/recipes.js          # shared recipe library (SEED_RECIPES) — cross-feature
+    seeds/meals.js            # shared meal plan (SEED_MEALS) — cross-feature
     frequency.js              # recurrence/enum constants (calendar)
     utils/date_utils.js       # date math + formatting (shared)
     utils/weather_codes.js    # WMO weather code → { label, icon } (Open-Meteo)
     nav_config.jsx            # routes + FEATURES (feature panel config)
+    constants.jsx            # behavioral magic strings/numbers (timers, limits, state keys, API config)
+  store/                      # centralized entity state (Zustand) — one store per entity
+    persons_store.js          # usePersons — roster + addPerson/updatePerson/removePerson (noops)
+    events_store.js           # useEvents — events + addEvent/updateEvent/removeEvent (noops)
+    checklists_store.js       # useChecklists — lists + item/list noop actions
+    recipes_store.js          # useRecipes — recipes + addRecipe/updateRecipe/removeRecipe (noops)
+    meals_store.js            # useMeals — meals + addMeal/removeMeal (noops)
   components/                  # reusable UI (cards/card, buttons/add_button, buttons/icon_button, layout, feature_panel)
   theme/
     tokens.css                # design tokens (:root custom properties) — ALL colors live here
@@ -40,7 +52,7 @@ frontend/src/
     <feature>/
       <feature>.jsx           # thin view: hook + render (no logic, no seeds)
       <feature>.module.css
-      hooks/use_<feature>.js  # seeds + state + noops + derived logic
+      hooks/use_<feature>.js  # store selectors + feature-local UI state + noops + derived logic
       components/             # feature-local components
 ```
 
@@ -61,37 +73,66 @@ dir, NOT in `core/`. (Calendar's `view_modes.js` and `recurrence.js` are under
 - Arrays that must not leak identity (e.g. `personIds`) are `.slice()`-copied in
   both DTO and model constructors.
 
-### Seeds live in the hook, not the view
+### Entity state lives in the store, not the hook
 
-Each hook defines its `SEED_*` constants (constructed via
-`new XxxDTO({...}).toModel()`) at module scope and uses them as the initial value of
-its own `useState` calls. The hook takes **no arguments** — `useCalendar()`,
-`useChecklist()`. The view just destructures the return value
-and renders; it contains no `SEED_*`, no `useState`, no business logic. This keeps
-all per-feature data lifecycle (seed → state → derived → noops) in one place and
-makes the view a pure render. When the backend lands, replace the `SEED_*`
-constants with a fetch inside the hook (e.g. `useState(() => fetchEvents())` or an
-effect) — the view does not change.
+Shared entity state (`persons`, `events`, `checklists`, `recipes`, `meals`)
+lives in **`src/store/`** as one Zustand store per entity — the single source of
+truth every feature subscribes to. Each store is module-level (no provider
+tree), seeds its initial state from the matching `core/seeds/*` constant, and
+exposes the entity plus its noop action signatures. Feature hooks read entity
+state via selectors (`useEvents((s) => s.events)`) and delegate mutations to the
+store actions. This is what makes the dashboard (a view over the same events /
+lists / meals / recipes / persons) re-render when any feature mutates an entity
+— and is what a later websocket stage will plug into (a WS message just calls a
+store action / `set()`).
 
-**Exception — shared reference data:** the family member roster (`SEED_PERSONS`,
-Anna/Mark/Lena) lives in `core/seeds/persons.js`, not a feature hook, because the
-same members back every feature (calendar events, checklists, …). Each feature
-hook imports it and holds it in its own `useState` (so the future fetch swap is
-per-hook). The calendar events (`SEED_EVENTS`) likewise live in
-`core/seeds/events.js` and are imported by both `use_calendar` (its `events`
-state) and `use_dashboard` (the "upcoming" list is a view over the same events —
-clicking an upcoming card deep-links to that event's edit modal, so the
-dashboard must reference the real event ids). Per-feature data otherwise still
-seeds in its own hook.
+Feature-local UI state that no other feature cares about — form-open flags, the
+calendar's `view`/`cursor`, the checklist's `memberFilter`, the meal plan's
+`tab`, the dashboard's live `now` clock and `weather` fetch — still lives in the
+feature hook's own `useState`. Only cross-feature entity state is centralized.
+
+The hook still takes **no arguments** — `useCalendar()`, `useChecklist()`. The
+view just destructures the return value and renders; it contains no `SEED_*`,
+no `useState`, no business logic. The view is a pure render and does not change
+when the backend lands.
+
+### Seeds define initial store state
+
+The `SEED_*` constants (constructed via `new XxxDTO({...}).toModel()`) live in
+`core/seeds/` and are imported by the stores as the initial state value. They
+are the **only** initial-state source for entity state. When the backend lands,
+swap the store's initializer for a fetch (e.g. call a `load()` action on mount,
+or initialize from a fetch inside `create`) — the hooks and views do not change.
+
+All shared entities are cross-feature reference data, so all of them live in
+`core/seeds/` and feed a store:
+- `SEED_PERSONS` (`core/seeds/persons.js`) → `usePersons` — backs the dashboard
+  members section, the calendar event assignee picker, and the checklist list
+  assignee picker.
+- `SEED_EVENTS` (`core/seeds/events.js`) → `useEvents` — backs the calendar
+  (event CRUD) and the dashboard "upcoming" list (a view over the same events;
+  clicking an upcoming card deep-links to that event's edit modal, so the
+  dashboard references the real event ids).
+- `SEED_LISTS` (`core/seeds/checklists.js`) → `useChecklists` — backs the
+  checklist feature and the dashboard checklist glance.
+- `SEED_RECIPES` (`core/seeds/recipes.js`) → `useRecipes` — backs the meal plan
+  recipe library and the dashboard "today's dish" (resolves its recipe, so the
+  click deep-link lands on the real recipe id).
+- `SEED_MEALS` (`core/seeds/meals.js`) → `useMeals` — backs the meal plan
+  planned-dishes list and the dashboard "today's dish" (finds the meal whose
+  date is today).
 
 ### Noops document the call contract
 
 Backend-bound mutations are declared as noops **with their full parameter
 signature matching how they are actually called** — e.g.
-`const toggleItem = (listId, itemId) => {};`, `const addList = () => {};`.
+`toggleItem: (listId, itemId) => {}`, `addList: ({ title, personIds }) => {}`.
 The signature is the documentation; when the backend lands you fill the body and the
 call sites already line up. A `// noop — <thing> wiring handled once backend lands`
-comment precedes each.
+comment precedes each. Entity mutation noops now live on the Zustand stores
+(`src/store/*_store.js`); feature-local noops (if any) live in the hook. When the
+backend lands, the store action body fires the request and updates state (or a
+websocket push does) — every subscriber, including the dashboard, re-renders.
 
 ### One hook per feature (the `use_calendar` pattern)
 
@@ -161,7 +202,7 @@ only, no `Card` wrapper** — the mega panel is the only card.
   past midnight (23 → 01:00 next day, not `"25:00"` → `NaN:NaN`); the live
   fetch uses `forecast_days=2` so enough hours remain late at night.
 - **Upcoming**: `UpcomingCard` renders the next 3 calendar events (start `>= now`,
-  sorted, sliced to 3) **derived from the shared `SEED_EVENTS`** (not its own
+  sorted, sliced to 3) **derived from the shared `useEvents` store** (not its own
   seed) so a row click deep-links to that event's edit modal. Live relative-time
   label ("in 2h", "tomorrow", "in 3d") computed against the ticking `now`, plus
   member-initials chips. It is its own full-width section and is **prominent** —
@@ -172,32 +213,32 @@ only, no `Card` wrapper** — the mega panel is the only card.
   the `EventForm` for the matching event, then clears the state. Recurring events
   with a past base start are filtered out (no occurrence expansion in the
   dashboard — the backend fetch handles recurrence when it lands).
-- **Today's dish**: seeded in the hook (`SEED_TODAY_MEAL` + `SEED_TODAY_RECIPE`),
-  planned for today's date at module load so the demo always shows a dish. The
-  recipe id mirrors the meal plan's `SEED_RECIPES` (id 1 "Pasta Pomodoro") so the
-  click deep-link resolves. `todaysDish` is `{ label, recipe }` or `null`.
-  `DishCard` is a **distinct centered "recipe hero"** (deliberately not the
-  upcoming row style): a circular accent-tinted emoji tile (🍽️) + centered dish
-  name + pill badges (servings / minutes, when the recipe carries them) +
+- **Today's dish**: derived from the shared `useMeals` + `useRecipes` stores —
+  finds the meal whose `date` is today and resolves its `recipeId` against the
+  recipe library, so it tracks meal-plan mutations. `todaysDish` is
+  `{ label, recipe }` (label = recipe title when linked) or `null` when no meal
+  matches today. `DishCard` is a **distinct centered "recipe hero"** (deliberately
+  not the upcoming row style): a circular accent-tinted emoji tile (🍽️) + centered
+  dish name + pill badges (servings / minutes, when the recipe carries them) +
   description; or a muted "Nothing planned today" with the tile. **Clickable when
   it has a recipe** → `goToRecipe(recipeId)` navigates to `MEAL_PLAN_PATH` with
   `{ state: { editRecipeId } }`; `use_meal_plan` reads that state on mount and
   opens the `RecipeForm` for the matching recipe, then clears the state. A
   free-text dish (no `recipeId`) is not clickable.
-- **Members (roster CRUD)**: `persons` in `useState` (initialized from the shared
-  `SEED_PERSONS`). `addPerson({ name })`, `updatePerson(personId, { name })`,
-  `removePerson(personId)` are **noops with full signatures** — the backend is the
-  single source of truth, so roster mutations don't visually update until it lands
-  (same as item toggle / `addList` elsewhere). The signature is the spec for the
-  future backend call. **No PersonProvider by design**: calendar/checklist keep
-  their own seeded `SEED_PERSONS` until the backend unifies the rosters (the user's
-  call — "members will be fetched from the backend"). Editing members on the
-  dashboard does not propagate to calendar/checklist during the frontend-only phase.
-  The members UI is **deliberately subtle**: no header add-button — a muted "+ Add
-  member" text link at the list bottom; row remove (✕) is hover-reveal only
-  (muted → `--danger`), not an always-visible `RemoveButton` (the dashboard's
-  members rows use a local hover-reveal button, not the shared `RemoveButton`,
-  which stays always-visible for its other three sites).
+- **Members (roster CRUD)**: `persons` read from the shared `usePersons` store
+  (initialized from `SEED_PERSONS`). `addPerson({ name })`,
+  `updatePerson(personId, { name })`, `removePerson(personId)` are **noops with
+  full signatures** living on the persons store — the backend is the single source
+  of truth, so roster mutations don't visually update until it lands (same as item
+  toggle / `addList` elsewhere). The signature is the spec for the future backend
+  call. The roster is shared via the store, so calendar/checklist assignee
+  pickers read the same data — once the backend lands, a roster mutation
+  propagates to every feature (and, via the later websocket stage, to every
+  client). The members UI is **deliberately subtle**: no header add-button — a
+  muted "+ Add member" text link at the list bottom; row remove (✕) is
+  hover-reveal only (muted → `--danger`), not an always-visible `RemoveButton`
+  (the dashboard's members rows use a local hover-reveal button, not the shared
+  `RemoveButton`, which stays always-visible for its other three sites).
 - **`member_form`** (modal): single `name` field, mirrors the `event_form` /
   `recipe_form` modal pattern (`Modal` + `form_controls`). New vs edit decided by
   whether a `person` prop is passed. No Delete button in the form — removal is the
@@ -274,8 +315,8 @@ body, mirroring the calendar event form pattern. A **member filter** in the
 toolbar (multi-select toggle pills: All + each member) filters `visibleLists`
 to lists assigned to any selected member (empty selection = All) — pure
 client-side view state (a `Set` of member ids), not a backend mutation. The
-person roster is the shared `SEED_PERSONS` (see Architecture). Noop handlers
-take params matching the call sites
+person roster comes from the shared `usePersons` store (see Architecture). Noop
+handlers take params matching the call sites
 (`toggleItem(listId, itemId)`, `updateTitle(listId, title)`, `addItem(listId, label)`,
 `removeList(listId)`, `addList({ title, personIds })`, `toggleListAssignee(listId, personId)`).
 "+ New list" opens a modal (`list_form`) — title + member assignment via
@@ -428,10 +469,19 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
 ## Internal reasoning worth knowing
 
 - **Why hooks per feature**: keeps view components thin (hook + render) and
-  concentrates state/noops/derived data in one testable place. Seeds live in the
-  hook too, so the whole data lifecycle (seed → state → derived → noops) is in one
-  file and the view is pure render. When the backend lands, swap seeds for a fetch
-  inside the hook — the view stays untouched.
+  concentrates feature-local UI state/noops/derived data in one testable place.
+  Entity state lives in the centralized stores (`src/store/`), so the hook is now
+  a thin consumer (store selectors + feature-local UI state + derived views over
+  the store). The view is pure render. When the backend lands, swap the store's
+  seed initializer for a fetch — the hooks and views stay untouched.
+- **Why Zustand stores (no provider)**: entity state is shared across features
+  (the dashboard is a view over the calendar/checklist/meal-plan data), so it
+  must be a single source of truth every feature subscribes to. Zustand stores
+  are module-level singletons — no provider tree (keeps the "no PersonProvider"
+  spirit: no boilerplate at the app root) — and a selector subscription is what
+  makes the dashboard re-render when another feature mutates an entity. A later
+  websocket stage plugs in by calling a store action / `set()` on an incoming
+  push, which updates every subscriber in every client.
 - **Why Symbol view modes**: string literals invited the exact bug we hit —
   `calendar.jsx` still compared `view === "month"` after the type became a Symbol,
   so nothing rendered. Symbols force every compare site to use the named constant

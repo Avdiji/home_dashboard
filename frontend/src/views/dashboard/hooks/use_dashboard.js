@@ -1,45 +1,57 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { SEED_PERSONS } from "../../../core/seeds/persons";
-import { SEED_EVENTS } from "../../../core/seeds/events";
-import { SEED_LISTS } from "../../../core/seeds/checklists";
+import { usePersons } from "../../../store/persons_store";
+import { useEvents } from "../../../store/events_store";
+import { useChecklists } from "../../../store/checklists_store";
+import { useMeals } from "../../../store/meals_store";
+import { useRecipes } from "../../../store/recipes_store";
 import { CALENDAR_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH } from "../../../core/nav_config";
-import { RecipeDTO } from "../../../core/dto/recipe.dto";
-import { MealDTO } from "../../../core/dto/meal.dto";
 import { WeatherDTO } from "../../../core/dto/weather.dto";
 import {
   WEEKDAYS_LONG_SUN,
   formatDate,
   formatTime24,
+  MS_DAY,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
-
-// Demo recipe for today's dish (mirrors the meal plan seed: 2026-07-20 → Pasta
-// Pomodoro). Dashboard's own seed — converges with the meal plan once both fetch
-// from the backend.
-const SEED_TODAY_RECIPE = new RecipeDTO({
-  id: 1,
-  title: "Pasta Pomodoro",
-  description: "Quick weeknight pasta.",
-  ingredients: ["400g pasta", "1 can tomatoes", "garlic", "basil", "olive oil"],
-  servings: 4,
-  minutes: 25,
-}).toModel();
-
-// Date the seed dish is planned for = today at module load, so the demo always
-// shows a dish on the dashboard. Backend swap makes this a real fetch.
-const SEED_TODAY_MEAL = new MealDTO({
-  id: 1,
-  date: new Date().toISOString().slice(0, 10),
-  recipe_id: 1,
-  label: "",
-}).toModel();
+import {
+  CLOCK_TICK_MS,
+  WEATHER_REFETCH_MS,
+  UPCOMING_LIMIT,
+  UPCOMING_WINDOW_DAYS,
+  HOURLY_FORECAST_COUNT,
+  SECONDS_PER_MINUTE,
+  SECONDS_PER_HOUR,
+  SECONDS_PER_DAY,
+  GREETING_AFTERNOON_HOUR,
+  GREETING_EVENING_HOUR,
+  STATE_KEY_EDIT_EVENT_ID,
+  STATE_KEY_EVENT_START,
+  STATE_KEY_EDIT_RECIPE_ID,
+  OPEN_METEO_FORECAST_URL,
+  OPEN_METEO_CURRENT_FIELDS,
+  OPEN_METEO_HOURLY_FIELDS,
+  OPEN_METEO_DAILY_FIELDS,
+  OPEN_METEO_FORECAST_DAYS,
+} from "../../../core/constants";
 
 // Seeded weather fallback so the card always renders something even before
 // geolocation resolves (or if permission is denied / offline). Sunrise/sunset
 // are seeded relative to today; hours is a 4-step plausible hourly forecast.
+// Weather is dashboard-only lifecycle state (not a shared entity), so it stays
+// in this hook rather than the centralized store.
 const todayISO = new Date().toISOString().slice(0, 10);
-const seedHours = (startHour, temps, codes) =>
+// isDay for a seed hour = 1 when the hour falls between sunrise and sunset,
+// else 0 (night). Mirrors Open-Meteo's per-hour is_day so the hourly strip
+// shows moon icons after sunset instead of sun.
+const seedIsDay = (hourISO, sunriseISO, sunsetISO) => {
+  if (!sunriseISO || !sunsetISO) return 1;
+  const t = new Date(hourISO).getTime();
+  return t >= new Date(sunriseISO).getTime() && t < new Date(sunsetISO).getTime()
+    ? 1
+    : 0;
+};
+const seedHours = (startHour, temps, codes, sunriseISO, sunsetISO) =>
   temps.map((t, i) => {
     // Build via a Date so startHour + i rolls past midnight correctly
     // (startHour 23 + 2 -> 01:00 next day, not "25:00" -> NaN).
@@ -47,12 +59,16 @@ const seedHours = (startHour, temps, codes) =>
     d.setHours(startHour + i);
     const pad = (n) => String(n).padStart(2, "0");
     const dateISO = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const time = `${dateISO}T${pad(d.getHours())}:00`;
     return {
-      time: `${dateISO}T${pad(d.getHours())}:00`,
+      time,
       temperature: t,
       weatherCode: codes[i],
+      isDay: seedIsDay(time, sunriseISO, sunsetISO),
     };
   });
+const SEED_SUNRISE = `${todayISO}T06:24`;
+const SEED_SUNSET = `${todayISO}T21:08`;
 const SEED_WEATHER = new WeatherDTO({
   temperature_2m: 18,
   apparent_temperature: 17,
@@ -60,46 +76,60 @@ const SEED_WEATHER = new WeatherDTO({
   weather_code: 2,
   wind_speed_10m: 12,
   is_day: 1,
-  sunrise: `${todayISO}T06:24`,
-  sunset: `${todayISO}T21:08`,
-  hours: seedHours(new Date().getHours() + 1, [18, 19, 20, 19], [2, 1, 0, 0]),
+  sunrise: SEED_SUNRISE,
+  sunset: SEED_SUNSET,
+  hours: seedHours(
+    new Date().getHours() + 1,
+    [18, 19, 20, 19],
+    [2, 1, 0, 0],
+    SEED_SUNRISE,
+    SEED_SUNSET,
+  ),
 }).toModel();
-
-// Upcoming events = the next 3 actual occurrences (start >= now), derived from
-// the shared SEED_EVENTS so a row click deep-links to that event's edit modal in
-// the calendar. Recurring events are expanded via recurrence so a daily/weekly
-// event with a past base start still contributes its next occurrence. Computed
-// live against the ticking `now` (useMemo) so when the clock passes an event's
-// start it drops off and the next one appears — the view updates as time moves.
-const personById = new Map(SEED_PERSONS.map((p) => [p.id, p]));
-const MS_DAY_UP = 86400000;
 
 const greeting = (d) => {
   const h = d.getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
+  if (h < GREETING_AFTERNOON_HOUR) return "Good morning";
+  if (h < GREETING_EVENING_HOUR) return "Good afternoon";
   return "Good evening";
 };
 
 export default function useDashboard() {
+  // Entity state lives in the centralized stores — the dashboard is a view
+  // over the same persons/events/checklists/meals/recipes the other features
+  // mutate, so it re-renders when any of them changes (once the backend lands
+  // and the noop actions fill in). Noop action signatures come from the store.
+  const persons = usePersons((s) => s.persons);
+  const addPerson = usePersons((s) => s.addPerson);
+  const updatePerson = usePersons((s) => s.updatePerson);
+  const removePerson = usePersons((s) => s.removePerson);
+
+  const events = useEvents((s) => s.events);
+  const lists = useChecklists((s) => s.lists);
+  const meals = useMeals((s) => s.meals);
+  const recipes = useRecipes((s) => s.recipes);
+
   // Live clock — first ticking timer in the app. Ticks every second so the
   // seconds readout, day-progress bar and upcoming relative times stay live.
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
+    const id = setInterval(() => setNow(new Date()), CLOCK_TICK_MS);
     return () => clearInterval(id);
   }, []);
 
   const clock = useMemo(() => {
     const secs = now.getSeconds();
-    const elapsed = now.getHours() * 3600 + now.getMinutes() * 60 + secs;
+    const elapsed =
+      now.getHours() * SECONDS_PER_HOUR +
+      now.getMinutes() * SECONDS_PER_MINUTE +
+      secs;
     return {
       time: formatTime24(now),
       seconds: String(secs).padStart(2, "0"),
       weekday: WEEKDAYS_LONG_SUN[now.getDay()],
       date: formatDate(now),
       greeting: greeting(now),
-      dayProgress: (elapsed / 86400) * 100,
+      dayProgress: (elapsed / SECONDS_PER_DAY) * 100,
     };
   }, [now]);
 
@@ -114,27 +144,28 @@ export default function useDashboard() {
 
   const fetchWeather = useCallback((latitude, longitude) => {
     const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
+      `${OPEN_METEO_FORECAST_URL}?latitude=${latitude}` +
       `&longitude=${longitude}` +
-      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day` +
-      `&hourly=temperature_2m,weather_code&forecast_days=2` +
-      `&daily=sunrise,sunset&timezone=auto`;
+      `&current=${OPEN_METEO_CURRENT_FIELDS}` +
+      `&hourly=${OPEN_METEO_HOURLY_FIELDS}&forecast_days=${OPEN_METEO_FORECAST_DAYS}` +
+      `&daily=${OPEN_METEO_DAILY_FIELDS}&timezone=auto`;
     fetch(url)
       .then((r) => r.json())
       .then((res) => {
         if (!res?.current) return;
-        // Extract the next 4 hourly entries starting at the current hour.
+        // Extract the next HOURLY_FORECAST_COUNT entries starting at the current hour.
         const hours = [];
         const h = res?.hourly;
         if (h?.time && h.temperature_2m && h.weather_code) {
           const nowMs = Date.now();
           const startIdx = h.time.findIndex((t) => new Date(t).getTime() >= nowMs);
           const from = startIdx < 0 ? 0 : startIdx;
-          for (let i = from; i < Math.min(from + 4, h.time.length); i++) {
+          for (let i = from; i < Math.min(from + HOURLY_FORECAST_COUNT, h.time.length); i++) {
             hours.push({
               time: h.time[i],
               temperature: h.temperature_2m[i],
               weatherCode: h.weather_code[i],
+              isDay: h.is_day?.[i],
             });
           }
         }
@@ -168,28 +199,43 @@ export default function useDashboard() {
     const id = setInterval(() => {
       const c = coordsRef.current;
       if (c) fetchWeather(c.latitude, c.longitude);
-    }, 15 * 60 * 1000);
+    }, WEATHER_REFETCH_MS);
     return () => clearInterval(id);
   }, [fetchWeather]);
 
-  // Today's planned dish (seeded). null when no meal matches today.
+  // personById — derived from the store roster so it stays in sync as members
+  // change (once the backend lands). Used to resolve the person chips on
+  // upcoming event rows.
+  const personById = useMemo(
+    () => new Map(persons.map((p) => [p.id, p])),
+    [persons],
+  );
+
+  // Today's planned dish — derived from the shared meals + recipes stores, so
+  // it tracks meal-plan mutations. Finds the meal whose date is today; if it
+  // links to a recipe, resolves the recipe (label = recipe title, clickable →
+  // deep-link). A free-text dish (no recipeId) is plain text, not clickable.
+  // null when no meal matches today.
   const todaysDish = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
-    if (SEED_TODAY_MEAL.date !== today) return null;
-    if (SEED_TODAY_MEAL.recipeId != null) {
-      return { label: SEED_TODAY_RECIPE.title, recipe: SEED_TODAY_RECIPE };
+    const meal = meals.find((m) => m.date === today);
+    if (!meal) return null;
+    if (meal.recipeId != null) {
+      const recipe = recipes.find((r) => r.id === meal.recipeId);
+      if (recipe) return { label: recipe.title, recipe };
     }
-    return { label: SEED_TODAY_MEAL.label, recipe: null };
-  }, []);
+    return { label: meal.label, recipe: null };
+  }, [meals, recipes]);
 
   // Upcoming events — next 3 occurrences starting at/after `now`, recomputed
-  // every tick so past events drop off and later ones roll in. expandAll over a
-  // 90-day forward window is enough to cover monthly recurrences; we slice 3.
+  // every tick so past events drop off and later ones roll in. Read from the
+  // shared events store so a calendar mutation reflects here too. expandAll
+  // over a 90-day forward window is enough to cover monthly recurrences.
   const upcoming = useMemo(() => {
     const from = now;
-    const to = new Date(now.getTime() + 90 * MS_DAY_UP);
-    return expandAll(SEED_EVENTS, from, to)
-      .slice(0, 3)
+    const to = new Date(now.getTime() + UPCOMING_WINDOW_DAYS * MS_DAY);
+    return expandAll(events, from, to)
+      .slice(0, UPCOMING_LIMIT)
       .map((occ) => ({
         id: occ.event.id,
         title: occ.event.title,
@@ -200,7 +246,7 @@ export default function useDashboard() {
           .map((id) => personById.get(id))
           .filter(Boolean),
       }));
-  }, [now]);
+  }, [now, events, personById]);
 
   // Deep-link navigation: clicking an upcoming row / the dish jumps to the
   // owning feature and opens its edit modal (the target view reads the state
@@ -209,43 +255,42 @@ export default function useDashboard() {
   const navigate = useNavigate();
   const goToEvent = (eventId, start) =>
     navigate(CALENDAR_PATH, {
-      state: { editEventId: eventId, eventStart: start.toISOString() },
+      state: {
+        [STATE_KEY_EDIT_EVENT_ID]: eventId,
+        [STATE_KEY_EVENT_START]: start.toISOString(),
+      },
     });
   const goToRecipe = (recipeId) =>
-    navigate(MEAL_PLAN_PATH, { state: { editRecipeId: recipeId } });
+    navigate(MEAL_PLAN_PATH, {
+      state: { [STATE_KEY_EDIT_RECIPE_ID]: recipeId },
+    });
   const goToChecklist = () => navigate(CHECKLIST_PATH);
 
-  // Checklist glance — view-only summary of the shared SEED_LISTS: each list's
-  // title + remaining/total + done pct (drives a progress bar). Clicking the
-  // card navigates to the checklist feature. No mutations here — the checklist
-  // is the source of truth.
-  const checklists = SEED_LISTS.map((l) => {
-    const total = l.items.length;
-    const done = total - l.remainingItems;
-    return {
-      id: l.id,
-      title: l.title,
-      total,
-      done,
-      remaining: l.remainingItems,
-      pct: total ? Math.round((done / total) * 100) : 0,
-    };
-  });
+  // Checklist glance — view-only summary of the shared lists store: each
+  // list's title + remaining/total + done pct (drives a progress bar). Read
+  // from the store so it tracks checklist mutations. Clicking the card
+  // navigates to the checklist feature. No mutations here.
+  const checklists = useMemo(
+    () =>
+      lists.map((l) => {
+        const total = l.items.length;
+        const done = total - l.remainingItems;
+        return {
+          id: l.id,
+          title: l.title,
+          total,
+          done,
+          remaining: l.remainingItems,
+          pct: total ? Math.round((done / total) * 100) : 0,
+        };
+      }),
+    [lists],
+  );
 
-  // Members — the backend is the single source of truth, so roster mutations are
-  // noops with full signatures (the spec for the future backend call). The list
-  // won't visually update until the backend lands — same as item toggle / addList
-  // elsewhere. Calendar/checklist keep their own seeded SEED_PERSONS until the
-  // backend unifies the rosters.
-  const [persons] = useState(SEED_PERSONS);
-
-  // noop — add person wiring handled once backend lands
-  const addPerson = ({ name }) => {};
-  // noop — update person wiring handled once backend lands
-  const updatePerson = (personId, { name }) => {};
-  // noop — remove person wiring handled once backend lands
-  const removePerson = (personId) => {};
-
+  // Members — roster mutations are noops with full signatures (the spec for
+  // the future backend call). The list won't visually update until the
+  // backend lands — same as every other entity. The roster is shared via the
+  // persons store, so calendar/checklist pickers read the same data.
   const [memberFormOpen, setMemberFormOpen] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
   const openNewMember = () => {

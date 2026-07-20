@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { SEED_PERSONS } from "../../../core/seeds/persons";
-import { SEED_LISTS } from "../../../core/seeds/checklists";
+import { usePersons } from "../../../store/persons_store";
+import { useChecklists } from "../../../store/checklists_store";
 
 export default function useChecklist() {
-  const [lists] = useState(SEED_LISTS);
-  const [persons] = useState(SEED_PERSONS);
+  // Entity state lives in the centralized stores — the dashboard's checklist
+  // glance reads the same `lists`, so a checklist mutation (once the backend
+  // lands) propagates everywhere. Noop action signatures come from the store.
+  const lists = useChecklists((s) => s.lists);
+  const persons = usePersons((s) => s.persons);
+  const toggleItem = useChecklists((s) => s.toggleItem);
+  const removeItem = useChecklists((s) => s.removeItem);
+  const addItem = useChecklists((s) => s.addItem);
+  const updateTitle = useChecklists((s) => s.updateTitle);
+  const addList = useChecklists((s) => s.addList);
+  const removeList = useChecklists((s) => s.removeList);
+  const toggleListAssignee = useChecklists((s) => s.toggleListAssignee);
+
   const [memberFilter, setMemberFilter] = useState(() => new Set());
   const [listFormOpen, setListFormOpen] = useState(false);
 
@@ -15,21 +26,6 @@ export default function useChecklist() {
 
   const openNewList = () => setListFormOpen(true);
   const closeListForm = () => setListFormOpen(false);
-
-  // noop — toggle item wiring handled once backend lands
-  const toggleItem = (listId, itemId) => {};
-  // noop — remove item wiring handled once backend lands
-  const removeItem = (listId, itemId) => {};
-  // noop — add item wiring handled once backend lands
-  const addItem = (listId, label) => {};
-  // noop — update title wiring handled once backend lands
-  const updateTitle = (listId, title) => {};
-  // noop — add list wiring handled once backend lands
-  const addList = ({ title, personIds }) => {};
-  // noop — remove list wiring handled once backend lands
-  const removeList = (listId) => {};
-  // noop — assign member wiring handled once backend lands
-  const toggleListAssignee = (listId, personId) => {};
 
   return {
     lists,

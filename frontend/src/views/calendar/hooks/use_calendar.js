@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { SEED_EVENTS } from "../../../core/seeds/events";
-import { SEED_PERSONS } from "../../../core/seeds/persons";
+import { useEvents } from "../../../store/events_store";
+import { usePersons } from "../../../store/persons_store";
 import { CALENDAR_PATH } from "../../../core/nav_config";
+import {
+  STATE_KEY_EDIT_EVENT_ID,
+  STATE_KEY_EVENT_START,
+} from "../../../core/constants";
 import {
   formatMonthTitle,
   formatWeekTitle,
@@ -16,30 +20,20 @@ import {
 import { VIEW_DAY, VIEW_WEEK, VIEW_MONTH } from "../view_modes";
 
 export default function useCalendar() {
-  const [events] = useState(SEED_EVENTS);
-  const [persons] = useState(SEED_PERSONS);
+  // Entity state lives in the centralized stores — the dashboard's upcoming
+  // list reads the same `events`, so a calendar mutation (once the backend
+  // lands) propagates everywhere. Noop action signatures come from the store.
+  const events = useEvents((s) => s.events);
+  const persons = usePersons((s) => s.persons);
+  const addEvent = useEvents((s) => s.addEvent);
+  const updateEvent = useEvents((s) => s.updateEvent);
+  const removeEvent = useEvents((s) => s.removeEvent);
+
   const [view, setView] = useState(VIEW_DAY);
   const [cursor, setCursor] = useState(() => new Date());
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [formStart, setFormStart] = useState(null);
-
-  // noop — add wiring handled once backend lands
-  const addEvent = ({
-    title,
-    description,
-    location,
-    start,
-    end,
-    personIds,
-    frequency,
-  }) => {};
-  
-  // noop — update event wiring handled once backend lands
-  const updateEvent = (eventId, patch) => {};
-  
-  // noop — remove event wiring handled once backend lands
-  const removeEvent = (eventId) => {};
 
   const goPrev = () => {
     setCursor((c) =>
@@ -80,11 +74,11 @@ export default function useCalendar() {
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
-    const editEventId = location.state?.editEventId;
+    const editEventId = location.state?.[STATE_KEY_EDIT_EVENT_ID];
     if (editEventId == null) return;
     const found = events.find((e) => e.id === editEventId);
     if (found) {
-      const startIso = location.state?.eventStart;
+      const startIso = location.state?.[STATE_KEY_EVENT_START];
       if (startIso) setCursor(new Date(startIso));
       setEditingEvent(found);
       setFormStart(null);

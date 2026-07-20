@@ -7,7 +7,7 @@ export default function HourlyStrip({ hours }) {
   return (
     <div className={classes.strip}>
       {hours.map((h) => {
-        const { icon } = describeWeatherCode(h.weatherCode);
+        const { icon } = describeWeatherCode(h.weatherCode, h.isDay);
         const label = formatTime24(new Date(h.time));
         return (
           <div key={h.time} className={classes.cell}>
