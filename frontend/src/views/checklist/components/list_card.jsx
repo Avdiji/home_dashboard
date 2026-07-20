@@ -2,17 +2,20 @@ import { useState } from "react";
 import Card from "../../../components/cards/card";
 import AddButton from "../../../components/buttons/add_button";
 import RemoveButton from "../../../components/buttons/remove_button";
+import AssignPicker from "../../../components/assign_picker/assign_picker";
 import ListItem from "./list_item";
 import classes from "./list_card.module.css";
 
 export default function ListCard(props) {
   const {
     list,
+    persons,
     onToggleItem,
     onRemoveItem,
     onUpdateTitle,
     onRemoveList,
     onAddItem,
+    onToggleAssignee,
   } = props;
   const [draft, setDraft] = useState("");
 
@@ -31,6 +34,14 @@ export default function ListCard(props) {
         <RemoveButton title="Remove list" onClick={() => onRemoveList(list.id)} />
       }
     >
+      <div className={classes.assignRow}>
+        <AssignPicker
+          persons={persons}
+          selected={new Set(list.personIds)}
+          onToggle={(id) => onToggleAssignee(list.id, id)}
+        />
+      </div>
+
       <ul className={classes.items}>
         {list.items.map((item) => (
           <ListItem

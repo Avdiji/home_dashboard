@@ -22,6 +22,7 @@ frontend/src/
   core/                       # shared, feature-agnostic
     dto/                       # *DTO classes — snake_case backend shape
     models/                    # plain model classes — camelCase app shape
+    seeds/persons.js          # shared family roster (SEED_PERSONS) — cross-feature
     frequency.js              # recurrence/enum constants (calendar)
     utils/date_utils.js       # date math + formatting (shared)
     nav_config.jsx            # routes + FEATURES (feature panel config)
@@ -69,6 +70,13 @@ all per-feature data lifecycle (seed → state → derived → noops) in one pla
 makes the view a pure render. When the backend lands, replace the `SEED_*`
 constants with a fetch inside the hook (e.g. `useState(() => fetchEvents())` or an
 effect) — the view does not change.
+
+**Exception — shared reference data:** the family member roster (`SEED_PERSONS`,
+Anna/Mark/Lena) lives in `core/seeds/persons.js`, not a feature hook, because the
+same members back every feature (calendar events, checklists, …). Each feature
+hook imports it and holds it in its own `useState` (so the future fetch swap is
+per-hook). This is the only cross-feature seed; per-feature data still seeds in
+its own hook.
 
 ### Noops document the call contract
 
@@ -129,10 +137,20 @@ Frequency reuses `core/frequency.js` (once/daily/weekly/monthly).
 
 ### Checklist (`views/checklist/`)
 
-Multiple named lists, each a `Card` with an editable title input, checkable items,
-add-item row, and remove-list. Noop handlers take params matching the call sites
+Multiple named lists, each a `Card` with an editable title input, member
+assignment, checkable items, add-item row, and remove-list. A list carries
+`personIds[]` (members assigned to it) — assigned via `AssignPicker` in the card
+body, mirroring the calendar event form pattern. A **member filter** in the
+toolbar (multi-select toggle pills: All + each member) filters `visibleLists`
+to lists assigned to any selected member (empty selection = All) — pure
+client-side view state (a `Set` of member ids), not a backend mutation. The
+person roster is the shared `SEED_PERSONS` (see Architecture). Noop handlers
+take params matching the call sites
 (`toggleItem(listId, itemId)`, `updateTitle(listId, title)`, `addItem(listId, label)`,
-`removeList(listId)`, `addList()`).
+`removeList(listId)`, `addList({ title, personIds })`, `toggleListAssignee(listId, personId)`).
+"+ New list" opens a modal (`list_form`) — title + member assignment via
+`AssignPicker`, Save disabled without a title — mirroring the calendar/meal-plan
+modal pattern (form open state `listFormOpen` in the hook).
 
 ### Meal Plan (`views/meal_plan/`)
 

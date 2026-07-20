@@ -2,6 +2,46 @@
   padding: 24px;
 }
 
-.add_list {
-  margin-bottom: 20px;
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+.toolbar_right {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.filter {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.filterBtn {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filterBtn:hover {
+  background: var(--panel-2);
+}
+
+.filterBtn.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
 }

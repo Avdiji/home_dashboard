@@ -7,10 +7,14 @@ export default function Modal({
   saveDisabled = false,
   onDelete,
   children,
+  className,
 }) {
   return (
     <div className={classes.overlay} onClick={onClose}>
-      <div className={classes.dialog} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${classes.dialog}${className ? ` ${className}` : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className={classes.title}>{title}</h2>
         {children}
         <div className={classes.actions}>

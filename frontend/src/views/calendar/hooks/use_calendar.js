@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { PersonDTO } from "../../../core/dto/person.dto";
 import { EventDTO } from "../../../core/dto/event.dto";
+import { SEED_PERSONS } from "../../../core/seeds/persons";
 import {
   FREQUENCY_NONE,
   FREQUENCY_DAILY,
@@ -18,12 +18,6 @@ import {
   addMonth,
 } from "../../../core/utils/date_utils";
 import { VIEW_DAY, VIEW_WEEK, VIEW_MONTH } from "../view_modes";
-
-const SEED_PERSONS = [
-  new PersonDTO({ id: 1, name: "Anna" }).toModel(),
-  new PersonDTO({ id: 2, name: "Mark" }).toModel(),
-  new PersonDTO({ id: 3, name: "Lena" }).toModel(),
-];
 
 const today0 = new Date();
 const at = (day, h, m = 0) => {

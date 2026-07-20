@@ -22,6 +22,10 @@
   padding: 0;
 }
 
+.assignRow {
+  margin-bottom: 8px;
+}
+
 .add_row {
   display: flex;
   gap: 8px;
