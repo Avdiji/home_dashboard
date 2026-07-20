@@ -1,3 +1,4 @@
+import RemoveButton from "../../../components/buttons/remove_button";
 import classes from "./list_item.module.css";
 
 export default function ListItem(props) {
@@ -17,9 +18,7 @@ export default function ListItem(props) {
       >
         {item.itemName}
       </span>
-      <span className={classes.del} title="Remove item" onClick={onRemove}>
-        ✕
-      </span>
+      <RemoveButton title="Remove item" size="sm" onClick={onRemove} />
     </li>
   );
 }

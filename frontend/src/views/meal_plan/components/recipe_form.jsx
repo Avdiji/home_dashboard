@@ -1,12 +1,14 @@
 import { useState } from "react";
+import Modal from "../../../components/modal/modal";
+import controls from "../../../components/forms/form_controls.module.css";
 import classes from "./recipe_form.module.css";
 
 export default function RecipeForm({ recipe = null, onClose, onSave, onUpdate, onDelete }) {
   const [title, setTitle] = useState(recipe?.title ?? "");
   const [description, setDescription] = useState(recipe?.description ?? "");
   const [ingredients, setIngredients] = useState((recipe?.ingredients ?? []).join("\n"));
-  const [servings, setServings] = useState(recipe?.servings ?? 0);
-  const [minutes, setMinutes] = useState(recipe?.minutes ?? 0);
+  const [servings, setServings] = useState(recipe?.servings ?? "");
+  const [minutes, setMinutes] = useState(recipe?.minutes ?? "");
 
   const payload = () => ({
     title: title.trim(),
@@ -15,8 +17,8 @@ export default function RecipeForm({ recipe = null, onClose, onSave, onUpdate, o
       .split("\n")
       .map((s) => s.trim())
       .filter(Boolean),
-    servings: Number(servings) || 0,
-    minutes: Number(minutes) || 0,
+    servings: servings === "" ? null : Number(servings) || null,
+    minutes: minutes === "" ? null : Number(minutes) || null,
   });
 
   const submit = () => {
@@ -32,79 +34,69 @@ export default function RecipeForm({ recipe = null, onClose, onSave, onUpdate, o
   };
 
   return (
-    <div className={classes.overlay} onClick={onClose}>
-      <div className={classes.dialog} onClick={(e) => e.stopPropagation()}>
-        <h2 className={classes.title}>{recipe ? "Edit recipe" : "New recipe"}</h2>
+    <Modal
+      title={recipe ? "Edit recipe" : "New recipe"}
+      onClose={onClose}
+      onSave={submit}
+      saveDisabled={!title.trim()}
+      onDelete={recipe ? remove : null}
+    >
+      <label className={controls.row}>
+        <span className={controls.lbl}>Title</span>
+        <input
+          className={controls.input}
+          value={title}
+          placeholder="Recipe name"
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </label>
 
-        <label className={classes.row}>
-          <span className={classes.lbl}>Title</span>
+      <div className={`${classes.meta} ${controls.gap_above}`}>
+        <label className={controls.row}>
+          <span className={controls.lbl}>Servings</span>
           <input
-            className={classes.input}
-            value={title}
-            placeholder="Recipe name"
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </label>
-
-        <div className={`${classes.meta} ${classes.gap_above}`}>
-          <label className={classes.row}>
-            <span className={classes.lbl}>Servings</span>
-            <input
-              type="number"
-              min="0"
-              className={classes.input}
-              value={servings}
-              onChange={(e) => setServings(e.target.value)}
-            />
-          </label>
-          <label className={classes.row}>
-            <span className={classes.lbl}>Minutes</span>
-            <input
-              type="number"
-              min="0"
-              className={classes.input}
-              value={minutes}
-              onChange={(e) => setMinutes(e.target.value)}
-            />
-          </label>
-        </div>
-
-        <label className={`${classes.row} ${classes.col} ${classes.gap_above}`}>
-          <span className={classes.lbl}>Description</span>
-          <textarea
-            className={classes.textarea}
-            value={description}
+            type="number"
+            min="0"
+            className={controls.input}
+            value={servings}
             placeholder="Optional"
-            rows={2}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setServings(e.target.value)}
           />
         </label>
-
-        <label className={`${classes.row} ${classes.col}`}>
-          <span className={classes.lbl}>Ingredients</span>
-          <textarea
-            className={classes.textarea}
-            value={ingredients}
-            placeholder="One per line"
-            rows={5}
-            onChange={(e) => setIngredients(e.target.value)}
+        <label className={controls.row}>
+          <span className={controls.lbl}>Minutes</span>
+          <input
+            type="number"
+            min="0"
+            className={controls.input}
+            value={minutes}
+            placeholder="Optional"
+            onChange={(e) => setMinutes(e.target.value)}
           />
         </label>
-
-        <div className={classes.actions}>
-          {recipe && (
-            <button type="button" className={classes.delete} onClick={remove}>
-              Delete
-            </button>
-          )}
-          <div className={classes.actions_right}>
-            <button type="button" className={classes.cancel} onClick={onClose}>Cancel</button>
-            <button type="button" className={classes.save} onClick={submit} disabled={!title.trim()}>
-              Save
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
+
+      <label className={`${controls.row} ${controls.col} ${controls.gap_above}`}>
+        <span className={controls.lbl}>Description</span>
+        <textarea
+          className={controls.textarea}
+          value={description}
+          placeholder="Optional"
+          rows={2}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </label>
+
+      <label className={`${controls.row} ${controls.col}`}>
+        <span className={controls.lbl}>Ingredients</span>
+        <textarea
+          className={controls.textarea}
+          value={ingredients}
+          placeholder="One per line"
+          rows={5}
+          onChange={(e) => setIngredients(e.target.value)}
+        />
+      </label>
+    </Modal>
   );
 }

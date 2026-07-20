@@ -1,6 +1,8 @@
 export const MS_DAY = 86400000;
 
 export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// Sun-first (matches Date#getDay, 0=Sun). Used by meal row's weekday label.
+export const WEEKDAYS_SUN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const WEEKDAYS_LONG = [
   "Monday",
   "Tuesday",
@@ -132,4 +134,10 @@ export function formatDate(d) {
   const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
   const pad = (n) => String(n).padStart(2, "0");
   return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+}
+
+// Short weekday label, e.g. "Mon". Accepts a Date or an ISO "YYYY-MM-DD" string.
+export function formatWeekdayShort(d) {
+  const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
+  return WEEKDAYS_SUN[date.getDay()];
 }

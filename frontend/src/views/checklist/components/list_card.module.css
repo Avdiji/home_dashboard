@@ -16,17 +16,6 @@
   border-radius: 4px;
 }
 
-.list_remove {
-  margin-left: 8px;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.list_remove:hover {
-  color: var(--danger);
-}
-
 .items {
   list-style: none;
   margin: 0;

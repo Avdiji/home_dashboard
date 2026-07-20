@@ -1,0 +1,61 @@
+/*
+  Shared form field CSS — consumed by the modal forms (calendar event_form,
+  meal_plan recipe_form + meal_form). Apply via className={controls.row} etc.
+  Class names are snake_case to match the repo's CSS-module convention.
+*/
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row.col {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.lbl {
+  width: 72px;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.row.col .lbl {
+  width: auto;
+}
+
+.input,
+.select,
+.textarea {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gap_above {
+  margin-top: 25px;
+}

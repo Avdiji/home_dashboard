@@ -1,12 +1,18 @@
 import PageHeader from "../../components/page_header/page_header";
 import AddButton from "../../components/buttons/add_button";
-import TabSwitcher from "./components/tab_switcher";
+import SegmentedControl from "../../components/segmented_control/segmented_control";
+import layout from "../../components/layout/layout.module.css";
 import RecipeCard from "./components/recipe_card";
 import MealRow from "./components/meal_row";
 import RecipeForm from "./components/recipe_form";
 import MealForm from "./components/meal_form";
 import useMealPlan from "./hooks/use_meal_plan";
 import classes from "./meal_plan.module.css";
+
+const TABS = [
+  { key: "planned", label: "Planned dishes", value: "planned" },
+  { key: "recipes", label: "Recipes", value: "recipes" },
+];
 
 export default function MealPlan() {
   const {
@@ -36,7 +42,7 @@ export default function MealPlan() {
       <PageHeader title="Meal Plan" subtitle="Recipes & planned dishes" />
 
       <div className={classes.toolbar}>
-        <TabSwitcher tab={tab} onChange={setTab} />
+        <SegmentedControl items={TABS} value={tab} onChange={setTab} />
         <div className={classes.toolbar_right}>
           {tab === "recipes" ? (
             <AddButton onClick={openNewRecipe}>+ New recipe</AddButton>
@@ -50,7 +56,7 @@ export default function MealPlan() {
 
       {tab === "recipes" ? (
         <section className={classes.block}>
-          <div className={classes.grid}>
+          <div className={layout.twoColGrid}>
             {recipes.map((r) => (
               <RecipeCard key={r.id} recipe={r} onOpen={() => openEditRecipe(r)} />
             ))}

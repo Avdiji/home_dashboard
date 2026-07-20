@@ -37,19 +37,3 @@
   color: var(--muted);
   text-decoration: line-through;
 }
-
-.del {
-  color: var(--muted);
-  cursor: pointer;
-  opacity: 0;
-  font-size: 14px;
-  flex: 0 0 auto;
-}
-
-.item:hover .del {
-  opacity: 1;
-}
-
-.del:hover {
-  color: var(--danger);
-}

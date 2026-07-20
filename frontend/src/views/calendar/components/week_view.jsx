@@ -8,6 +8,7 @@ import {
   formatTime,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../recurrence";
+import { groupOccurrencesByDay, dayKey } from "../utils/group_by_day";
 import EventChip from "./event_chip";
 import classes from "./week_view.module.css";
 
@@ -25,15 +26,10 @@ export default function WeekView({ cursor, events, persons, onSelectOccurrence, 
     [events, rangeStart, rangeEnd],
   );
 
-  const byDay = useMemo(() => {
-    const map = new Map();
-    for (const day of days) map.set(dayKey(day), []);
-    for (const occ of occurrences) {
-      const key = dayKey(occ.start);
-      if (map.has(key)) map.get(key).push(occ);
-    }
-    return map;
-  }, [days, occurrences]);
+  const byDay = useMemo(
+    () => groupOccurrencesByDay(days, occurrences),
+    [days, occurrences],
+  );
 
   const today = new Date();
 
@@ -76,8 +72,4 @@ export default function WeekView({ cursor, events, persons, onSelectOccurrence, 
       </div>
     </div>
   );
-}
-
-function dayKey(d) {
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }

@@ -9,6 +9,7 @@ import {
   addDay,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../recurrence";
+import { groupOccurrencesByDay, dayKey } from "../utils/group_by_day";
 import EventChip from "./event_chip";
 import classes from "./month_view.module.css";
 
@@ -35,15 +36,10 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
     return expandAll(events, rangeStart, rangeEnd);
   }, [events, cells]);
 
-  const byDay = useMemo(() => {
-    const map = new Map();
-    for (const day of cells) map.set(dayKey(day), []);
-    for (const occ of occurrences) {
-      const key = dayKey(occ.start);
-      if (map.has(key)) map.get(key).push(occ);
-    }
-    return map;
-  }, [cells, occurrences]);
+  const byDay = useMemo(
+    () => groupOccurrencesByDay(cells, occurrences),
+    [cells, occurrences],
+  );
 
   const today = new Date();
 
@@ -65,7 +61,6 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
             <div
               key={day.toISOString()}
               className={`${classes.cell} ${inMonth ? "" : classes.out} ${isToday ? classes.today : ""}`}
-              onClick={() => onSelectDay?.(day)}
             >
               <div className={classes.daynum}>{day.getDate()}</div>
               <div className={classes.events}>
@@ -78,16 +73,9 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
                   />
                 ))}
                 {extra > 0 && (
-                  <button
-                    type="button"
-                    className={classes.more}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectDay?.(day);
-                    }}
-                  >
+                  <span className={classes.more}>
                     +{extra} more
-                  </button>
+                  </span>
                 )}
               </div>
             </div>
@@ -96,8 +84,4 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
       </div>
     </div>
   );
-}
-
-function dayKey(d) {
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }

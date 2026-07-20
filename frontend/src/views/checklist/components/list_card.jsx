@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Card from "../../../components/cards/card";
 import AddButton from "../../../components/buttons/add_button";
+import RemoveButton from "../../../components/buttons/remove_button";
 import ListItem from "./list_item";
 import classes from "./list_card.module.css";
 
@@ -27,13 +28,7 @@ export default function ListCard(props) {
       }
       badge={`${list.remainingItems} left`}
       headerActions={
-        <span
-          className={classes.list_remove}
-          title="Remove list"
-          onClick={() => onRemoveList(list.id)}
-        >
-          ✕
-        </span>
+        <RemoveButton title="Remove list" onClick={() => onRemoveList(list.id)} />
       }
     >
       <ul className={classes.items}>

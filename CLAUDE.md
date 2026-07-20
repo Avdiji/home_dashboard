@@ -192,6 +192,37 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
   Page title + muted subtitle block used by feature pages (e.g. checklist).
   Extracted to shared `components/` — the `.page_title`/`.page_sub` CSS was previously
   duplicated identically across feature CSS modules.
+- **`Modal`** (`components/modal/modal`): opinionated modal shell. Props
+  `{ title, onClose, onSave, saveDisabled, onDelete, children }`. Renders overlay
+  (click → `onClose`) + dialog (stopPropagation) + `<h2>` title + children + an
+  actions row (Delete when `onDelete` is passed, then Cancel + Save). Used by all
+  three modal forms (`event_form`, `recipe_form`, `meal_form`) — they bring their
+  fields and submit/remove logic; `Modal` owns the overlay/dialog/actions CSS.
+- **`SegmentedControl`** (`components/segmented_control/segmented_control`): props
+  `{ items: [{key,label,value}], value, onChange }`. Buttons keyed by `item.key`
+  (string), compared by `value === item.value` (works with calendar's Symbol view
+  modes), calls `onChange(item.value)`. Replaces the old feature-local
+  `view_switcher` (calendar) and `tab_switcher` (meal plan) — one source for both.
+- **`RemoveButton`** (`components/buttons/remove_button`): always-visible ✕. Props
+  `{ onClick, title, size="md", className?, children }`. Muted → `--danger` on
+  hover, borderless. `size="sm"` = 14px, `"md"` = 16px. Accepts a `className` (merged)
+  so callers can add e.g. `margin-left:auto` (meal row pins it right). Used by
+  checklist list-card header, checklist list item, and meal row. Always visible —
+  no parent-hover reveal, so one component covers all three sites cleanly.
+- **`form_controls.module.css`** (`components/forms/form_controls`): shared field
+  CSS only (no component) — `.row`, `.col` (modifier), `.lbl`, `.input`, `.select`,
+  `.textarea`, `.gapAbove` + the focus ring. All three modal forms import it and
+  apply `controls.row` / `controls.input` etc. instead of duplicating field CSS.
+  Forms keep only their form-specific layout CSS (e.g. `event_form`'s `.dates`
+  start/end pair, `recipe_form`'s `.meta` servings/minutes pair).
+- **`layout.twoColGrid`** (`components/layout/layout.module.css`): the 2-column
+  responsive grid (`repeat(2, 1fr)`, `gap: 20px`, collapses to 1 col on `--mobile`)
+  used by meal plan recipes and checklist lists. Both features used it verbatim —
+  one shared class now.
+- **`group_by_day`** (`views/calendar/utils/group_by_day`): `dayKey(d)` +
+  `groupOccurrencesByDay(days, occurrences)` (a `Map<dayKey, occ[]>` pre-seeded
+  with one empty bucket per day). Feature-local to calendar (per the `core/` rule) —
+  `month_view` and `week_view` both build the same per-day buckets.
 
 ## Styling rules
 

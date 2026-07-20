@@ -1,5 +1,5 @@
 export class Recipe {
-  constructor({ id, title = "", description = "", ingredients = [], servings = 0, minutes = 0 } = {}) {
+  constructor({ id, title = "", description = "", ingredients = [], servings = null, minutes = null } = {}) {
     this.id = id;
     this.title = title;
     this.description = description;

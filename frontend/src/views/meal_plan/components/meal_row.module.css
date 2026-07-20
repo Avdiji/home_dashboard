@@ -52,19 +52,6 @@
   color: var(--ink);
 }
 
-.remove {
-  flex: 0 0 auto;
+.removeWrap {
   margin-left: auto;
-  color: var(--muted);
-  cursor: pointer;
-  opacity: 0;
-  font-size: 14px;
-}
-
-.row:hover .remove {
-  opacity: 1;
-}
-
-.remove:hover {
-  color: var(--danger);
 }

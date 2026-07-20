@@ -26,3 +26,18 @@
     flex-direction: row;
   }
 }
+
+/* 2-column responsive grid (meal plan recipes, checklist lists). Collapses
+   to a single column on mobile — both features used this verbatim. */
+.twoColGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  min-width: 0;
+}
+
+@media (--mobile) {
+  .twoColGrid {
+    grid-template-columns: 1fr;
+  }
+}

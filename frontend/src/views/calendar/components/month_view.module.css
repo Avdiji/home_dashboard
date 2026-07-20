@@ -35,12 +35,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.cell:hover {
-  border-color: var(--accent);
+  box-shadow: var(--shadow-card);
 }
 
 .cell.out {
@@ -76,16 +71,9 @@
 }
 
 .more {
-  border: 0;
-  background: transparent;
   color: var(--muted);
   font: inherit;
   font-size: 10px;
   padding: 2px 4px;
   text-align: left;
-  cursor: pointer;
-}
-
-.more:hover {
-  color: var(--accent-2);
 }

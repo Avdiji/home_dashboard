@@ -1,5 +1,6 @@
 import AddButton from "../../components/buttons/add_button";
 import PageHeader from "../../components/page_header/page_header";
+import layout from "../../components/layout/layout.module.css";
 import ListCard from "./components/list_card";
 import useChecklist from "./hooks/use_checklist";
 import classes from "./checklist.module.css";
@@ -25,7 +26,7 @@ export default function Checklist() {
         </AddButton>
       </div>
 
-      <div className={classes.grid}>
+      <div className={layout.twoColGrid}>
         {lists.map((list) => (
           <ListCard
             key={list.id}

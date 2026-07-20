@@ -6,6 +6,8 @@ import {
   addHour,
 } from "../../../core/utils/date_utils";
 import AssignPicker from "../../../components/assign_picker/assign_picker";
+import Modal from "../../../components/modal/modal";
+import controls from "../../../components/forms/form_controls.module.css";
 import classes from "./event_form.module.css";
 
 const field = (d) => toLocalInputValue(d);
@@ -60,94 +62,82 @@ export default function EventForm({
   };
 
   return (
-    <div className={classes.overlay} onClick={onClose}>
-      <div className={classes.dialog} onClick={(e) => e.stopPropagation()}>
-        <h2 className={classes.title}>{event ? "Edit event" : "New event"}</h2>
+    <Modal
+      title={event ? "Edit event" : "New event"}
+      onClose={onClose}
+      onSave={submit}
+      saveDisabled={!title.trim()}
+      onDelete={event ? remove : null}
+    >
+      <label className={controls.row}>
+        <span className={controls.lbl}>Title</span>
+        <input
+          className={controls.input}
+          value={title}
+          placeholder="What's the event?"
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </label>
 
-        <label className={classes.row}>
-          <span className={classes.lbl}>Title</span>
+      <label className={controls.row}>
+        <span className={controls.lbl}>Location</span>
+        <input
+          className={controls.input}
+          value={location}
+          placeholder="Optional"
+          onChange={(e) => setLocation(e.target.value)}
+        />
+      </label>
+
+      <div className={`${classes.dates} ${controls.gap_above}`}>
+        <label className={controls.row}>
+          <span className={controls.lbl}>Start</span>
           <input
-            className={classes.input}
-            value={title}
-            placeholder="What's the event?"
-            onChange={(e) => setTitle(e.target.value)}
+            type="datetime-local"
+            className={controls.input}
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
           />
         </label>
-
-        <label className={classes.row}>
-          <span className={classes.lbl}>Location</span>
+        <label className={controls.row}>
+          <span className={controls.lbl}>End</span>
           <input
-            className={classes.input}
-            value={location}
-            placeholder="Optional"
-            onChange={(e) => setLocation(e.target.value)}
+            type="datetime-local"
+            className={controls.input}
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
           />
         </label>
-
-        <div className={`${classes.dates} ${classes.gap_above}`}>
-          <label className={classes.row}>
-            <span className={classes.lbl}>Start</span>
-            <input
-              type="datetime-local"
-              className={classes.input}
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-            />
-          </label>
-          <label className={classes.row}>
-            <span className={classes.lbl}>End</span>
-            <input
-              type="datetime-local"
-              className={classes.input}
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-            />
-          </label>
-        </div>
-
-        <div className={`${classes.row} ${classes.gap_above}`}>
-          <span className={classes.lbl}>Members</span>
-          <AssignPicker persons={persons} selected={assigned} onToggle={toggleAssign} />
-        </div>
-
-        <label className={classes.row}>
-          <span className={classes.lbl}>Repeat</span>
-          <select
-            className={classes.select}
-            value={frequency}
-            onChange={(e) => setFrequency(e.target.value)}
-          >
-            {FREQUENCIES.map((f) => (
-              <option key={f.value} value={f.value}>{f.label}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className={`${classes.row} ${classes.col} ${classes.gap_above}`}>
-          <span className={classes.lbl}>Description</span>
-          <textarea
-            className={classes.textarea}
-            value={description}
-            placeholder="Optional"
-            rows={3}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </label>
-
-        <div className={classes.actions}>
-          {event && (
-            <button type="button" className={classes.delete} onClick={remove}>
-              Delete
-            </button>
-          )}
-          <div className={classes.actions_right}>
-            <button type="button" className={classes.cancel} onClick={onClose}>Cancel</button>
-            <button type="button" className={classes.save} onClick={submit} disabled={!title.trim()}>
-              Save
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
+
+      <div className={`${controls.row} ${controls.gap_above}`}>
+        <span className={controls.lbl}>Members</span>
+        <AssignPicker persons={persons} selected={assigned} onToggle={toggleAssign} />
+      </div>
+
+      <label className={controls.row}>
+        <span className={controls.lbl}>Repeat</span>
+        <select
+          className={controls.select}
+          value={frequency}
+          onChange={(e) => setFrequency(e.target.value)}
+        >
+          {FREQUENCIES.map((f) => (
+            <option key={f.value} value={f.value}>{f.label}</option>
+          ))}
+        </select>
+      </label>
+
+      <label className={`${controls.row} ${controls.col} ${controls.gap_above}`}>
+        <span className={controls.lbl}>Description</span>
+        <textarea
+          className={controls.textarea}
+          value={description}
+          placeholder="Optional"
+          rows={3}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </label>
+    </Modal>
   );
 }

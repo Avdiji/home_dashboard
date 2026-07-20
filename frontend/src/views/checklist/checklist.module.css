@@ -2,19 +2,6 @@
   padding: 24px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  min-width: 0;
-}
-
 .add_list {
   margin-bottom: 20px;
-}
-
-@media (--mobile) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
 }
