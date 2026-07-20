@@ -7,6 +7,13 @@
   --accent: #b5a3fd;
   --accent-2: #2563eb;
   --line: #e3e6ee;
+  --line-strong: #c3c7d4;
+  --on-accent: #ffffff;
+  --overlay: rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.07);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.2);
   --ok: #16a34a;
   --warn: #ca8a04;
   --danger: #dc2626;

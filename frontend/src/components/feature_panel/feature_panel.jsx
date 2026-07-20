@@ -5,8 +5,7 @@ import IconButton from "../buttons/icon_button";
 import {
   CALENDAR_PATH,
   DASHBOARD_PATH,
-  SHOPPING_PATH,
-  TODO_PATH,
+  CHECKLIST_PATH,
 
   FEATURES,
 } from "../../core/nav_config";

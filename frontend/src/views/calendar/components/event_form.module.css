@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--overlay);
   display: grid;
   place-items: center;
   z-index: 100;
@@ -12,7 +12,7 @@
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   width: min(480px, 100%);
   max-height: calc(100vh - 32px);
   overflow-y: auto;
@@ -135,7 +135,7 @@
   border: 0;
   border-radius: 8px;
   background: var(--accent-2);
-  color: #fff;
+  color: var(--on-accent);
   padding: 8px 16px;
   font: inherit;
   font-weight: 600;

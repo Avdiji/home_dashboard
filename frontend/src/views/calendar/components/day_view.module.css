@@ -1,18 +1,15 @@
 .day {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   padding: 12px;
-}
-
-.day.today {
-  border: 2px solid var(--accent-2);
 }
 
 .today_badge {
   display: inline-block;
   background: var(--accent-2);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -87,7 +84,7 @@
 .name_chip {
   font-size: 11px;
   font-weight: 600;
-  color: #fff;
+  color: var(--on-accent);
   background: var(--accent-2);
   border-radius: 999px;
   padding: 2px 8px;

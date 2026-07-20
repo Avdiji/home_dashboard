@@ -1,4 +1,4 @@
-export class ShoppingItem {
+export class ChecklistItem {
   constructor({ id, itemName, is_done } = {}) {
     this.id = id;
     this.itemName = itemName;

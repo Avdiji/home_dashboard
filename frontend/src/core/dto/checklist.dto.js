@@ -1,17 +1,17 @@
-import { ShoppingItemDTO } from "./shopping_item.dto";
-import { ShoppingList } from "../models/shopping_list";
+import { ChecklistItemDTO } from "./checklist_item.dto";
+import { Checklist } from "../models/checklist";
 
-export class ShoppingListDTO {
+export class ChecklistDTO {
   constructor({ id, title, items = [] } = {}) {
     this.id = id;
     this.title = title;
     this.items = items.map((i) =>
-      i instanceof ShoppingItemDTO ? i : new ShoppingItemDTO(i)
+      i instanceof ChecklistItemDTO ? i : new ChecklistItemDTO(i)
     );
   }
 
   toModel() {
-    return new ShoppingList({
+    return new Checklist({
       id: this.id,
       title: this.title,
       items: [...this.items]

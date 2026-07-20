@@ -5,7 +5,7 @@ import {
   fromLocalInputValue,
   addHour,
 } from "../../../core/utils/date_utils";
-import AssignPicker from "../../todo_list/components/assign_picker";
+import AssignPicker from "../../../components/assign_picker/assign_picker";
 import classes from "./event_form.module.css";
 
 const field = (d) => toLocalInputValue(d);

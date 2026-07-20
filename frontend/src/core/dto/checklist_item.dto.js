@@ -1,6 +1,6 @@
-import { ShoppingItem } from "../models/shopping_item";
+import { ChecklistItem } from "../models/checklist_item";
 
-export class ShoppingItemDTO {
+export class ChecklistItemDTO {
   constructor({ id, itemName, is_done } = {}) {
     this.id = id;
     this.itemName = itemName;
@@ -8,7 +8,7 @@ export class ShoppingItemDTO {
   }
 
   toModel() {
-    return new ShoppingItem({
+    return new ChecklistItem({
       id: this.id,
       itemName: this.itemName,
       is_done: this.is_done,
