@@ -7,79 +7,11 @@
   gap: 10px;
 }
 
-.row {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--panel-2);
-  border-left: 3px solid var(--accent-2);
-  box-shadow: var(--shadow-card);
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.row:hover {
-  background: color-mix(in srgb, var(--accent-2) 8%, var(--panel-2));
-  transform: translateY(-1px);
-}
-
-.timeCol {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  min-width: 64px;
-}
-
-.time {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
 .rel {
-  font-size: 12px;
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--accent-2);
-  font-weight: 600;
-}
-
-.body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chips {
-  display: flex;
-  gap: 4px;
-}
-
-.chip {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--accent-2);
-  color: var(--on-accent);
-  font-size: 10px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .empty {

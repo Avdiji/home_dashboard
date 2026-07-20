@@ -5,9 +5,9 @@ import {
   startOfWeek,
   endOfWeek,
   addDay,
-  formatTime,
+  formatTime24,
 } from "../../../core/utils/date_utils";
-import { expandAll } from "../recurrence";
+import { expandAll } from "../../../core/utils/recurrence";
 import { groupOccurrencesByDay, dayKey } from "../utils/group_by_day";
 import EventChip from "./event_chip";
 import classes from "./week_view.module.css";

@@ -13,11 +13,12 @@
 
 .clickable {
   cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid var(--line);
+  transition: border-color 0.15s ease;
 }
 
 .clickable:hover {
-  background: color-mix(in srgb, var(--accent-2) 8%, var(--panel-2));
+  border-color: var(--accent);
 }
 
 .hero {

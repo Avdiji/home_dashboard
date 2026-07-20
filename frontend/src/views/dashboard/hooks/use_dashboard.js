@@ -11,6 +11,7 @@ import {
   formatDate,
   formatTime24,
 } from "../../../core/utils/date_utils";
+import { expandAll } from "../../../core/utils/recurrence";
 
 // Demo recipe for today's dish (mirrors the meal plan seed: 2026-07-20 → Pasta
 // Pomodoro). Dashboard's own seed — converges with the meal plan once both fetch
@@ -63,25 +64,14 @@ const SEED_WEATHER = new WeatherDTO({
   hours: seedHours(new Date().getHours() + 1, [18, 19, 20, 19], [2, 1, 0, 0]),
 }).toModel();
 
-// Upcoming events = the next 3 calendar events (start >= now), derived from the
-// shared SEED_EVENTS so a row click deep-links to that event's edit modal in the
-// calendar. Computed once at module load; the card renders live relative-time
-// labels against the ticking `now`. (Recurring events with a past base start are
-// filtered out here — no occurrence expansion in the dashboard; the backend
-// fetch will handle recurrence when it lands.)
+// Upcoming events = the next 3 actual occurrences (start >= now), derived from
+// the shared SEED_EVENTS so a row click deep-links to that event's edit modal in
+// the calendar. Recurring events are expanded via recurrence so a daily/weekly
+// event with a past base start still contributes its next occurrence. Computed
+// live against the ticking `now` (useMemo) so when the clock passes an event's
+// start it drops off and the next one appears — the view updates as time moves.
 const personById = new Map(SEED_PERSONS.map((p) => [p.id, p]));
-const nowMs0 = Date.now();
-const SEED_UPCOMING_EVENTS = SEED_EVENTS
-  .filter((e) => e.start.getTime() >= nowMs0)
-  .sort((a, b) => a.start.getTime() - b.start.getTime())
-  .slice(0, 3)
-  .map((e) => ({
-    id: e.id,
-    title: e.title,
-    start: e.start,
-    personIds: e.personIds,
-    persons: e.personIds.map((id) => personById.get(id)).filter(Boolean),
-  }));
+const MS_DAY_UP = 86400000;
 
 const greeting = (d) => {
   const h = d.getHours();
@@ -191,16 +181,35 @@ export default function useDashboard() {
     return { label: SEED_TODAY_MEAL.label, recipe: null };
   }, []);
 
-  // Upcoming events (seeded, starts relative to module-load now). Returned as-is;
-  // the card computes live relative times against the ticking `now`.
-  const upcoming = SEED_UPCOMING_EVENTS;
+  // Upcoming events — next 3 occurrences starting at/after `now`, recomputed
+  // every tick so past events drop off and later ones roll in. expandAll over a
+  // 90-day forward window is enough to cover monthly recurrences; we slice 3.
+  const upcoming = useMemo(() => {
+    const from = now;
+    const to = new Date(now.getTime() + 90 * MS_DAY_UP);
+    return expandAll(SEED_EVENTS, from, to)
+      .slice(0, 3)
+      .map((occ) => ({
+        id: occ.event.id,
+        title: occ.event.title,
+        start: occ.start,
+        location: occ.event.location,
+        personIds: occ.event.personIds,
+        persons: occ.event.personIds
+          .map((id) => personById.get(id))
+          .filter(Boolean),
+      }));
+  }, [now]);
 
   // Deep-link navigation: clicking an upcoming row / the dish jumps to the
   // owning feature and opens its edit modal (the target view reads the state
-  // on mount).
+  // on mount). The upcoming row passes the occurrence start so the calendar
+  // lands on that day (recurring events: occurrence start != base start).
   const navigate = useNavigate();
-  const goToEvent = (eventId) =>
-    navigate(CALENDAR_PATH, { state: { editEventId: eventId } });
+  const goToEvent = (eventId, start) =>
+    navigate(CALENDAR_PATH, {
+      state: { editEventId: eventId, eventStart: start.toISOString() },
+    });
   const goToRecipe = (recipeId) =>
     navigate(MEAL_PLAN_PATH, { state: { editRecipeId: recipeId } });
 

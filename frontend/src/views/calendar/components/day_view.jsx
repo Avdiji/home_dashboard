@@ -3,10 +3,10 @@ import {
   isSameDay,
   startOfDay,
   endOfDay,
-  formatTime,
+  formatTime24,
 } from "../../../core/utils/date_utils";
-import { expandAll } from "../recurrence";
-import EventChip from "./event_chip";
+import { expandAll } from "../../../core/utils/recurrence";
+import EventCard from "../../../components/event_card/event_card";
 import classes from "./day_view.module.css";
 
 export default function DayView({ cursor, events, persons, onSelectOccurrence }) {
@@ -34,37 +34,16 @@ export default function DayView({ cursor, events, persons, onSelectOccurrence })
             .map((id) => persons.find((p) => p.id === id)?.name)
             .filter(Boolean);
           return (
-            <li
+            <EventCard
               key={`${event.id}-${start.toISOString()}`}
-              className={classes.card}
-              role="button"
-              tabIndex={0}
+              as="li"
               onClick={() => onSelectOccurrence(occ)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onSelectOccurrence(occ);
-                }
-              }}
-            >
-              <div className={classes.time}>
-                {formatTime(start)} – {formatTime(end)}
-              </div>
-              <EventChip occ={occ} persons={persons} variant="day" />
-              {event.location && (
-                <div className={classes.location}>📍 {event.location}</div>
-              )}
-              {event.description && (
-                <div className={classes.desc}>{event.description}</div>
-              )}
-              {names.length > 0 && (
-                <div className={classes.who}>
-                  {names.map((n) => (
-                    <span key={n} className={classes.name_chip}>{n}</span>
-                  ))}
-                </div>
-              )}
-            </li>
+              time={`${formatTime24(start)} – ${formatTime24(end)}`}
+              title={event.title}
+              location={event.location}
+              description={event.description}
+              names={names}
+            />
           );
         })}
       </ul>

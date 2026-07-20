@@ -74,7 +74,9 @@ export default function useCalendar() {
   const closeForm = () => setFormOpen(false);
 
   // Cross-feature deep link: another view (e.g. the dashboard upcoming list)
-  // navigates here with `{ editEventId }` to open that event's edit modal.
+  // navigates here with `{ editEventId, eventStart }` to open that event's edit
+  // modal. eventStart is the occurrence start (ISO) so the calendar lands on the
+  // occurrence's day — for recurring events this differs from the base start.
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
@@ -82,6 +84,8 @@ export default function useCalendar() {
     if (editEventId == null) return;
     const found = events.find((e) => e.id === editEventId);
     if (found) {
+      const startIso = location.state?.eventStart;
+      if (startIso) setCursor(new Date(startIso));
       setEditingEvent(found);
       setFormStart(null);
       setFormOpen(true);

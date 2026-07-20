@@ -3,8 +3,8 @@ import {
   FREQUENCY_DAILY,
   FREQUENCY_WEEKLY,
   FREQUENCY_MONTHLY,
-} from "../../core/frequency";
-import { MS_DAY } from "../../core/utils/date_utils";
+} from "../frequency";
+import { MS_DAY } from "./date_utils";
 
 // Step a date forward by one frequency unit.
 function step(d, frequency) {
