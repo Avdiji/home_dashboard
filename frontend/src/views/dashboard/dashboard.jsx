@@ -5,6 +5,7 @@ import WeatherCard from "./components/weather_card";
 import HourlyStrip from "./components/hourly_strip";
 import UpcomingCard from "./components/upcoming_card";
 import DishCard from "./components/dish_card";
+import ChecklistCard from "./components/checklist_card";
 import MembersCard from "./components/members_card";
 import MemberForm from "./components/member_form";
 import useDashboard from "./hooks/use_dashboard";
@@ -26,6 +27,8 @@ export default function Dashboard() {
     upcoming,
     goToEvent,
     goToRecipe,
+    goToChecklist,
+    checklists,
     persons,
     addPerson,
     updatePerson,
@@ -67,6 +70,10 @@ export default function Dashboard() {
               />
             </Section>
           </div>
+
+          <Section label="Checklists">
+            <ChecklistCard lists={checklists} onOpen={goToChecklist} />
+          </Section>
 
           <Section label="Members">
             <MembersCard

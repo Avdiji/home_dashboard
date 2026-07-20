@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { SEED_PERSONS } from "../../../core/seeds/persons";
 import { SEED_EVENTS } from "../../../core/seeds/events";
-import { CALENDAR_PATH, MEAL_PLAN_PATH } from "../../../core/nav_config";
+import { SEED_LISTS } from "../../../core/seeds/checklists";
+import { CALENDAR_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH } from "../../../core/nav_config";
 import { RecipeDTO } from "../../../core/dto/recipe.dto";
 import { MealDTO } from "../../../core/dto/meal.dto";
 import { WeatherDTO } from "../../../core/dto/weather.dto";
@@ -212,6 +213,24 @@ export default function useDashboard() {
     });
   const goToRecipe = (recipeId) =>
     navigate(MEAL_PLAN_PATH, { state: { editRecipeId: recipeId } });
+  const goToChecklist = () => navigate(CHECKLIST_PATH);
+
+  // Checklist glance — view-only summary of the shared SEED_LISTS: each list's
+  // title + remaining/total + done pct (drives a progress bar). Clicking the
+  // card navigates to the checklist feature. No mutations here — the checklist
+  // is the source of truth.
+  const checklists = SEED_LISTS.map((l) => {
+    const total = l.items.length;
+    const done = total - l.remainingItems;
+    return {
+      id: l.id,
+      title: l.title,
+      total,
+      done,
+      remaining: l.remainingItems,
+      pct: total ? Math.round((done / total) * 100) : 0,
+    };
+  });
 
   // Members — the backend is the single source of truth, so roster mutations are
   // noops with full signatures (the spec for the future backend call). The list
@@ -247,6 +266,8 @@ export default function useDashboard() {
     upcoming,
     goToEvent,
     goToRecipe,
+    goToChecklist,
+    checklists,
     persons,
     addPerson,
     updatePerson,
