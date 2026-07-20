@@ -57,7 +57,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (--mobile) {
+@media (--until-desktop) {
   .main {
     justify-content: center;
   }

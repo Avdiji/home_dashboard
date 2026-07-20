@@ -81,13 +81,17 @@
   color: var(--muted);
 }
 
-/* Tablet + mobile: stack the now-section (clock · weather · sep · forecast)
-   instead of the cramped side-by-side row. The row only lives on desktop. */
+/* Tablet + mobile are styled identically: the now-section stacks (clock ·
+   weather · sep · forecast), the clock shrinks, weather centers, and the
+   forecast list centers on the clock's vertical line. The side-by-side row
+   only lives on --desktop. */
 @media (--until-desktop) {
   .now {
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: 18px;
+    padding: 18px 16px;
+    text-align: center;
   }
   .nowRight {
     flex-direction: column;
@@ -99,15 +103,6 @@
     height: 2px;
     align-self: stretch;
   }
-}
-
-@media (--mobile) {
-  .now {
-    gap: 18px;
-    padding: 18px 16px;
-    text-align: center;
-  }
-  /* Center the forecast list on the clock's vertical line. */
   .nowHourly {
     align-self: center;
   }

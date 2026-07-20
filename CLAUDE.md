@@ -214,9 +214,10 @@ only, no `Card` wrapper** — the mega panel is the only card.
   `HourlyStrip` (content-width, clustered close to the weather). The now-section
   is a row only on `--desktop`; it **stacks** (clock · weather · `.sep` ·
   forecast) at `--until-desktop` (tablet + mobile) so the row never gets cramped
-  on a tablet. On `--mobile` the clock shrinks to 160px, weather centers under
-  it, the `.sep` becomes a horizontal rule, and the hourly list is centered
-  (`align-self:center`) on the clock's vertical line.
+  on a tablet. **Tablet and mobile are styled identically** — every dashboard
+  responsive rule uses `--until-desktop` (not `--mobile`): the clock shrinks to
+  160px, weather centers under it, the `.sep` becomes a horizontal rule, and the
+  hourly list is centered (`align-self:center`) on the clock's vertical line.
   `PageHeader` title "Home" + greeting subtitle sits above the mega panel. The
   clock ring tracks use `--line-strong` so they stay visible on the `--panel-2`
   now-block bg. Every dashboard block reads as a card with `--shadow-card`: the
@@ -305,7 +306,9 @@ to avoid UTC-shift).
 Two modal forms, both mirroring the calendar `event_form` overlay/dialog CSS:
 - **`recipe_form`**: title, servings, minutes, description, ingredients (textarea,
   one per line → split into array). Edit mode adds Delete; Save disabled without a
-  title.
+  title. **Deep-link**: `use_meal_plan` reads `location.state.editRecipeId` on
+  mount (set by the dashboard's "today's dish" click), opens the recipe form for
+  the matching recipe, then clears the state.
 - **`meal_form`**: date (`<input type="date">`), recipe (`<select>` of recipes +
   "— None —"), label (disabled when a recipe is chosen — the dish name comes from
   the recipe). Save disabled when no recipe and no label.
@@ -318,6 +321,14 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
 
 ## Shared components
 
+- **`FeaturePanel`** (`components/feature_panel/feature_panel`): the left nav of
+  feature `IconButton`s. The active item is **derived from the route**
+  (`useLocation().pathname` → longest matching `FEATURES` path), not held in
+  local state — so it stays correct on a full reload (reloading `/calendar`
+  keeps Calendar active) and when another view navigates via `useNavigate`
+  (the dashboard's upcoming/dish deep-links jumping to `/calendar` or `/meals`
+  update the highlight). Clicking an item just `nav(path)`; the highlight
+  follows from the route change.
 - **`Card`** (`components/cards/card`): props `title`, `badge`, `headerActions`,
   `children`. Card titles render in `--ink` (prominent), header is uppercase muted.
   Card border is sharpened (`#c3c7d4`) with a subtle box-shadow for separation from
