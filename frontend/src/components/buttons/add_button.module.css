@@ -4,16 +4,18 @@
   justify-content: center;
   border: 0;
   border-radius: 8px;
-  padding: 7px 12px;
+  padding: 7px 14px;
   font: inherit;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  background: var(--accent);
-  color: #fff;
-  transition: background 0.15s ease, color 0.15s ease, filter 0.15s ease;
+  background: var(--accent-2);
+  color: var(--on-accent);
+  transition: filter 0.15s ease;
 }
 
 .add_button:hover {
-  filter: brightness(1.08);
+  filter: brightness(0.95);
 }
 
 .add_button:disabled {
@@ -32,7 +34,7 @@
 
 .ghost:hover {
   filter: none;
-  background: #e2e5ee;
+  background: var(--line);
 }
 
 .sm {

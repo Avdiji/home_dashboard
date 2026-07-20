@@ -41,7 +41,7 @@ export default function MealPlan() {
           {tab === "recipes" ? (
             <AddButton onClick={openNewRecipe}>+ New recipe</AddButton>
           ) : (
-            <AddButton variant="ghost" onClick={() => openNewMeal()}>
+            <AddButton onClick={() => openNewMeal()}>
               + Plan a dish
             </AddButton>
           )}

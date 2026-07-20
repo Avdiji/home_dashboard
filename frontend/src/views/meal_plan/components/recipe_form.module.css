@@ -77,11 +77,8 @@
 
 .meta {
   display: flex;
+  flex-direction: column;
   gap: 12px;
-}
-
-.meta .row {
-  flex: 1;
 }
 
 .gap_above {

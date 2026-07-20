@@ -46,7 +46,7 @@ export default function RecipeForm({ recipe = null, onClose, onSave, onUpdate, o
           />
         </label>
 
-        <div className={classes.meta}>
+        <div className={`${classes.meta} ${classes.gap_above}`}>
           <label className={classes.row}>
             <span className={classes.lbl}>Servings</span>
             <input

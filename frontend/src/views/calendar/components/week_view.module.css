@@ -13,7 +13,7 @@
   background: var(--panel);
   border: 1px solid var(--line-strong);
   border-radius: 10px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card);
   min-width: 0;
   display: flex;
   flex-direction: column;

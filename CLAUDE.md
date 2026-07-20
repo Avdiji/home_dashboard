@@ -176,7 +176,13 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
   Card border is sharpened (`#c3c7d4`) with a subtle box-shadow for separation from
   the page bg.
 - **`AddButton`** (`components/buttons/add_button`): props `onClick`, `children`,
-  `variant`, `size`, `disabled`. Variants/sizes map to CSS classes by name.
+  `variant`, `size`, `disabled`. Variants/sizes map to CSS classes by name. The
+  default (primary) variant is the app's standard "+ New …" action — `--accent-2`
+  bg, `--on-accent` text, hover `brightness(0.95)` — shared by every feature's
+  add button (calendar "+ New event", meal plan "+ New recipe" / "+ Plan a dish",
+  checklist "+ New list", checklist list-card "+"). All add buttons use this
+  primary style; `variant="ghost"` exists but is currently unused. Calendar's
+  "+ New event" uses `<AddButton>`, not a local button class.
 - **`AssignPicker`** (`components/assign_picker/assign_picker`): searchable-free
   multi-select dropdown (popover + scrollable checkable list + outside-click close).
   **No search input** — the member list is shown directly. Used by the calendar

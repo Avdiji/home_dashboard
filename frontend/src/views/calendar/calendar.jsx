@@ -5,6 +5,7 @@ import MonthView from "./components/month_view";
 import WeekView from "./components/week_view";
 import DayView from "./components/day_view";
 import EventForm from "./components/event_form";
+import AddButton from "../../components/buttons/add_button";
 import useCalendar from "./hooks/use_calendar";
 import classes from "./calendar.module.css";
 
@@ -41,9 +42,7 @@ export default function Calendar() {
         />
         <div className={classes.right}>
           <ViewSwitcher view={view} onChange={setView} />
-          <button type="button" className={classes.new_btn} onClick={() => openNewForm(new Date())}>
-            + New event
-          </button>
+          <AddButton onClick={() => openNewForm(new Date())}>+ New event</AddButton>
         </div>
       </div>
 

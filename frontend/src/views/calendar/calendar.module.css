@@ -19,22 +19,6 @@
   gap: 10px;
 }
 
-.new_btn {
-  border: 0;
-  border-radius: 8px;
-  background: var(--accent-2);
-  color: var(--on-accent);
-  padding: 7px 14px;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.new_btn:hover {
-  filter: brightness(0.95);
-}
-
 .surface {
   min-width: 0;
 }

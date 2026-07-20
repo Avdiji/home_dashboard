@@ -19,6 +19,12 @@ export default function Checklist() {
     <div className={classes.view}>
       <PageHeader title="Checklist" subtitle="Shared checklists" />
 
+      <div className={classes.add_list}>
+        <AddButton onClick={addList}>
+          + New list
+        </AddButton>
+      </div>
+
       <div className={classes.grid}>
         {lists.map((list) => (
           <ListCard
@@ -31,12 +37,6 @@ export default function Checklist() {
             onAddItem={addItem}
           />
         ))}
-      </div>
-
-      <div className={classes.add_list}>
-        <AddButton variant="ghost" onClick={addList}>
-          + New list
-        </AddButton>
       </div>
     </div>
   );
