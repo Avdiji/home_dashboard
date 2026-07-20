@@ -4,21 +4,21 @@
 
 .toolbar {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
   margin-top: 4px;
 }
 
-.block {
-  margin-top: 28px;
+.toolbar_right {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
 }
 
-.section_title {
-  margin: 0 0 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+.block {
+  margin-top: 24px;
 }
 
 .grid {

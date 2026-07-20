@@ -145,10 +145,15 @@ A recipe library plus a date-keyed meal plan. Two entities:
   (`recipeId` set) or is a free-text dish (`label` only) — a recipe is **not**
   mandatory.
 
-The view has two sections: a **Recipes** grid (`RecipeCard`, click opens the edit
-form) and a **Planned dishes** list (`MealRow`, sorted by date asc). Clicking a
-planned dish that has a `recipeId` opens that recipe's form — "forwarded to the
-corresponding recipe"; a free-text dish is plain text with no link.
+The view has two **tabs** (`TabSwitcher`, tab state in the hook as `tab`/`setTab`,
+mirrors the calendar view-in-hook pattern): **Recipes** grid (`RecipeCard`, click
+opens the edit form) and **Planned dishes** list (`MealRow`, sorted by date asc).
+The toolbar's add button is context-sensitive — "+ New recipe" on the Recipes tab,
+"+ Plan a dish" on the Planned dishes tab. Clicking a planned dish that has a
+`recipeId` opens that recipe's form — "forwarded to the corresponding recipe"; a
+free-text dish is plain text with no link. Each planned dish shows the weekday
+(e.g. Mon) above the date, computed from the date string (`new Date("...T00:00:00")`
+to avoid UTC-shift).
 
 Two modal forms, both mirroring the calendar `event_form` overlay/dialog CSS:
 - **`recipe_form`**: title, servings, minutes, description, ingredients (textarea,

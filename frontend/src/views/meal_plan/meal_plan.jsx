@@ -1,5 +1,6 @@
 import PageHeader from "../../components/page_header/page_header";
 import AddButton from "../../components/buttons/add_button";
+import TabSwitcher from "./components/tab_switcher";
 import RecipeCard from "./components/recipe_card";
 import MealRow from "./components/meal_row";
 import RecipeForm from "./components/recipe_form";
@@ -12,6 +13,8 @@ export default function MealPlan() {
     recipes,
     mealsByDate,
     recipeById,
+    tab,
+    setTab,
     recipeFormOpen,
     editingRecipe,
     mealFormOpen,
@@ -33,35 +36,41 @@ export default function MealPlan() {
       <PageHeader title="Meal Plan" subtitle="Recipes & planned dishes" />
 
       <div className={classes.toolbar}>
-        <AddButton onClick={openNewRecipe}>+ New recipe</AddButton>
-        <AddButton variant="ghost" onClick={() => openNewMeal()}>
-          + Plan a dish
-        </AddButton>
+        <TabSwitcher tab={tab} onChange={setTab} />
+        <div className={classes.toolbar_right}>
+          {tab === "recipes" ? (
+            <AddButton onClick={openNewRecipe}>+ New recipe</AddButton>
+          ) : (
+            <AddButton variant="ghost" onClick={() => openNewMeal()}>
+              + Plan a dish
+            </AddButton>
+          )}
+        </div>
       </div>
 
-      <section className={classes.block}>
-        <h2 className={classes.section_title}>Recipes</h2>
-        <div className={classes.grid}>
-          {recipes.map((r) => (
-            <RecipeCard key={r.id} recipe={r} onOpen={() => openEditRecipe(r)} />
-          ))}
-        </div>
-      </section>
-
-      <section className={classes.block}>
-        <h2 className={classes.section_title}>Planned dishes</h2>
-        <ul className={classes.meals}>
-          {mealsByDate.map((m) => (
-            <MealRow
-              key={m.id}
-              meal={m}
-              recipe={m.recipeId != null ? recipeById.get(m.recipeId) : null}
-              onOpenRecipe={openEditRecipe}
-              onRemove={() => removeMeal(m.id)}
-            />
-          ))}
-        </ul>
-      </section>
+      {tab === "recipes" ? (
+        <section className={classes.block}>
+          <div className={classes.grid}>
+            {recipes.map((r) => (
+              <RecipeCard key={r.id} recipe={r} onOpen={() => openEditRecipe(r)} />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className={classes.block}>
+          <ul className={classes.meals}>
+            {mealsByDate.map((m) => (
+              <MealRow
+                key={m.id}
+                meal={m}
+                recipe={m.recipeId != null ? recipeById.get(m.recipeId) : null}
+                onOpenRecipe={openEditRecipe}
+                onRemove={() => removeMeal(m.id)}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
 
       {recipeFormOpen && (
         <RecipeForm

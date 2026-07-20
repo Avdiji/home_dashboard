@@ -39,6 +39,8 @@ export default function useMealPlan() {
   const [recipes] = useState(SEED_RECIPES);
   const [meals] = useState(SEED_MEALS);
 
+  const [tab, setTab] = useState("planned");
+
   const [recipeFormOpen, setRecipeFormOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [mealFormOpen, setMealFormOpen] = useState(false);
@@ -86,6 +88,8 @@ export default function useMealPlan() {
     recipes,
     mealsByDate,
     recipeById,
+    tab,
+    setTab,
     recipeFormOpen,
     editingRecipe,
     mealFormOpen,
