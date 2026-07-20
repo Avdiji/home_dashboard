@@ -1,0 +1,28 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.temp {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.label {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.wind {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}

@@ -1,0 +1,16 @@
+.name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.desc {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 14px;
+}

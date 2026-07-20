@@ -12,6 +12,16 @@ export const WEEKDAYS_LONG = [
   "Saturday",
   "Sunday",
 ];
+// Sun-first long names (matches Date#getDay, 0=Sun). Used by the dashboard clock.
+export const WEEKDAYS_LONG_SUN = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 export const MONTHS = [
   "January",
   "February",

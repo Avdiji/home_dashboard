@@ -25,13 +25,14 @@ frontend/src/
     seeds/persons.js          # shared family roster (SEED_PERSONS) — cross-feature
     frequency.js              # recurrence/enum constants (calendar)
     utils/date_utils.js       # date math + formatting (shared)
+    utils/weather_codes.js    # WMO weather code → { label, icon } (Open-Meteo)
     nav_config.jsx            # routes + FEATURES (feature panel config)
   components/                  # reusable UI (cards/card, buttons/add_button, buttons/icon_button, layout, feature_panel)
   theme/
     tokens.css                # design tokens (:root custom properties) — ALL colors live here
     media_breakpoints.css     # @custom-media --mobile / --tablet / --desktop
   views/
-    dashboard/                # stub (not yet built)
+    dashboard/                # see Dashboard section
     calendar/                 # see Calendar section
     checklist/
     meal_plan/
@@ -93,9 +94,51 @@ State, derived data, and noop handlers live in `views/<feature>/hooks/use_<featu
 The view component destructures what it needs and renders. The view contains **no
 business logic** — only render helpers that close over hook values. Calendar
 (`use_calendar`), Checklist (`use_checklist`), and Meal Plan (`use_meal_plan`)
-all follow this. Dashboard is a stub and has no hook yet.
+all follow this. Dashboard (`use_dashboard`) follows it too.
 
 ## Feature notes
+
+### Dashboard (`views/dashboard/`)
+
+The landing page. A glance at today: live clock, weather, today's planned dish,
+and the family roster with add/edit/remove. Follows the hook-per-feature pattern
+(`use_dashboard`); the view is thin (hook + render).
+
+- **Live clock**: `now` in `useState`, a `setInterval(1000)` `useEffect` ticks it
+  every second — the first ticking timer in the app. Derived in the hook as
+  `clock = { time (HH:MM via formatTime), weekday (WEEKDAYS_LONG_SUN[getDay()]),
+  date (formatDate), greeting }`. Greeting is time-of-day ("Good morning" /
+  "afternoon" / "evening") and renders as the `PageHeader` subtitle. `WEEKDAYS_LONG`
+  is Mon-first; `getDay()` is Sun-first, so the hook uses `WEEKDAYS_LONG_SUN`
+  (added to `date_utils.js` for this) — do not index `WEEKDAYS_LONG` with `getDay()`.
+- **Weather**: live via `navigator.geolocation` + Open-Meteo (free, no API key) in
+  a mount `useEffect`. Falls back to `SEED_WEATHER` (seeded `WeatherDTO`) on denial
+  / error / unsupported `geolocation`. Open-Meteo is a **third-party API, not the
+  project backend** — this is a deliberate exception to the "all data seeded" rule;
+  weather is external data, not feature data. `WeatherDTO` takes the Open-Meteo
+  `current` snake_case payload (`temperature_2m`, `weather_code`, `wind_speed_10m`,
+  `is_day`) → `Weather` model. `describeWeatherCode(code)` (in
+  `core/utils/weather_codes.js`) maps WMO codes to `{ label, icon (emoji) }`.
+- **Today's dish**: seeded in the hook (`SEED_TODAY_MEAL` + `SEED_TODAY_RECIPE`),
+  planned for today's date at module load so the demo always shows a dish. This is
+  the dashboard's own seed (not shared with the meal plan) — converges once both
+  fetch from the backend. `todaysDish` is `{ label, recipe }` or `null` (card shows
+  "Nothing planned today").
+- **Members (roster CRUD)**: `persons` in `useState` (initialized from the shared
+  `SEED_PERSONS`). `addPerson({ name })`, `updatePerson(personId, { name })`,
+  `removePerson(personId)` are **noops with full signatures** — the backend is the
+  single source of truth, so roster mutations don't visually update until it lands
+  (same as item toggle / `addList` elsewhere). The signature is the spec for the
+  future backend call. **No PersonProvider by design**: calendar/checklist keep
+  their own seeded `SEED_PERSONS` until the backend unifies the rosters (the user's
+  call — "members will be fetched from the backend"). Editing members on the
+  dashboard does not propagate to calendar/checklist during the frontend-only phase.
+- **`member_form`** (modal): single `name` field, mirrors the `event_form` /
+  `recipe_form` modal pattern (`Modal` + `form_controls`). New vs edit decided by
+  whether a `person` prop is passed. No Delete button in the form — removal is the
+  roster row's `RemoveButton` (✕). Save disabled without a name.
+- **Layout**: two `layout.twoColGrid` rows stacked (clock + weather, dish +
+  members). `PageHeader` title "Home" + greeting subtitle.
 
 ### Calendar (`views/calendar/`)
 
