@@ -1,6 +1,8 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { RecipeDTO } from "../../../core/dto/recipe.dto";
 import { MealDTO } from "../../../core/dto/meal.dto";
+import { MEAL_PLAN_PATH } from "../../../core/nav_config";
 
 const SEED_RECIPES = [
   new RecipeDTO({
@@ -72,6 +74,21 @@ export default function useMealPlan() {
     setMealFormOpen(true);
   };
   const closeMealForm = () => setMealFormOpen(false);
+
+  // Cross-feature deep link: the dashboard's "today's dish" navigates here with
+  // `{ editRecipeId }` to open that recipe's edit modal.
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const editRecipeId = location.state?.editRecipeId;
+    if (editRecipeId == null) return;
+    const found = recipes.find((r) => r.id === editRecipeId);
+    if (found) {
+      setEditingRecipe(found);
+      setRecipeFormOpen(true);
+    }
+    navigate(MEAL_PLAN_PATH, { replace: true, state: null });
+  }, [location.state, recipes, navigate]);
 
   // noop — add recipe wiring handled once backend lands
   const addRecipe = ({ title, description, ingredients, servings, minutes }) => {};

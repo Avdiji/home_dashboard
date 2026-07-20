@@ -1,19 +1,46 @@
-import Card from "../../../components/cards/card";
 import classes from "./dish_card.module.css";
 
-export default function DishCard({ dish }) {
+export default function DishCard({ dish, onClick }) {
+  if (!dish) {
+    return (
+      <div className={classes.empty}>
+        <div className={classes.hero}>🍽️</div>
+        <div className={classes.emptyText}>Nothing planned today</div>
+      </div>
+    );
+  }
+  const r = dish.recipe;
+  const clickable = onClick && r;
   return (
-    <Card title="Today's dish">
-      {dish ? (
-        <div>
-          <div className={classes.name}>{dish.label}</div>
-          {dish.recipe?.description && (
-            <div className={classes.desc}>{dish.recipe.description}</div>
+    <div
+      className={`${classes.wrap}${clickable ? ` ${classes.clickable}` : ""}`}
+      onClick={clickable ? () => onClick(r.id) : undefined}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick(r.id);
+              }
+            }
+          : undefined
+      }
+    >
+      <div className={classes.hero}>🍽️</div>
+      <div className={classes.name}>{dish.label}</div>
+      {r && (r.servings != null || r.minutes != null) && (
+        <div className={classes.badges}>
+          {r.servings != null && (
+            <span className={classes.badge}>{r.servings} servings</span>
+          )}
+          {r.minutes != null && (
+            <span className={classes.badge}>{r.minutes} min</span>
           )}
         </div>
-      ) : (
-        <div className={classes.empty}>Nothing planned today</div>
       )}
-    </Card>
+      {r?.description && <div className={classes.desc}>{r.description}</div>}
+    </div>
   );
 }

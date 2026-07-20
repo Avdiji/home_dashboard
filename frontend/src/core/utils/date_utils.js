@@ -109,6 +109,12 @@ export function formatTime(d) {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+// 24-hour HH:MM, locale-independent. Used by the dashboard (no am/pm).
+export function formatTime24(d) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function formatMonthTitle(d) {
   return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }

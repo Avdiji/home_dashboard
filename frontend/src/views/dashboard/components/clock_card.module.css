@@ -1,13 +1,89 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.clock {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.track {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 10;
+}
+
+.fillOuter {
+  fill: none;
+  stroke: var(--accent-2);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s ease;
+}
+
+.trackInner {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 5;
+}
+
+.fillInner {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+
 .time {
-  font-size: 40px;
-  font-weight: 600;
+  font-size: 34px;
+  font-weight: 700;
   color: var(--accent-2);
-  line-height: 1.1;
+  line-height: 1;
   letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.weekday {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .date {
-  margin-top: 6px;
+  font-size: 12px;
   color: var(--muted);
-  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (--mobile) {
+  .clock {
+    width: 160px;
+    height: 160px;
+  }
+  .time {
+    font-size: 28px;
+  }
 }
