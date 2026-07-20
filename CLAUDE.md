@@ -1,7 +1,7 @@
 # Home Dashboard — Frontend
 
-A shared family home dashboard. Single-page React app with three features behind a
-left feature panel: **Dashboard**, **Calendar**, **Checklist**.
+A shared family home dashboard. Single-page React app with four features behind a
+left feature panel: **Dashboard**, **Calendar**, **Checklist**, **Meal Plan**.
 
 The frontend is built before the backend. All data is seeded in the feature hook
 via DTOs; every backend-bound mutation is a **noop** that documents its call contract.
@@ -33,6 +33,7 @@ frontend/src/
     dashboard/                # stub (not yet built)
     calendar/                 # see Calendar section
     checklist/
+    meal_plan/
     <feature>/
       <feature>.jsx           # thin view: hook + render (no logic, no seeds)
       <feature>.module.css
@@ -83,8 +84,8 @@ comment precedes each.
 State, derived data, and noop handlers live in `views/<feature>/hooks/use_<feature>.js`.
 The view component destructures what it needs and renders. The view contains **no
 business logic** — only render helpers that close over hook values. Calendar
-(`use_calendar`) and Checklist (`use_checklist`) both
-follow this. Dashboard is a stub and has no hook yet.
+(`use_calendar`), Checklist (`use_checklist`), and Meal Plan (`use_meal_plan`)
+all follow this. Dashboard is a stub and has no hook yet.
 
 ## Feature notes
 
@@ -132,6 +133,36 @@ Multiple named lists, each a `Card` with an editable title input, checkable item
 add-item row, and remove-list. Noop handlers take params matching the call sites
 (`toggleItem(listId, itemId)`, `updateTitle(listId, title)`, `addItem(listId, label)`,
 `removeList(listId)`, `addList()`).
+
+### Meal Plan (`views/meal_plan/`)
+
+A recipe library plus a date-keyed meal plan. Two entities:
+
+- **Recipe** (`core/models/recipe.js`): `id, title, description, ingredients[],
+  servings, minutes`. Persisted in the library; edited via a modal form.
+- **Meal** (`core/models/meal.js`): `id, date (ISO "YYYY-MM-DD"), recipeId (nullable),
+  label`. A dish planned for a date. A meal either links to a recipe
+  (`recipeId` set) or is a free-text dish (`label` only) — a recipe is **not**
+  mandatory.
+
+The view has two sections: a **Recipes** grid (`RecipeCard`, click opens the edit
+form) and a **Planned dishes** list (`MealRow`, sorted by date asc). Clicking a
+planned dish that has a `recipeId` opens that recipe's form — "forwarded to the
+corresponding recipe"; a free-text dish is plain text with no link.
+
+Two modal forms, both mirroring the calendar `event_form` overlay/dialog CSS:
+- **`recipe_form`**: title, servings, minutes, description, ingredients (textarea,
+  one per line → split into array). Edit mode adds Delete; Save disabled without a
+  title.
+- **`meal_form`**: date (`<input type="date">`), recipe (`<select>` of recipes +
+  "— None —"), label (disabled when a recipe is chosen — the dish name comes from
+  the recipe). Save disabled when no recipe and no label.
+
+Form open state lives in the hook, split per form (`recipeFormOpen`/`editingRecipe`
+and `mealFormOpen`/`mealFormDate`), mirroring the calendar 3-piece pattern.
+Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes })`,
+`updateRecipe(recipeId, { ... })`, `removeRecipe(recipeId)`,
+`addMeal({ date, recipeId, label })`, `removeMeal(mealId)`.
 
 ## Shared components
 

@@ -6,6 +6,7 @@ import {
   CALENDAR_PATH,
   DASHBOARD_PATH,
   CHECKLIST_PATH,
+  MEAL_PLAN_PATH,
 
   FEATURES,
 } from "../../core/nav_config";
