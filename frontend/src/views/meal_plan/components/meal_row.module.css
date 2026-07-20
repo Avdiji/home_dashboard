@@ -31,7 +31,7 @@
 }
 
 .link {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   text-align: left;
   background: none;
@@ -47,13 +47,14 @@
 }
 
 .dish {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   color: var(--ink);
 }
 
 .remove {
   flex: 0 0 auto;
+  margin-left: auto;
   color: var(--muted);
   cursor: pointer;
   opacity: 0;

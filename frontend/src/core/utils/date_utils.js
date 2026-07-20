@@ -125,3 +125,11 @@ export function toLocalInputValue(d) {
 export function fromLocalInputValue(v) {
   return new Date(v);
 }
+
+// dd-mm-yyyy display, e.g. 20-07-2026. Accepts a Date or an ISO "YYYY-MM-DD"
+// string (parsed as local to avoid UTC day-shift).
+export function formatDate(d) {
+  const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+}

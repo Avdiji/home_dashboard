@@ -1,3 +1,4 @@
+import { formatDate } from "../../../core/utils/date_utils";
 import classes from "./meal_row.module.css";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -10,7 +11,7 @@ export default function MealRow({ meal, recipe, onOpenRecipe, onRemove }) {
     <li className={classes.row}>
       <span className={classes.date}>
         <span className={classes.weekday}>{weekday}</span>
-        <span className={classes.day}>{meal.date}</span>
+        <span className={classes.day}>{formatDate(meal.date)}</span>
       </span>
       {recipe ? (
         <button
