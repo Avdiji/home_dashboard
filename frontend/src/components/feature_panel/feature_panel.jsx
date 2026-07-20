@@ -6,7 +6,6 @@ import {
   CALENDAR_PATH,
   DASHBOARD_PATH,
   SHOPPING_PATH,
-  TODO_PATH,
 
   FEATURES,
 } from "../../core/nav_config";

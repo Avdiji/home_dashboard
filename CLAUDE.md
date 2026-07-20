@@ -1,7 +1,7 @@
 # Home Dashboard — Frontend
 
-A shared family home dashboard. Single-page React app with four features behind a
-left feature panel: **Dashboard**, **Calendar**, **Shopping Lists**, **Todos**.
+A shared family home dashboard. Single-page React app with three features behind a
+left feature panel: **Dashboard**, **Calendar**, **Shopping Lists**.
 
 The frontend is built before the backend. All data is seeded in the feature hook
 via DTOs; every backend-bound mutation is a **noop** that documents its call contract.
@@ -22,7 +22,7 @@ frontend/src/
   core/                       # shared, feature-agnostic
     dto/                       # *DTO classes — snake_case backend shape
     models/                    # plain model classes — camelCase app shape
-    frequency.js              # recurrence/enum constants (shared: calendar + todo)
+    frequency.js              # recurrence/enum constants (calendar)
     utils/date_utils.js       # date math + formatting (shared)
     nav_config.jsx            # routes + FEATURES (feature panel config)
   components/                  # reusable UI (cards/card, buttons/add_button, buttons/icon_button, layout, feature_panel)
@@ -33,7 +33,6 @@ frontend/src/
     dashboard/                # stub (not yet built)
     calendar/                 # see Calendar section
     shopping_list/
-    todo_list/
     <feature>/
       <feature>.jsx           # thin view: hook + render (no logic, no seeds)
       <feature>.module.css
@@ -63,7 +62,7 @@ dir, NOT in `core/`. (Calendar's `view_modes.js` and `recurrence.js` are under
 Each hook defines its `SEED_*` constants (constructed via
 `new XxxDTO({...}).toModel()`) at module scope and uses them as the initial value of
 its own `useState` calls. The hook takes **no arguments** — `useCalendar()`,
-`useTodoList()`, `useShoppingList()`. The view just destructures the return value
+`useShoppingList()`. The view just destructures the return value
 and renders; it contains no `SEED_*`, no `useState`, no business logic. This keeps
 all per-feature data lifecycle (seed → state → derived → noops) in one place and
 makes the view a pure render. When the backend lands, replace the `SEED_*`
@@ -74,7 +73,7 @@ effect) — the view does not change.
 
 Backend-bound mutations are declared as noops **with their full parameter
 signature matching how they are actually called** — e.g.
-`const toggleTodo = (todoId) => {};`, `const addTodo = ({ label, personIds }) => {};`.
+`const toggleItem = (listId, itemId) => {};`, `const addList = () => {};`.
 The signature is the documentation; when the backend lands you fill the body and the
 call sites already line up. A `// noop — <thing> wiring handled once backend lands`
 comment precedes each.
@@ -84,7 +83,7 @@ comment precedes each.
 State, derived data, and noop handlers live in `views/<feature>/hooks/use_<feature>.js`.
 The view component destructures what it needs and renders. The view contains **no
 business logic** — only render helpers that close over hook values. Calendar
-(`use_calendar`), Todos (`use_todo_list`), and Shopping (`use_shopping_list`) all
+(`use_calendar`) and Shopping (`use_shopping_list`) both
 follow this. Dashboard is a stub and has no hook yet.
 
 ## Feature notes
@@ -127,23 +126,6 @@ Frequency reuses `core/frequency.js` (once/daily/weekly/monthly).
   element). In the day view the member chips render once, in the card's top-right
   corner, highlighted (accent-2 bg) — never duplicated.
 
-### Todos (`views/todo_list/`)
-
-Tasks assignable to **one or multiple** members (`personIds[]`). Multi-select
-member filter (`Set`, union match: a todo shows if any of its `personIds` is in the
-active filter; empty filter = All). Split into two `Card`s: TODO and DONE (kanban).
-
-Inside each card, tasks are **grouped by member**: joint (multi-member) + unassigned
-tasks appear first with no subtitle; then each member's solo tasks under a
-member-name subtitle. Members are ordered by the `persons` array; only members with
-solo tasks in that card get a subtitle. Solo tasks don't repeat the member chip
-(subtitle already names them); joint tasks show their chips. Groups are separated
-by spacing only — no separator lines between tasks or between groups.
-
-Frequency was **removed** from todos (the model, DTO, seed, form, and item all have
-no `frequency`). The `core/frequency.js` enum still exists and is used by the
-calendar event form.
-
 ### Shopping Lists (`views/shopping_list/`)
 
 Multiple named lists, each a `Card` with an editable title input, checkable items,
@@ -161,15 +143,13 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
   `variant`, `size`, `disabled`. Variants/sizes map to CSS classes by name.
 - **`AssignPicker`** (`components/assign_picker/assign_picker`): searchable-free
   multi-select dropdown (popover + scrollable checkable list + outside-click close).
-  **No search input** — the member list is shown directly. Reused by both the todo
-  task form and the calendar event form (lives in shared `components/` because it is
-  cross-feature; do not duplicate).
+  **No search input** — the member list is shown directly. Used by the calendar
+  event form (lives in shared `components/` so it is reusable across features; do not
+  duplicate).
 - **`PageHeader`** (`components/page_header/page_header`): props `title`, `subtitle`.
-  Page title + muted subtitle block used by every feature page (todo, shopping).
+  Page title + muted subtitle block used by feature pages (e.g. shopping).
   Extracted to shared `components/` — the `.page_title`/`.page_sub` CSS was previously
   duplicated identically across feature CSS modules.
-- **`MemberFilter`** (`views/todo_list/components/member_filter`): multi-select chip
-  filter (todo only — does not scale to 100+ members; flagged, not converted).
 
 ## Styling rules
 
@@ -185,8 +165,6 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
   Add a new named breakpoint to that file if you need one. Note `--tablet`
   (`min-width:600px`) also matches desktop, so "mobile + tablet" = `--until-desktop`
   (`max-width:1199px`).
-- For Todos specifically, mobile and tablet share the same layout (single-column
-  board) via `@media (--until-desktop)`; desktop keeps two columns.
 - CSS Modules are scoped; composes via `className={classes.x}`. Reusable visual
   primitives go in `components/`, feature styling stays in the feature dir.
 
@@ -237,11 +215,11 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
   otherwise iterate day-by-day up to the visible range. Jumping by computed
   day/week deltas (and looping for months) keeps it bounded.
 - **Why `AssignPicker` lives in shared `components/`, not a feature dir**: it is
-  imported by both the todo task form and the calendar event form. A feature-local
-  home would force one feature to reach across into another's dir. Putting it in
-  `components/` makes the cross-feature intent explicit. Search was removed from it
-  on the user's request — do not re-add it.
+  imported by the calendar event form and is intended to be reused by any future
+  feature needing a multi-member picker. Putting it in `components/` makes the
+  cross-feature intent explicit. Search was removed from it on the user's request
+  — do not re-add it.
 - **Why `PageHeader` was extracted**: the `.page_title`/`.page_sub` block was
-  copy-pasted identically in the todo and shopping CSS modules. One shared
-  component + one CSS file removes the duplication; a new feature page just drops
-  in `<PageHeader title=… subtitle=… />`.
+  copy-pasted identically across feature CSS modules. One shared component + one
+  CSS file removes the duplication; a new feature page just drops in
+  `<PageHeader title=… subtitle=… />`.
