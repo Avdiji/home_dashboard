@@ -1,7 +1,7 @@
 # Home Dashboard — Frontend
 
 A shared family home dashboard. Single-page React app with three features behind a
-left feature panel: **Dashboard**, **Calendar**, **Shopping Lists**.
+left feature panel: **Dashboard**, **Calendar**, **Checklist**.
 
 The frontend is built before the backend. All data is seeded in the feature hook
 via DTOs; every backend-bound mutation is a **noop** that documents its call contract.
@@ -32,7 +32,7 @@ frontend/src/
   views/
     dashboard/                # stub (not yet built)
     calendar/                 # see Calendar section
-    shopping_list/
+    checklist/
     <feature>/
       <feature>.jsx           # thin view: hook + render (no logic, no seeds)
       <feature>.module.css
@@ -62,7 +62,7 @@ dir, NOT in `core/`. (Calendar's `view_modes.js` and `recurrence.js` are under
 Each hook defines its `SEED_*` constants (constructed via
 `new XxxDTO({...}).toModel()`) at module scope and uses them as the initial value of
 its own `useState` calls. The hook takes **no arguments** — `useCalendar()`,
-`useShoppingList()`. The view just destructures the return value
+`useChecklist()`. The view just destructures the return value
 and renders; it contains no `SEED_*`, no `useState`, no business logic. This keeps
 all per-feature data lifecycle (seed → state → derived → noops) in one place and
 makes the view a pure render. When the backend lands, replace the `SEED_*`
@@ -83,7 +83,7 @@ comment precedes each.
 State, derived data, and noop handlers live in `views/<feature>/hooks/use_<feature>.js`.
 The view component destructures what it needs and renders. The view contains **no
 business logic** — only render helpers that close over hook values. Calendar
-(`use_calendar`) and Shopping (`use_shopping_list`) both
+(`use_calendar`) and Checklist (`use_checklist`) both
 follow this. Dashboard is a stub and has no hook yet.
 
 ## Feature notes
@@ -126,7 +126,7 @@ Frequency reuses `core/frequency.js` (once/daily/weekly/monthly).
   element). In the day view the member chips render once, in the card's top-right
   corner, highlighted (accent-2 bg) — never duplicated.
 
-### Shopping Lists (`views/shopping_list/`)
+### Checklist (`views/checklist/`)
 
 Multiple named lists, each a `Card` with an editable title input, checkable items,
 add-item row, and remove-list. Noop handlers take params matching the call sites
@@ -147,7 +147,7 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
   event form (lives in shared `components/` so it is reusable across features; do not
   duplicate).
 - **`PageHeader`** (`components/page_header/page_header`): props `title`, `subtitle`.
-  Page title + muted subtitle block used by feature pages (e.g. shopping).
+  Page title + muted subtitle block used by feature pages (e.g. checklist).
   Extracted to shared `components/` — the `.page_title`/`.page_sub` CSS was previously
   duplicated identically across feature CSS modules.
 
@@ -171,7 +171,7 @@ add-item row, and remove-list. Noop handlers take params matching the call sites
 ## Git
 
 - Main branch: `main`. Feature work on numbered branches
-  (`2-implement-shoppinglist-ui`, `4-implement-calendar-ui`, …), rebased onto the
+  (`2-implement-checklist-ui`, `4-implement-calendar-ui`, …), rebased onto the
   integration branch (`dev`) before merge.
 - Commit/push only when the user asks.
 - Commit messages: normal prose. Co-authored-by trailer as configured.

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ShoppingListDTO } from "../../../core/dto/shopping_list.dto";
+import { ChecklistDTO } from "../../../core/dto/checklist.dto";
 
 const SEED_LISTS = [
-  new ShoppingListDTO({
+  new ChecklistDTO({
     id: 1,
     title: "Groceries",
     items: [
@@ -13,7 +13,7 @@ const SEED_LISTS = [
       { id: 6, itemName: "Tomatoes", is_done: false },
     ],
   }).toModel(),
-  new ShoppingListDTO({
+  new ChecklistDTO({
     id: 2,
     title: "Hardware store",
     items: [
@@ -21,7 +21,7 @@ const SEED_LISTS = [
       { id: 2, itemName: "Paintbrush", is_done: false },
     ],
   }).toModel(),
-  new ShoppingListDTO({
+  new ChecklistDTO({
     id: 3,
     title: "Edeka",
     items: [
@@ -31,7 +31,7 @@ const SEED_LISTS = [
   }).toModel(),
 ];
 
-export default function useShoppingList() {
+export default function useChecklist() {
   const [lists] = useState(SEED_LISTS);
 
   // noop — toggle item wiring handled once backend lands

@@ -1,10 +1,10 @@
 import AddButton from "../../components/buttons/add_button";
 import PageHeader from "../../components/page_header/page_header";
 import ListCard from "./components/list_card";
-import useShoppingList from "./hooks/use_shopping_list";
-import classes from "./shopping_list.module.css";
+import useChecklist from "./hooks/use_checklist";
+import classes from "./checklist.module.css";
 
-export default function ShoppingList() {
+export default function Checklist() {
   const {
     lists,
     toggleItem,
@@ -13,11 +13,11 @@ export default function ShoppingList() {
     updateTitle,
     addList,
     removeList,
-  } = useShoppingList();
+  } = useChecklist();
 
   return (
     <div className={classes.view}>
-      <PageHeader title="Shopping List" subtitle="Shopping and shared lists" />
+      <PageHeader title="Checklist" subtitle="Shared checklists" />
 
       <div className={classes.grid}>
         {lists.map((list) => (
