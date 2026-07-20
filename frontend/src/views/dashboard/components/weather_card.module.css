@@ -1,0 +1,69 @@
+.main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.tempBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.temp {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.feels {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.label {
+  margin-top: 10px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.conditions {
+  margin-top: 6px;
+  display: flex;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sun {
+  margin-top: 12px;
+  display: flex;
+  gap: 18px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.sunItem {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (--until-desktop) {
+  .main {
+    justify-content: center;
+  }
+  .label,
+  .conditions,
+  .sun {
+    justify-content: center;
+  }
+}

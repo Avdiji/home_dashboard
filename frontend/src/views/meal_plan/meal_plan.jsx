@@ -7,11 +7,12 @@ import MealRow from "./components/meal_row";
 import RecipeForm from "./components/recipe_form";
 import MealForm from "./components/meal_form";
 import useMealPlan from "./hooks/use_meal_plan";
+import { TAB_PLANNED, TAB_RECIPES } from "../../core/constants";
 import classes from "./meal_plan.module.css";
 
 const TABS = [
-  { key: "planned", label: "Planned dishes", value: "planned" },
-  { key: "recipes", label: "Recipes", value: "recipes" },
+  { key: TAB_PLANNED, label: "Planned dishes", value: TAB_PLANNED },
+  { key: TAB_RECIPES, label: "Recipes", value: TAB_RECIPES },
 ];
 
 export default function MealPlan() {
@@ -44,7 +45,7 @@ export default function MealPlan() {
       <div className={classes.toolbar}>
         <SegmentedControl items={TABS} value={tab} onChange={setTab} />
         <div className={classes.toolbar_right}>
-          {tab === "recipes" ? (
+          {tab === TAB_RECIPES ? (
             <AddButton onClick={openNewRecipe}>+ New recipe</AddButton>
           ) : (
             <AddButton onClick={() => openNewMeal()}>
@@ -54,7 +55,7 @@ export default function MealPlan() {
         </div>
       </div>
 
-      {tab === "recipes" ? (
+      {tab === TAB_RECIPES ? (
         <section className={classes.block}>
           <div className={layout.twoColGrid}>
             {recipes.map((r) => (

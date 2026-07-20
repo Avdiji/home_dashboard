@@ -1,45 +1,24 @@
-import { useState, useMemo } from "react";
-import { RecipeDTO } from "../../../core/dto/recipe.dto";
-import { MealDTO } from "../../../core/dto/meal.dto";
-
-const SEED_RECIPES = [
-  new RecipeDTO({
-    id: 1,
-    title: "Pasta Pomodoro",
-    description: "Quick weeknight pasta.",
-    ingredients: ["400g pasta", "1 can tomatoes", "garlic", "basil", "olive oil"],
-    servings: 4,
-    minutes: 25,
-  }).toModel(),
-  new RecipeDTO({
-    id: 2,
-    title: "Veggie Stir-fry",
-    description: "Flexible — use whatever is in the fridge.",
-    ingredients: ["mixed veg", "soy sauce", "garlic", "ginger", "rice"],
-    servings: 2,
-    minutes: 20,
-  }).toModel(),
-  new RecipeDTO({
-    id: 3,
-    title: "Overnight Oats",
-    description: "Prep the night before.",
-    ingredients: ["oats", "milk", "yogurt", "berries", "honey"],
-    servings: 1,
-    minutes: 5,
-  }).toModel(),
-];
-
-const SEED_MEALS = [
-  new MealDTO({ id: 1, date: "2026-07-20", recipe_id: 1, label: "" }).toModel(),
-  new MealDTO({ id: 2, date: "2026-07-21", recipe_id: 2, label: "" }).toModel(),
-  new MealDTO({ id: 3, date: "2026-07-22", recipe_id: null, label: "Leftovers" }).toModel(),
-];
+import { useEffect, useState, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useRecipes } from "../../../store/recipes_store";
+import { useMeals } from "../../../store/meals_store";
+import { MEAL_PLAN_PATH } from "../../../core/nav_config";
+import { STATE_KEY_EDIT_RECIPE_ID, TAB_PLANNED } from "../../../core/constants";
 
 export default function useMealPlan() {
-  const [recipes] = useState(SEED_RECIPES);
-  const [meals] = useState(SEED_MEALS);
+  // Entity state lives in the centralized stores — the dashboard's "today's
+  // dish" reads the same `meals`/`recipes`, so a meal plan mutation (once the
+  // backend lands) propagates everywhere. Noop action signatures come from
+  // the store.
+  const recipes = useRecipes((s) => s.recipes);
+  const meals = useMeals((s) => s.meals);
+  const addRecipe = useRecipes((s) => s.addRecipe);
+  const updateRecipe = useRecipes((s) => s.updateRecipe);
+  const removeRecipe = useRecipes((s) => s.removeRecipe);
+  const addMeal = useMeals((s) => s.addMeal);
+  const removeMeal = useMeals((s) => s.removeMeal);
 
-  const [tab, setTab] = useState("planned");
+  const [tab, setTab] = useState(TAB_PLANNED);
 
   const [recipeFormOpen, setRecipeFormOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
@@ -73,16 +52,20 @@ export default function useMealPlan() {
   };
   const closeMealForm = () => setMealFormOpen(false);
 
-  // noop — add recipe wiring handled once backend lands
-  const addRecipe = ({ title, description, ingredients, servings, minutes }) => {};
-  // noop — update recipe wiring handled once backend lands
-  const updateRecipe = (recipeId, { title, description, ingredients, servings, minutes }) => {};
-  // noop — remove recipe wiring handled once backend lands
-  const removeRecipe = (recipeId) => {};
-  // noop — add meal wiring handled once backend lands
-  const addMeal = ({ date, recipeId, label }) => {};
-  // noop — remove meal wiring handled once backend lands
-  const removeMeal = (mealId) => {};
+  // Cross-feature deep link: the dashboard's "today's dish" navigates here with
+  // `{ editRecipeId }` to open that recipe's edit modal.
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const editRecipeId = location.state?.[STATE_KEY_EDIT_RECIPE_ID];
+    if (editRecipeId == null) return;
+    const found = recipes.find((r) => r.id === editRecipeId);
+    if (found) {
+      setEditingRecipe(found);
+      setRecipeFormOpen(true);
+    }
+    navigate(MEAL_PLAN_PATH, { replace: true, state: null });
+  }, [location.state, recipes, navigate]);
 
   return {
     recipes,

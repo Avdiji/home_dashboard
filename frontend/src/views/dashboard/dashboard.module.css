@@ -1,0 +1,109 @@
+.view {
+  padding: 24px;
+}
+
+.mega {
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Combined "now" section — clock + weather (+ hourly) as one seamless block
+   covering the upper portion of the card. No internal divider between clock
+   and weather; a subtle accent tint marks it as a single section. */
+.now {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 22px 26px;
+  border-radius: 14px;
+  background: var(--panel-2);
+  box-shadow: var(--shadow-card);
+}
+
+.nowRight {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+}
+
+.nowWeather {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.nowHourly {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* Prominent separator between weather and forecast — a vertical rule on
+   desktop (they sit side by side), a horizontal rule on mobile (they stack). */
+.sep {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* The card fills its Section so the two grid columns (upcoming + dish) match
+   height — the row height is set by the taller one and the other stretches. */
+.section > :last-child {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.sectionLabel {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Tablet + mobile are styled identically: the now-section stacks (clock ·
+   weather · sep · forecast), the clock shrinks, weather centers, and the
+   forecast list centers on the clock's vertical line. The side-by-side row
+   only lives on --desktop. */
+@media (--until-desktop) {
+  .now {
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .nowRight {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+  .sep {
+    width: 100%;
+    height: 2px;
+    align-self: stretch;
+  }
+  .nowHourly {
+    align-self: center;
+  }
+}

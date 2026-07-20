@@ -3,10 +3,12 @@
 A shared family home dashboard. Single-page React app with four features behind a
 left feature panel: **Dashboard**, **Calendar**, **Checklist**, **Meal Plan**.
 
-The frontend is built before the backend. All data is seeded in the feature hook
-via DTOs; every backend-bound mutation is a **noop** that documents its call contract.
+The frontend is built before the backend. All entity data is seeded in
+`core/seeds/` (via DTOs) and held in centralized Zustand stores (`src/store/`);
+every backend-bound mutation is a **noop** that documents its call contract.
 When the backend lands, swap seeds for fetches and fill the noop bodies — the UI
-wiring already matches.
+wiring already matches. A later websocket stage will push store updates across
+clients.
 
 ## Stack
 
@@ -23,22 +25,34 @@ frontend/src/
     dto/                       # *DTO classes — snake_case backend shape
     models/                    # plain model classes — camelCase app shape
     seeds/persons.js          # shared family roster (SEED_PERSONS) — cross-feature
+    seeds/events.js           # shared family calendar events (SEED_EVENTS) — cross-feature
+    seeds/checklists.js       # shared checklist lists (SEED_LISTS) — cross-feature
+    seeds/recipes.js          # shared recipe library (SEED_RECIPES) — cross-feature
+    seeds/meals.js            # shared meal plan (SEED_MEALS) — cross-feature
     frequency.js              # recurrence/enum constants (calendar)
     utils/date_utils.js       # date math + formatting (shared)
+    utils/weather_codes.js    # WMO weather code → { label, icon } (Open-Meteo)
     nav_config.jsx            # routes + FEATURES (feature panel config)
+    constants.jsx            # behavioral magic strings/numbers (timers, limits, state keys, API config)
+  store/                      # centralized entity state (Zustand) — one store per entity
+    persons_store.js          # usePersons — roster + addPerson/updatePerson/removePerson (noops)
+    events_store.js           # useEvents — events + addEvent/updateEvent/removeEvent (noops)
+    checklists_store.js       # useChecklists — lists + item/list noop actions
+    recipes_store.js          # useRecipes — recipes + addRecipe/updateRecipe/removeRecipe (noops)
+    meals_store.js            # useMeals — meals + addMeal/removeMeal (noops)
   components/                  # reusable UI (cards/card, buttons/add_button, buttons/icon_button, layout, feature_panel)
   theme/
     tokens.css                # design tokens (:root custom properties) — ALL colors live here
     media_breakpoints.css     # @custom-media --mobile / --tablet / --desktop
   views/
-    dashboard/                # stub (not yet built)
+    dashboard/                # see Dashboard section
     calendar/                 # see Calendar section
     checklist/
     meal_plan/
     <feature>/
       <feature>.jsx           # thin view: hook + render (no logic, no seeds)
       <feature>.module.css
-      hooks/use_<feature>.js  # seeds + state + noops + derived logic
+      hooks/use_<feature>.js  # store selectors + feature-local UI state + noops + derived logic
       components/             # feature-local components
 ```
 
@@ -59,33 +73,66 @@ dir, NOT in `core/`. (Calendar's `view_modes.js` and `recurrence.js` are under
 - Arrays that must not leak identity (e.g. `personIds`) are `.slice()`-copied in
   both DTO and model constructors.
 
-### Seeds live in the hook, not the view
+### Entity state lives in the store, not the hook
 
-Each hook defines its `SEED_*` constants (constructed via
-`new XxxDTO({...}).toModel()`) at module scope and uses them as the initial value of
-its own `useState` calls. The hook takes **no arguments** — `useCalendar()`,
-`useChecklist()`. The view just destructures the return value
-and renders; it contains no `SEED_*`, no `useState`, no business logic. This keeps
-all per-feature data lifecycle (seed → state → derived → noops) in one place and
-makes the view a pure render. When the backend lands, replace the `SEED_*`
-constants with a fetch inside the hook (e.g. `useState(() => fetchEvents())` or an
-effect) — the view does not change.
+Shared entity state (`persons`, `events`, `checklists`, `recipes`, `meals`)
+lives in **`src/store/`** as one Zustand store per entity — the single source of
+truth every feature subscribes to. Each store is module-level (no provider
+tree), seeds its initial state from the matching `core/seeds/*` constant, and
+exposes the entity plus its noop action signatures. Feature hooks read entity
+state via selectors (`useEvents((s) => s.events)`) and delegate mutations to the
+store actions. This is what makes the dashboard (a view over the same events /
+lists / meals / recipes / persons) re-render when any feature mutates an entity
+— and is what a later websocket stage will plug into (a WS message just calls a
+store action / `set()`).
 
-**Exception — shared reference data:** the family member roster (`SEED_PERSONS`,
-Anna/Mark/Lena) lives in `core/seeds/persons.js`, not a feature hook, because the
-same members back every feature (calendar events, checklists, …). Each feature
-hook imports it and holds it in its own `useState` (so the future fetch swap is
-per-hook). This is the only cross-feature seed; per-feature data still seeds in
-its own hook.
+Feature-local UI state that no other feature cares about — form-open flags, the
+calendar's `view`/`cursor`, the checklist's `memberFilter`, the meal plan's
+`tab`, the dashboard's live `now` clock and `weather` fetch — still lives in the
+feature hook's own `useState`. Only cross-feature entity state is centralized.
+
+The hook still takes **no arguments** — `useCalendar()`, `useChecklist()`. The
+view just destructures the return value and renders; it contains no `SEED_*`,
+no `useState`, no business logic. The view is a pure render and does not change
+when the backend lands.
+
+### Seeds define initial store state
+
+The `SEED_*` constants (constructed via `new XxxDTO({...}).toModel()`) live in
+`core/seeds/` and are imported by the stores as the initial state value. They
+are the **only** initial-state source for entity state. When the backend lands,
+swap the store's initializer for a fetch (e.g. call a `load()` action on mount,
+or initialize from a fetch inside `create`) — the hooks and views do not change.
+
+All shared entities are cross-feature reference data, so all of them live in
+`core/seeds/` and feed a store:
+- `SEED_PERSONS` (`core/seeds/persons.js`) → `usePersons` — backs the dashboard
+  members section, the calendar event assignee picker, and the checklist list
+  assignee picker.
+- `SEED_EVENTS` (`core/seeds/events.js`) → `useEvents` — backs the calendar
+  (event CRUD) and the dashboard "upcoming" list (a view over the same events;
+  clicking an upcoming card deep-links to that event's edit modal, so the
+  dashboard references the real event ids).
+- `SEED_LISTS` (`core/seeds/checklists.js`) → `useChecklists` — backs the
+  checklist feature and the dashboard checklist glance.
+- `SEED_RECIPES` (`core/seeds/recipes.js`) → `useRecipes` — backs the meal plan
+  recipe library and the dashboard "today's dish" (resolves its recipe, so the
+  click deep-link lands on the real recipe id).
+- `SEED_MEALS` (`core/seeds/meals.js`) → `useMeals` — backs the meal plan
+  planned-dishes list and the dashboard "today's dish" (finds the meal whose
+  date is today).
 
 ### Noops document the call contract
 
 Backend-bound mutations are declared as noops **with their full parameter
 signature matching how they are actually called** — e.g.
-`const toggleItem = (listId, itemId) => {};`, `const addList = () => {};`.
+`toggleItem: (listId, itemId) => {}`, `addList: ({ title, personIds }) => {}`.
 The signature is the documentation; when the backend lands you fill the body and the
 call sites already line up. A `// noop — <thing> wiring handled once backend lands`
-comment precedes each.
+comment precedes each. Entity mutation noops now live on the Zustand stores
+(`src/store/*_store.js`); feature-local noops (if any) live in the hook. When the
+backend lands, the store action body fires the request and updates state (or a
+websocket push does) — every subscriber, including the dashboard, re-renders.
 
 ### One hook per feature (the `use_calendar` pattern)
 
@@ -93,9 +140,130 @@ State, derived data, and noop handlers live in `views/<feature>/hooks/use_<featu
 The view component destructures what it needs and renders. The view contains **no
 business logic** — only render helpers that close over hook values. Calendar
 (`use_calendar`), Checklist (`use_checklist`), and Meal Plan (`use_meal_plan`)
-all follow this. Dashboard is a stub and has no hook yet.
+all follow this. Dashboard (`use_dashboard`) follows it too.
 
 ## Feature notes
+
+### Dashboard (`views/dashboard/`)
+
+The landing page. A glance at today, all in **one big panel** (not many small
+cards): live clock, weather (+ hourly forecast), upcoming events, today's dish,
+and the family roster. Follows the hook-per-feature pattern (`use_dashboard`);
+the view is thin (hook + render). The view wraps everything in a single `.mega`
+panel (card styling — panel bg, `--line-strong` border, `--shadow-card`,
+radius 16) and groups sections with small uppercase `--muted` labels (`Section`
+helper in `dashboard.jsx`). Leaf components (`clock_card`, `weather_card`,
+`hourly_strip`, `upcoming_card`, `dish_card`, `members_card`) render **content
+only, no `Card` wrapper** — the mega panel is the only card.
+
+- **Live clock**: `now` in `useState`, a `setInterval(1000)` `useEffect` ticks it
+  every second — the first ticking timer in the app. Derived in the hook as
+  `clock = { time (HH:MM via `formatTime24` — 24h, no am/pm), seconds, weekday
+  (WEEKDAYS_LONG_SUN[getDay()]), date (formatDate), greeting, dayProgress }`.
+  `dayProgress` is the % of 24h elapsed (drives a progress bar). Greeting is
+  time-of-day ("Good morning" / "afternoon" / "evening") and renders as the
+  `PageHeader` subtitle. `ClockCard` is a **circular clock with two concentric
+  SVG rings**: the outer ring fills with `--accent-2` by `dayProgress` (the day),
+  the inner (thinner) ring fills with `--accent` by `seconds/60` and sweeps +
+  resets every minute — a continuous "seconds" breath inside the day ring. Time
+  `HH:MM` centered (accent-2, tabular-nums) + weekday + date. **No am/pm
+  anywhere on the dashboard** — uses
+  `formatTime24` (added to `date_utils.js`, locale-independent 24h), not
+  `formatTime` (which is locale-dependent and shared with the calendar).
+  `WEEKDAYS_LONG` is Mon-first; `getDay()` is Sun-first, so the hook uses
+  `WEEKDAYS_LONG_SUN` (added to `date_utils.js` for this) — do not index
+  `WEEKDAYS_LONG` with `getDay()`.
+- **Weather**: live via `navigator.geolocation` + Open-Meteo (free, no API key).
+  Geolocation runs once on mount → coords stored in a `useRef` → first fetch.
+  A `setInterval` then **refetches every 15 min** using the stored coords (no
+  re-prompt) — 15 min matches Open-Meteo's `current` update cadence (more frequent
+  just returns cached data). Falls back to `SEED_WEATHER` (seeded `WeatherDTO`) on
+  denial / error / unsupported `geolocation`. Open-Meteo is a **third-party API,
+  not the project backend** — a deliberate exception to the "all data seeded" rule;
+  weather is external data, not feature data. `WeatherDTO` takes the Open-Meteo payload
+  (`current.temperature_2m`, `apparent_temperature`, `relative_humidity_2m`,
+  `weather_code`, `wind_speed_10m`, `is_day` + `daily.sunrise[0]`/`sunset[0]` +
+  4 `hourly` entries pre-extracted by the hook into `{ time, temperature,
+  weatherCode }`) → `Weather` model (carries `hours[]`).
+  `describeWeatherCode(code, isDay)` (in `core/utils/weather_codes.js`) maps WMO
+  codes to `{ label, icon (emoji) }`; `isDay` swaps clear-sky sun ↔ moon.
+  `WeatherCard` shows icon + temp + feels-like + label + wind + humidity + a
+  sunrise/sunset row. `HourlyStrip` shows the next 4 hours and is **coupled
+  into the Weather section**: a borderless vertical list rendered beside
+  `WeatherCard` inside the now-section's right side (both content-width
+  `flex:0 0 auto`, clustered close together on the left; not its own labeled
+  section, no card/box). Each row is time · icon · temp (left-aligned); the
+  first row shows the actual next hour (e.g. `15:00`), not a "now" label — the
+  seed starts at `getHours() + 1` and the live fetch starts at the first hour
+  `>= now`, so the first entry is the upcoming hour. A prominent separator
+  (`.sep`, 2px `--line-strong`) sits **between** weather and forecast — a
+  vertical rule on desktop (side by side), a horizontal rule on `--mobile`
+  (stacked). The seed hours are built via a `Date` so `startHour + i` rolls
+  past midnight (23 → 01:00 next day, not `"25:00"` → `NaN:NaN`); the live
+  fetch uses `forecast_days=2` so enough hours remain late at night.
+- **Upcoming**: `UpcomingCard` renders the next 3 calendar events (start `>= now`,
+  sorted, sliced to 3) **derived from the shared `useEvents` store** (not its own
+  seed) so a row click deep-links to that event's edit modal. Live relative-time
+  label ("in 2h", "tomorrow", "in 3d") computed against the ticking `now`, plus
+  member-initials chips. It is its own full-width section and is **prominent** —
+  each row is a tinted panel (`--panel-2`) with a 3px `--accent-2` left border,
+  larger time + title. **Rows are clickable** (`role="button"`, Enter/Space
+  supported) → `goToEvent(id)` navigates to `CALENDAR_PATH` with
+  `{ state: { editEventId } }`; `use_calendar` reads that state on mount and opens
+  the `EventForm` for the matching event, then clears the state. Recurring events
+  with a past base start are filtered out (no occurrence expansion in the
+  dashboard — the backend fetch handles recurrence when it lands).
+- **Today's dish**: derived from the shared `useMeals` + `useRecipes` stores —
+  finds the meal whose `date` is today and resolves its `recipeId` against the
+  recipe library, so it tracks meal-plan mutations. `todaysDish` is
+  `{ label, recipe }` (label = recipe title when linked) or `null` when no meal
+  matches today. `DishCard` is a **distinct centered "recipe hero"** (deliberately
+  not the upcoming row style): a circular accent-tinted emoji tile (🍽️) + centered
+  dish name + pill badges (servings / minutes, when the recipe carries them) +
+  description; or a muted "Nothing planned today" with the tile. **Clickable when
+  it has a recipe** → `goToRecipe(recipeId)` navigates to `MEAL_PLAN_PATH` with
+  `{ state: { editRecipeId } }`; `use_meal_plan` reads that state on mount and
+  opens the `RecipeForm` for the matching recipe, then clears the state. A
+  free-text dish (no `recipeId`) is not clickable.
+- **Members (roster CRUD)**: `persons` read from the shared `usePersons` store
+  (initialized from `SEED_PERSONS`). `addPerson({ name })`,
+  `updatePerson(personId, { name })`, `removePerson(personId)` are **noops with
+  full signatures** living on the persons store — the backend is the single source
+  of truth, so roster mutations don't visually update until it lands (same as item
+  toggle / `addList` elsewhere). The signature is the spec for the future backend
+  call. The roster is shared via the store, so calendar/checklist assignee
+  pickers read the same data — once the backend lands, a roster mutation
+  propagates to every feature (and, via the later websocket stage, to every
+  client). The members UI is **deliberately subtle**: no header add-button — a
+  muted "+ Add member" text link at the list bottom; row remove (✕) is
+  hover-reveal only (muted → `--danger`), not an always-visible `RemoveButton`
+  (the dashboard's members rows use a local hover-reveal button, not the shared
+  `RemoveButton`, which stays always-visible for its other three sites).
+- **`member_form`** (modal): single `name` field, mirrors the `event_form` /
+  `recipe_form` modal pattern (`Modal` + `form_controls`). New vs edit decided by
+  whether a `person` prop is passed. No Delete button in the form — removal is the
+  roster row's hover-reveal ✕. Save disabled without a name.
+- **Layout**: one `.mega` panel containing a vertical stack (`gap: 28px`) of:
+  a combined **"now" section** (clock + weather + hourly as one seamless block
+  on a `--panel-2` bg — same color as the Today's dish block, no accent border —
+  covering the upper portion; no internal divider between clock and weather),
+  then upcoming + dish in an equal `layout.twoColGrid` (same baseline, **same
+  height** — `.section > :last-child` is `flex:1` so each card fills the grid row
+  height set by the taller one; the dish centers its content vertically to match
+  the upcoming list), then members full width. Inside the now-section, the
+  right side is a row: `WeatherCard` (content-width) · vertical `.sep` ·
+  `HourlyStrip` (content-width, clustered close to the weather). The now-section
+  is a row only on `--desktop`; it **stacks** (clock · weather · `.sep` ·
+  forecast) at `--until-desktop` (tablet + mobile) so the row never gets cramped
+  on a tablet. **Tablet and mobile are styled identically** — every dashboard
+  responsive rule uses `--until-desktop` (not `--mobile`): the clock shrinks to
+  160px, weather centers under it, the `.sep` becomes a horizontal rule, and the
+  hourly list is centered (`align-self:center`) on the clock's vertical line.
+  `PageHeader` title "Home" + greeting subtitle sits above the mega panel. The
+  clock ring tracks use `--line-strong` so they stay visible on the `--panel-2`
+  now-block bg. Every dashboard block reads as a card with `--shadow-card`: the
+  now-section, each upcoming row, and the dish block (the hourly list is
+  borderless/integrated, and members stays a subtle chip row — both unshadowed).
 
 ### Calendar (`views/calendar/`)
 
@@ -125,7 +293,10 @@ Frequency reuses `core/frequency.js` (once/daily/weekly/monthly).
 - **Event form** (modal): title, location, start/end (stacked vertically on all
   breakpoints), members via `AssignPicker`, repeat, description. Edit mode adds a
   Delete button; new vs edit decided by whether an `event` prop is passed. No
-  `autoFocus` anywhere.
+  `autoFocus` anywhere. **Deep-link**: `use_calendar` reads
+  `location.state.editEventId` on mount (set by the dashboard's upcoming click),
+  opens the edit form for the matching event, then clears the state — so an
+  external link can land on a specific event's modal.
 - Clicking an event opens the **edit** form (edits the whole series — the
   occurrence carries the full base event); clicking empty day area opens the
   **new** form.
@@ -144,8 +315,8 @@ body, mirroring the calendar event form pattern. A **member filter** in the
 toolbar (multi-select toggle pills: All + each member) filters `visibleLists`
 to lists assigned to any selected member (empty selection = All) — pure
 client-side view state (a `Set` of member ids), not a backend mutation. The
-person roster is the shared `SEED_PERSONS` (see Architecture). Noop handlers
-take params matching the call sites
+person roster comes from the shared `usePersons` store (see Architecture). Noop
+handlers take params matching the call sites
 (`toggleItem(listId, itemId)`, `updateTitle(listId, title)`, `addItem(listId, label)`,
 `removeList(listId)`, `addList({ title, personIds })`, `toggleListAssignee(listId, personId)`).
 "+ New list" opens a modal (`list_form`) — title + member assignment via
@@ -176,7 +347,9 @@ to avoid UTC-shift).
 Two modal forms, both mirroring the calendar `event_form` overlay/dialog CSS:
 - **`recipe_form`**: title, servings, minutes, description, ingredients (textarea,
   one per line → split into array). Edit mode adds Delete; Save disabled without a
-  title.
+  title. **Deep-link**: `use_meal_plan` reads `location.state.editRecipeId` on
+  mount (set by the dashboard's "today's dish" click), opens the recipe form for
+  the matching recipe, then clears the state.
 - **`meal_form`**: date (`<input type="date">`), recipe (`<select>` of recipes +
   "— None —"), label (disabled when a recipe is chosen — the dish name comes from
   the recipe). Save disabled when no recipe and no label.
@@ -189,6 +362,14 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
 
 ## Shared components
 
+- **`FeaturePanel`** (`components/feature_panel/feature_panel`): the left nav of
+  feature `IconButton`s. The active item is **derived from the route**
+  (`useLocation().pathname` → longest matching `FEATURES` path), not held in
+  local state — so it stays correct on a full reload (reloading `/calendar`
+  keeps Calendar active) and when another view navigates via `useNavigate`
+  (the dashboard's upcoming/dish deep-links jumping to `/calendar` or `/meals`
+  update the highlight). Clicking an item just `nav(path)`; the highlight
+  follows from the route change.
 - **`Card`** (`components/cards/card`): props `title`, `badge`, `headerActions`,
   `children`. Card titles render in `--ink` (prominent), header is uppercase muted.
   Card border is sharpened (`#c3c7d4`) with a subtle box-shadow for separation from
@@ -288,10 +469,19 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
 ## Internal reasoning worth knowing
 
 - **Why hooks per feature**: keeps view components thin (hook + render) and
-  concentrates state/noops/derived data in one testable place. Seeds live in the
-  hook too, so the whole data lifecycle (seed → state → derived → noops) is in one
-  file and the view is pure render. When the backend lands, swap seeds for a fetch
-  inside the hook — the view stays untouched.
+  concentrates feature-local UI state/noops/derived data in one testable place.
+  Entity state lives in the centralized stores (`src/store/`), so the hook is now
+  a thin consumer (store selectors + feature-local UI state + derived views over
+  the store). The view is pure render. When the backend lands, swap the store's
+  seed initializer for a fetch — the hooks and views stay untouched.
+- **Why Zustand stores (no provider)**: entity state is shared across features
+  (the dashboard is a view over the calendar/checklist/meal-plan data), so it
+  must be a single source of truth every feature subscribes to. Zustand stores
+  are module-level singletons — no provider tree (keeps the "no PersonProvider"
+  spirit: no boilerplate at the app root) — and a selector subscription is what
+  makes the dashboard re-render when another feature mutates an entity. A later
+  websocket stage plugs in by calling a store action / `set()` on an incoming
+  push, which updates every subscriber in every client.
 - **Why Symbol view modes**: string literals invited the exact bug we hit —
   `calendar.jsx` still compared `view === "month"` after the type became a Symbol,
   so nothing rendered. Symbols force every compare site to use the named constant

@@ -1,12 +1,12 @@
-import { useMemo, useState } from "react";
-import { EventDTO } from "../../../core/dto/event.dto";
-import { SEED_PERSONS } from "../../../core/seeds/persons";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEvents } from "../../../store/events_store";
+import { usePersons } from "../../../store/persons_store";
+import { CALENDAR_PATH } from "../../../core/nav_config";
 import {
-  FREQUENCY_NONE,
-  FREQUENCY_DAILY,
-  FREQUENCY_WEEKLY,
-  FREQUENCY_MONTHLY,
-} from "../../../core/frequency";
+  STATE_KEY_EDIT_EVENT_ID,
+  STATE_KEY_EVENT_START,
+} from "../../../core/constants";
 import {
   formatMonthTitle,
   formatWeekTitle,
@@ -19,102 +19,21 @@ import {
 } from "../../../core/utils/date_utils";
 import { VIEW_DAY, VIEW_WEEK, VIEW_MONTH } from "../view_modes";
 
-const today0 = new Date();
-const at = (day, h, m = 0) => {
-  const d = new Date(today0);
-  d.setDate(d.getDate() + day);
-  d.setHours(h, m, 0, 0);
-  return d;
-};
-
-const SEED_EVENTS = [
-  new EventDTO({
-    id: 1,
-    title: "Dentist Anna",
-    description: "Checkup at Dr. Müller.",
-    location: "Zahnarzt Praxis",
-    start_at: at(0, 9),
-    end_at: at(0, 10),
-    person_ids: [1],
-    frequency: FREQUENCY_NONE,
-  }).toModel(),
-  new EventDTO({
-    id: 2,
-    title: "Morning standup",
-    description: "",
-    location: "Office",
-    start_at: at(-30, 8),
-    end_at: at(-30, 8, 30),
-    person_ids: [],
-    frequency: FREQUENCY_DAILY,
-  }).toModel(),
-  new EventDTO({
-    id: 3,
-    title: "Football practice",
-    description: "Don't forget shin pads.",
-    location: "Sportplatz",
-    start_at: at(1, 17),
-    end_at: at(1, 18, 30),
-    person_ids: [2, 3],
-    frequency: FREQUENCY_WEEKLY,
-  }).toModel(),
-  new EventDTO({
-    id: 4,
-    title: "Pay rent",
-    description: "",
-    location: "",
-    start_at: at(5, 0),
-    end_at: at(5, 0, 1),
-    person_ids: [2],
-    frequency: FREQUENCY_MONTHLY,
-  }).toModel(),
-  new EventDTO({
-    id: 5,
-    title: "Lunch with Mark",
-    description: "Try the new place.",
-    location: "Café Sol",
-    start_at: at(2, 12),
-    end_at: at(2, 13),
-    person_ids: [2],
-    frequency: FREQUENCY_NONE,
-  }).toModel(),
-  new EventDTO({
-    id: 6,
-    title: "School pickup",
-    description: "",
-    location: "Grundschule Nord",
-    start_at: at(-60, 14, 30),
-    end_at: at(-60, 15),
-    person_ids: [1, 3],
-    frequency: FREQUENCY_WEEKLY,
-  }).toModel(),
-];
-
 export default function useCalendar() {
-  const [events] = useState(SEED_EVENTS);
-  const [persons] = useState(SEED_PERSONS);
+  // Entity state lives in the centralized stores — the dashboard's upcoming
+  // list reads the same `events`, so a calendar mutation (once the backend
+  // lands) propagates everywhere. Noop action signatures come from the store.
+  const events = useEvents((s) => s.events);
+  const persons = usePersons((s) => s.persons);
+  const addEvent = useEvents((s) => s.addEvent);
+  const updateEvent = useEvents((s) => s.updateEvent);
+  const removeEvent = useEvents((s) => s.removeEvent);
+
   const [view, setView] = useState(VIEW_DAY);
   const [cursor, setCursor] = useState(() => new Date());
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [formStart, setFormStart] = useState(null);
-
-  // noop — add wiring handled once backend lands
-  const addEvent = ({
-    title,
-    description,
-    location,
-    start,
-    end,
-    personIds,
-    frequency,
-  }) => {};
-  
-  // noop — update event wiring handled once backend lands
-  const updateEvent = (eventId, patch) => {};
-  
-  // noop — remove event wiring handled once backend lands
-  const removeEvent = (eventId) => {};
 
   const goPrev = () => {
     setCursor((c) =>
@@ -147,6 +66,27 @@ export default function useCalendar() {
   };
 
   const closeForm = () => setFormOpen(false);
+
+  // Cross-feature deep link: another view (e.g. the dashboard upcoming list)
+  // navigates here with `{ editEventId, eventStart }` to open that event's edit
+  // modal. eventStart is the occurrence start (ISO) so the calendar lands on the
+  // occurrence's day — for recurring events this differs from the base start.
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const editEventId = location.state?.[STATE_KEY_EDIT_EVENT_ID];
+    if (editEventId == null) return;
+    const found = events.find((e) => e.id === editEventId);
+    if (found) {
+      const startIso = location.state?.[STATE_KEY_EVENT_START];
+      if (startIso) setCursor(new Date(startIso));
+      setEditingEvent(found);
+      setFormStart(null);
+      setFormOpen(true);
+    }
+    // Consume the state so a back/forward re-entry doesn't reopen the modal.
+    navigate(CALENDAR_PATH, { replace: true, state: null });
+  }, [location.state, events, navigate]);
 
   return {
     events,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FREQUENCIES } from "../../../core/frequency";
+import { FREQUENCIES, FREQUENCY_NONE } from "../../../core/frequency";
 import {
   toLocalInputValue,
   fromLocalInputValue,
@@ -28,7 +28,7 @@ export default function EventForm({
   const [start, setStart] = useState(field(event?.start ?? startInit));
   const [end, setEnd] = useState(field(event?.end ?? addHour(startInit, 1)));
   const [assigned, setAssigned] = useState(() => new Set(event?.personIds ?? []));
-  const [frequency, setFrequency] = useState(event?.frequency ?? "none");
+  const [frequency, setFrequency] = useState(event?.frequency ?? FREQUENCY_NONE);
 
   const toggleAssign = (id) => {
     setAssigned((cur) => {

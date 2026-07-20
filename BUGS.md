@@ -1,0 +1,20 @@
+Known bugs/TODOs
+
+Dashboard:
+    1. weather forecast and current weather depict wrong temperatures
+    2. events should depict in xh instead of tomorrow (always)
+    3. members should contain birthdays as well...
+
+Recipes:
+    1. ability to upload recipes with image
+
+Calendar:
+    1. make sure that current day is being updated properly...
+    2. make sure that in the calendar all persisted events are being depicted (in todays and weekly view)
+
+
+General:
+    1. introduce light and darkmode (switch between the two, depending on sunrise and nightfall)
+    2. i18n
+    3. OpenAPI doc -> GO ws interfaces
+    4. lots of testing...

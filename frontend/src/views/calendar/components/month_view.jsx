@@ -8,21 +8,20 @@ import {
   startOfWeek,
   addDay,
 } from "../../../core/utils/date_utils";
-import { expandAll } from "../recurrence";
+import { expandAll } from "../../../core/utils/recurrence";
 import { groupOccurrencesByDay, dayKey } from "../utils/group_by_day";
+import { MONTH_CELL_MAX_EVENTS, MONTH_GRID_CELLS } from "../../../core/constants";
 import EventChip from "./event_chip";
 import classes from "./month_view.module.css";
-
-const MAX_PER_CELL = 3;
 
 export default function MonthView({ cursor, events, persons, onSelectOccurrence, onSelectDay }) {
   const cells = useMemo(() => {
     const start = startOfWeek(startOfMonth(cursor));
     const end = startOfMonth(cursor);
     end.setMonth(end.getMonth() + 1);
-    // 6 weeks = 42 cells covers any month.
+    // 6 weeks = MONTH_GRID_CELLS covers any month.
     const days = [];
-    for (let i = 0; i < 42; i++) {
+    for (let i = 0; i < MONTH_GRID_CELLS; i++) {
       days.push(addDay(start, i));
     }
     return days;
@@ -55,7 +54,7 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
           const inMonth = isSameMonth(day, cursor);
           const isToday = isSameDay(day, today);
           const items = byDay.get(dayKey(day)) ?? [];
-          const visible = items.slice(0, MAX_PER_CELL);
+          const visible = items.slice(0, MONTH_CELL_MAX_EVENTS);
           const extra = items.length - visible.length;
           return (
             <div

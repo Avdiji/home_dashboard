@@ -3,14 +3,19 @@ import {
   FREQUENCY_DAILY,
   FREQUENCY_WEEKLY,
   FREQUENCY_MONTHLY,
-} from "../../core/frequency";
-import { MS_DAY } from "../../core/utils/date_utils";
+} from "../frequency";
+import { MS_DAY } from "./date_utils";
+import {
+  DAYS_PER_WEEK,
+  FAST_FORWARD_MONTH_GUARD,
+  EXPAND_OCCURRENCE_GUARD,
+} from "../constants";
 
 // Step a date forward by one frequency unit.
 function step(d, frequency) {
   const x = new Date(d);
   if (frequency === FREQUENCY_DAILY) x.setDate(x.getDate() + 1);
-  else if (frequency === FREQUENCY_WEEKLY) x.setDate(x.getDate() + 7);
+  else if (frequency === FREQUENCY_WEEKLY) x.setDate(x.getDate() + DAYS_PER_WEEK);
   else if (frequency === FREQUENCY_MONTHLY) x.setMonth(x.getMonth() + 1);
   return x;
 }
@@ -24,13 +29,13 @@ function fastForward(cur, frequency, rangeStart) {
     return new Date(cur.getTime() + days * MS_DAY);
   }
   if (frequency === FREQUENCY_WEEKLY) {
-    const weeks = Math.floor((rangeStart - cur) / (7 * MS_DAY));
-    return new Date(cur.getTime() + weeks * 7 * MS_DAY);
+    const weeks = Math.floor((rangeStart - cur) / (DAYS_PER_WEEK * MS_DAY));
+    return new Date(cur.getTime() + weeks * DAYS_PER_WEEK * MS_DAY);
   }
   // Monthly: months vary in length, loop is safe (max ~months between dates).
   let c = new Date(cur);
   let guard = 0;
-  while (c < rangeStart && guard < 12000) {
+  while (c < rangeStart && guard < FAST_FORWARD_MONTH_GUARD) {
     c.setMonth(c.getMonth() + 1);
     guard++;
   }
@@ -52,7 +57,7 @@ export function expandOccurrences(event, rangeStart, rangeEnd) {
 
   let cur = fastForward(event.start, event.frequency, rangeStart);
   let guard = 0;
-  while (cur <= rangeEnd && guard < 1000) {
+  while (cur <= rangeEnd && guard < EXPAND_OCCURRENCE_GUARD) {
     const occEnd = new Date(cur.getTime() + dur);
     if (occEnd >= rangeStart) {
       out.push({ event, start: new Date(cur), end: occEnd });
