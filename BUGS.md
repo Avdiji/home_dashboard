@@ -19,5 +19,5 @@ Calendar:
 General:
     1. introduce light and darkmode (switch between the two, depending on sunrise and nightfall)
     2. i18n
-    3. OpenAPI doc -> GO ws interfaces
-    4. lots of testing...
+    3. AsyncAPI doc -> GO ws interfaces
+    4. enable smooth transitions (everywhere)
