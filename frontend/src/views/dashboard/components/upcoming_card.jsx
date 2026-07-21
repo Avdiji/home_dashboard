@@ -8,14 +8,17 @@ import {
 import EventCard from "../../../components/event_card/event_card";
 import classes from "./upcoming_card.module.css";
 
+// Relative-time label for an upcoming event. Never says "tomorrow" — the
+// former "tomorrow" zone (next 48h) now renders as hours so the card always
+// tells how many hours away the event is. Beyond that, days.
 const relative = (start, now) => {
   const mins = (start.getTime() - now.getTime()) / MS_PER_MINUTE;
   if (mins <= 0) return "now";
   if (mins < MINUTES_PER_HOUR) return `in ${Math.max(1, Math.round(mins))}m`;
   const hours = mins / MINUTES_PER_HOUR;
-  if (hours < HOURS_PER_DAY) return `in ${Math.round(hours)}h`;
+  if (hours < TOMORROW_THRESHOLD_DAYS * HOURS_PER_DAY)
+    return `in ${Math.round(hours)}h`;
   const days = hours / HOURS_PER_DAY;
-  if (days < TOMORROW_THRESHOLD_DAYS) return "tomorrow";
   return `in ${Math.round(days)}d`;
 };
 

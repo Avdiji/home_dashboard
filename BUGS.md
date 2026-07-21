@@ -1,8 +1,6 @@
 Known bugs/TODOs
 
 Dashboard:
-    1. weather forecast and current weather depict wrong temperatures
-    2. events should depict in xh instead of tomorrow (always)
     3. members should contain birthdays as well...
     4. After multiple hours the westher did not update (neither dod the forecast
     5. todays dish must be rerolled every 24h
