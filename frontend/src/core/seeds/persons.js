@@ -5,7 +5,7 @@ import { PersonDTO } from "../dto/person.dto";
 // feature hook, because the same members back every feature. When the backend
 // lands this becomes a fetch consumed by each hook.
 export const SEED_PERSONS = [
-  new PersonDTO({ id: 1, name: "Anna" }).toModel(),
-  new PersonDTO({ id: 2, name: "Mark" }).toModel(),
-  new PersonDTO({ id: 3, name: "Lena" }).toModel(),
+  new PersonDTO({ id: 1, name: "Anna", birthday: "1992-08-12" }).toModel(),
+  new PersonDTO({ id: 2, name: "Mark", birthday: "1988-04-23" }).toModel(),
+  new PersonDTO({ id: 3, name: "Lena", birthday: "1998-07-25" }).toModel(),
 ];
