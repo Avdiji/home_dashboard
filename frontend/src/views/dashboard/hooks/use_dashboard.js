@@ -33,6 +33,7 @@ import {
   OPEN_METEO_HOURLY_FIELDS,
   OPEN_METEO_DAILY_FIELDS,
   OPEN_METEO_FORECAST_DAYS,
+  IP_GEO_URL,
 } from "../../../core/constants";
 
 // Seeded weather fallback so the card always renders something even before
@@ -178,19 +179,43 @@ export default function useDashboard() {
           }).toModel(),
         );
       })
-      .catch(() => {});
+      .catch((e) => console.error("Open-Meteo fetch failed", e));
   }, []);
 
-  // First fetch: geolocation → store coords → fetch.
+  // First fetch: geolocation → store coords → fetch. Geolocation is blocked on
+  // non-secure origins (http + non-localhost, e.g. the dev server reached over
+  // LAN), so on unavailable/deny/error fall back to IP-based geolocation —
+  // coarse, but still yields real Open-Meteo weather for an approximate place
+  // instead of staying stuck on the hardcoded seed.
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    const fallbackToIP = () => {
+      fetch(IP_GEO_URL)
+        .then((r) => r.json())
+        .then((geo) => {
+          const latitude = parseFloat(geo.latitude);
+          const longitude = parseFloat(geo.longitude);
+          if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+            coordsRef.current = { latitude, longitude };
+            fetchWeather(latitude, longitude);
+          }
+        })
+        .catch((e) => console.error("IP geo fallback failed", e));
+    };
+
+    if (!navigator.geolocation) {
+      fallbackToIP();
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
         coordsRef.current = { latitude, longitude };
         fetchWeather(latitude, longitude);
       },
-      () => {},
+      (err) => {
+        console.error("Geolocation failed, falling back to IP geo", err);
+        fallbackToIP();
+      },
     );
   }, [fetchWeather]);
 
