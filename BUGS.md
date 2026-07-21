@@ -21,3 +21,6 @@ General:
     2. i18n
     3. AsyncAPI doc -> GO ws interfaces
     4. enable smooth transitions (everywhere)
+    5. all constants should be centralized
+    
+
