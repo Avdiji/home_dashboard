@@ -72,26 +72,39 @@ func (s *Store) GetList(id int) (*model.Checklist, error) {
 }
 
 // ListChecklists loads all lists (initial fetch + dashboard glance).
+//
+// fillList (the person_ids + items join) runs AFTER the outer list rows are
+// closed. With SetMaxOpenConns(1) the single connection is held for the
+// lifetime of an open *sql.Rows, so a nested s.db.Query while still iterating
+// rows would block forever waiting for that one connection — a deadlock.
+// Collect first, close, then fill.
 func (s *Store) ListChecklists() ([]model.Checklist, error) {
 	rows, err := s.db.Query(`SELECT id, title FROM checklists ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 	var out []model.Checklist
 	for rows.Next() {
 		var c model.Checklist
 		if err := rows.Scan(&c.ID, &c.Title); err != nil {
+			rows.Close()
 			return nil, err
 		}
 		c.PersonIDs = []int{}
 		c.Items = []model.ChecklistItem{}
-		if err := fillList(s.db, &c); err != nil {
-			return nil, err
-		}
 		out = append(out, c)
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, err
+	}
+	rows.Close() // release the connection before the nested per-list fills
+	for i := range out {
+		if err := fillList(s.db, &out[i]); err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
 }
 
 // AddItem backs checklist.item.add (addItem(listId, label)). Server assigns the

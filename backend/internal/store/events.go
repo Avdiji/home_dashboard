@@ -82,25 +82,38 @@ func (s *Store) GetEvent(id int) (*model.Event, error) {
 }
 
 // ListEvents loads all events (initial fetch + dashboard upcoming).
+//
+// The person_ids join is loaded AFTER the outer event rows are closed. With
+// SetMaxOpenConns(1) the single connection is held for the lifetime of an open
+// *sql.Rows, so a nested s.db.Query while still iterating rows would block
+// forever waiting for that one connection — a deadlock. Collect first, close,
+// then join.
 func (s *Store) ListEvents() ([]model.Event, error) {
 	rows, err := s.db.Query(`SELECT id, title, description, location, start_at, end_at, frequency FROM events ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 	var out []model.Event
 	for rows.Next() {
 		var e model.Event
 		if err := rows.Scan(&e.ID, &e.Title, &e.Description, &e.Location, &e.StartAt, &e.EndAt, &e.Frequency); err != nil {
+			rows.Close()
 			return nil, err
 		}
 		e.PersonIDs = []int{}
-		if err := loadEventPersons(s.db, &e); err != nil {
-			return nil, err
-		}
 		out = append(out, e)
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, err
+	}
+	rows.Close() // release the connection before the nested per-event join
+	for i := range out {
+		if err := loadEventPersons(s.db, &out[i]); err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
 }
 
 // qer is the subset of *sql.DB / *sql.Tx needed for one entity's read queries.
