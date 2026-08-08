@@ -44,11 +44,11 @@ func (s *Server) routes() {
 	s.serveMux.HandleFunc("/healthz", s.health)
 	s.serveMux.HandleFunc("/ws", s.handleWS)
 
-	s.serveMux.HandleFunc("/api/persons", s.jsonList(s.store.ListPersons))
-	s.serveMux.HandleFunc("/api/events", s.jsonList(s.store.ListEvents))
-	s.serveMux.HandleFunc("/api/checklists", s.jsonList(s.store.ListChecklists))
-	s.serveMux.HandleFunc("/api/recipes", s.jsonList(s.store.ListRecipes))
-	s.serveMux.HandleFunc("/api/meals", s.jsonList(s.store.ListMeals))
+	s.serveMux.HandleFunc("/api/persons", jsonList(s.store.ListPersons))
+	s.serveMux.HandleFunc("/api/events", jsonList(s.store.ListEvents))
+	s.serveMux.HandleFunc("/api/checklists", jsonList(s.store.ListChecklists))
+	s.serveMux.HandleFunc("/api/recipes", jsonList(s.store.ListRecipes))
+	s.serveMux.HandleFunc("/api/meals", jsonList(s.store.ListMeals))
 }
 
 // ServeHTTP makes Server usable directly as an http.Handler.
@@ -76,7 +76,7 @@ func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 type lister[T any] func() ([]T, error)
 
 // jsonList adapts a Store List* method to a GET handler emitting `[]T` as JSON.
-func (s *Server) jsonList[T any](fn lister[T]) http.HandlerFunc {
+func jsonList[T any](fn lister[T]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.Header().Set("Allow", http.MethodGet)
