@@ -1,9 +1,6 @@
 Known bugs/TODOs
 
 Dashboard:
-    4. After multiple hours the westher did not update (neither dod the forecast
-    5. todays dish must be rerolled every 24h
-    6. upcoming tasks need to be rerolled
 
 Recipes:
     1. ability to upload recipes with image
