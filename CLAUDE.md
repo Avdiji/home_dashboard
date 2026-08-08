@@ -160,14 +160,18 @@ only, no `Card` wrapper** — the mega panel is the only card.
   every second — the first ticking timer in the app. Derived in the hook as
   `clock = { time (HH:MM via `formatTime24` — 24h, no am/pm), seconds, weekday
   (WEEKDAYS_LONG_SUN[getDay()]), date (formatDate), greeting, dayProgress }`.
-  `dayProgress` is the % of 24h elapsed (drives a progress bar). Greeting is
+  `dayProgress` is the % of 24h elapsed (drives the outer day arc). Greeting is
   time-of-day ("Good morning" / "afternoon" / "evening") and renders as the
-  `PageHeader` subtitle. `ClockCard` is a **circular clock with two concentric
-  SVG rings**: the outer ring fills with `--accent-2` by `dayProgress` (the day),
-  the inner (thinner) ring fills with `--accent` by `seconds/60` and sweeps +
-  resets every minute — a continuous "seconds" breath inside the day ring. Time
-  `HH:MM` centered (accent-2, tabular-nums) + weekday + date. **No am/pm
-  anywhere on the dashboard** — uses
+  `PageHeader` subtitle. `ClockCard` is a **half-gauge clock** — a top
+  semicircle, not a full ring. Two concentric SVG **arcs** drawn as `<path>`
+  semicircles (arc length = π·R; `R_OUTER` 84, `R_INNER` 66, viewBox
+  `0 0 200 112`). The outer arc fills with `--accent-2` by `dayProgress` (the
+  day), the inner (thinner) arc fills with `--accent` by `seconds/60` and
+  sweeps + resets every minute — a continuous "seconds" breath inside the day
+  arc. Time `HH:MM` (accent-2, tabular-nums) + weekday + date stack **below**
+  the arc (not centered inside a ring). Gauge is 220×124 desktop, 180×102
+  `--until-desktop`; time 34px / 28px. **No am/pm anywhere on the dashboard** —
+  uses
   `formatTime24` (added to `date_utils.js`, locale-independent 24h), not
   `formatTime` (which is locale-dependent and shared with the calendar).
   `WEEKDAYS_LONG` is Mon-first; `getDay()` is Sun-first, so the hook uses
@@ -250,18 +254,25 @@ only, no `Card` wrapper** — the mega panel is the only card.
   then upcoming + dish in an equal `layout.twoColGrid` (same baseline, **same
   height** — `.section > :last-child` is `flex:1` so each card fills the grid row
   height set by the taller one; the dish centers its content vertically to match
-  the upcoming list), then members full width. Inside the now-section, the
-  right side is a row: `WeatherCard` (content-width) · vertical `.sep` ·
-  `HourlyStrip` (content-width, clustered close to the weather). The now-section
-  is a row only on `--desktop`; it **stacks** (clock · weather · `.sep` ·
-  forecast) at `--until-desktop` (tablet + mobile) so the row never gets cramped
-  on a tablet. **Tablet and mobile are styled identically** — every dashboard
-  responsive rule uses `--until-desktop` (not `--mobile`): the clock shrinks to
-  160px, weather centers under it, the `.sep` becomes a horizontal rule, and the
-  hourly list is centered (`align-self:center`) on the clock's vertical line.
-  `PageHeader` title "Home" + greeting subtitle sits above the mega panel. The
-  clock ring tracks use `--line-strong` so they stay visible on the `--panel-2`
-  now-block bg. Every dashboard block reads as a card with `--shadow-card`: the
+  the upcoming list), then members full width. The now-section uses
+  `align-items: stretch` so the clock and the weather+forecast cluster form one
+  full-height block (no floaty gaps); the weather card's `.wrap` and the hourly
+  `.strip` both `justify-content: center` so their content centers on the
+  clock's vertical midline (block-center — the *blocks* share a center; the
+  time text sits low in the clock by design). Gaps: clock↔cluster 28px,
+  weather↔forecast 14px (clustered close), block padding `24px 30px`. Inside
+  the now-section, the right side is a row: `WeatherCard` (content-width) ·
+  vertical `.sep` · `HourlyStrip` (content-width, clustered close to the
+  weather). The now-section is a row only on `--desktop`; it **stacks** (clock ·
+  weather · `.sep` · forecast) at `--until-desktop` (tablet + mobile) so the row
+  never gets cramped on a tablet. **Tablet and mobile are styled identically** —
+  every dashboard responsive rule uses `--until-desktop` (not `--mobile`): the
+  clock gauge shrinks to 180×102, weather centers under it, the `.sep` becomes a
+  horizontal rule, and the hourly list is centered (`align-self:center`) on the
+  clock's vertical line. `PageHeader` title "Home" + greeting subtitle sits
+  above the mega panel. The clock arc tracks use `--line-strong` so they stay
+  visible on the `--panel-2` now-block bg. Every dashboard block reads as a card
+  with `--shadow-card`: the
   now-section, each upcoming row, and the dish block (the hourly list is
   borderless/integrated, and members stays a subtle chip row — both unshadowed).
 
