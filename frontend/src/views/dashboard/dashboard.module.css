@@ -21,9 +21,9 @@
    and weather; a subtle accent tint marks it as a single section. */
 .now {
   display: flex;
-  align-items: center;
-  gap: 32px;
-  padding: 22px 26px;
+  align-items: stretch;
+  gap: 28px;
+  padding: 24px 30px;
   border-radius: 14px;
   background: var(--panel-2);
   box-shadow: var(--shadow-card);
@@ -33,9 +33,9 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
-  gap: 18px;
+  gap: 14px;
 }
 
 .nowWeather {

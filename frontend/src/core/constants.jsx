@@ -55,3 +55,10 @@ export const OPEN_METEO_CURRENT_FIELDS =
 export const OPEN_METEO_HOURLY_FIELDS = "temperature_2m,weather_code,is_day";
 export const OPEN_METEO_DAILY_FIELDS = "sunrise,sunset";
 export const OPEN_METEO_FORECAST_DAYS = 2; // enough hours to cover late-night rollover
+
+// --- IP geolocation fallback ----------------------------------------------
+// Free, no key. Used when navigator.geolocation is unavailable/denied/blocked
+// (e.g. dev server reached over LAN http — browsers block geolocation on
+// non-secure origins). Returns the browser IP's coarse lat/long (as strings)
+// so we can still fetch real Open-Meteo weather for an approximate location.
+export const IP_GEO_URL = "https://get.geojs.io/v1/ip/geo.json";

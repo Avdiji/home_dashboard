@@ -15,9 +15,9 @@ import { SEED_PERSONS } from "../core/seeds/persons";
 export const usePersons = create(() => ({
   persons: SEED_PERSONS,
   // noop — add person wiring handled once backend lands
-  addPerson: ({ name }) => {},
+  addPerson: ({ name, birthday }) => {},
   // noop — update person wiring handled once backend lands
-  updatePerson: (personId, { name }) => {},
+  updatePerson: (personId, { name, birthday }) => {},
   // noop — remove person wiring handled once backend lands
   removePerson: (personId) => {},
 }));
