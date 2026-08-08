@@ -1,0 +1,27 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build output
+/bin/
+/dist/
+
+# Dependency directories (kept for reproducibility, but ignore vendor churn)
+# (no vendor/ — module cache used)
+
+# SQLite database file (local state, not committed)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+/home_dashboard.db
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
