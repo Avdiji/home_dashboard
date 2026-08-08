@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { SEED_RECIPES } from "../core/seeds/recipes";
 import { sendCommand } from "../core/api/transport";
 
 // Centralized recipe library state. Single source of truth shared by the meal
@@ -7,14 +6,14 @@ import { sendCommand } from "../core/api/transport";
 // here, so the click deep-link lands on the real recipe id). Module-level
 // store — no provider needed; subscribe via `useRecipes((s) => s.recipes)`.
 //
-// Seeds still define the initial state; `loadAll()` swaps them for the fetched
-// recipes on mount. Mutations fire WS commands (no optimistic local update —
-// the broadcast round-trip updates every client via applyEvent). The action
-// signature stays the spec for the command payload. servings/minutes are
-// numbers or null (the form already coerces empty → null).
+// Initial state is empty; `loadAll()` hydrates from the backend on mount, and
+// broadcast events keep it in sync (no optimistic local update — the broadcast
+// round-trip updates every client via applyEvent). The action signature stays
+// the spec for the command payload. servings/minutes are numbers or null
+// (the form already coerces empty → null).
 
 export const useRecipes = create(() => ({
-  recipes: SEED_RECIPES,
+  recipes: [],
   // recipe.add — { title, description, ingredients, servings, minutes }
   addRecipe: ({ title, description, ingredients, servings, minutes }) =>
     sendCommand("recipe.add", {

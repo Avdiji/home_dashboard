@@ -1,7 +1,8 @@
-// Command home-dashboard-backend opens the SQLite DB, seeds empty tables with
-// the frontend's seed data, starts the websocket hub, and serves the REST + WS
-// API on :8080 (override with HOME_DASHBOARD_ADDR). Run `go mod tidy` first to
-// fetch gorilla/websocket + modernc.org/sqlite, then `go run .`.
+// Command home-dashboard-backend opens the SQLite DB, starts the websocket
+// hub, and serves the REST + WS API on :8080 (override with
+// HOME_DASHBOARD_ADDR). Tables start empty; data is created entirely through
+// the API. Run `go mod tidy` first to fetch gorilla/websocket + modernc.org/sqlite,
+// then `go run .`.
 package main
 
 import (
@@ -15,7 +16,6 @@ import (
 
 	"homedashboard/internal/api"
 	"homedashboard/internal/db"
-	"homedashboard/internal/seed"
 	"homedashboard/internal/store"
 	"homedashboard/internal/ws"
 )
@@ -37,9 +37,6 @@ func main() {
 	defer d.Close()
 
 	s := store.New(d)
-	if err := seed.Run(s); err != nil {
-		log.Fatalf("seed: %v", err)
-	}
 
 	hub := ws.NewHub()
 	go hub.Run()

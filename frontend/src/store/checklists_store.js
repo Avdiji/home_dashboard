@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { SEED_LISTS } from "../core/seeds/checklists";
 import { sendCommand } from "../core/api/transport";
 
 // Centralized checklist lists state. Single source of truth shared by the
@@ -7,13 +6,13 @@ import { sendCommand } from "../core/api/transport";
 // a view over the same lists). Module-level store — no provider needed;
 // subscribe via `useChecklists((s) => s.lists)`.
 //
-// Seeds still define the initial state; `loadAll()` swaps them for the fetched
-// lists on mount. Mutations fire WS commands (no optimistic local update — the
-// broadcast round-trip updates every client via applyEvent). The action
-// signature stays the spec for the command payload.
+// Initial state is empty; `loadAll()` hydrates from the backend on mount, and
+// broadcast events keep it in sync (no optimistic local update — the broadcast
+// round-trip updates every client via applyEvent). The action signature stays
+// the spec for the command payload.
 
 export const useChecklists = create(() => ({
-  lists: SEED_LISTS,
+  lists: [],
   // checklist.item.toggle — { listId, itemId }
   toggleItem: (listId, itemId) =>
     sendCommand("checklist.item.toggle", { listId, itemId }),

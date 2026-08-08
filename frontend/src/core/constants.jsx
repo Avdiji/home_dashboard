@@ -64,12 +64,15 @@ export const OPEN_METEO_FORECAST_DAYS = 2; // enough hours to cover late-night r
 export const IP_GEO_URL = "https://get.geojs.io/v1/ip/geo.json";
 
 // --- Backend API config ----------------------------------------------------
-// The Go backend (backend/) serves REST initial loads + the /ws websocket.
-// Override per-environment with Vite env vars (VITE_API_BASE / VITE_WS_URL);
-// defaults target the local dev server on :8080.
-export const API_BASE =
-  import.meta.env?.VITE_API_BASE ?? "http://localhost:8080";
-export const WS_URL = import.meta.env?.VITE_WS_URL ?? "ws://localhost:8080/ws";
+// URLs are origin-relative so they work from any host that serves the frontend
+// (desktop localhost OR a phone on the LAN hitting the dev server). In dev the
+// Vite proxy forwards /api + /ws to the Go backend on :8080; in prod the same
+// paths are served by the reverse proxy. Override per-environment with Vite
+// env vars (VITE_API_BASE / VITE_WS_URL) when the backend lives elsewhere.
+export const API_BASE = import.meta.env?.VITE_API_BASE ?? "";
+export const WS_URL =
+  import.meta.env?.VITE_WS_URL ??
+  `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws`;
 export const API_ENDPOINTS = {
   persons: "/api/persons",
   events: "/api/events",

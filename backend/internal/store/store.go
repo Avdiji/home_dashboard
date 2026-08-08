@@ -23,8 +23,8 @@ func New(db *sql.DB) *Store {
 	return &Store{db: db}
 }
 
-// DB exposes the underlying connection for callers that need raw queries
-// (e.g. seed.Run counts tables). Normal mutations go through the typed methods.
+// DB exposes the underlying connection for callers that need raw queries.
+// Normal mutations go through the typed methods.
 func (s *Store) DB() *sql.DB { return s.db }
 
 // ErrNotFound is returned by single-entity getters; the API layer maps it to

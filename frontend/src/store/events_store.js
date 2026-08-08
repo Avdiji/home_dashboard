@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { SEED_EVENTS } from "../core/seeds/events";
 import { sendCommand } from "../core/api/transport";
 
 // Centralized calendar events state. Single source of truth shared by the
@@ -7,14 +6,14 @@ import { sendCommand } from "../core/api/transport";
 // same events so a row click deep-links to the real event id). Module-level
 // store — no provider needed; subscribe via `useEvents((s) => s.events)`.
 //
-// Seeds still define the initial state; `loadAll()` swaps them for the fetched
-// events on mount. Mutations fire WS commands (no optimistic local update —
-// the broadcast round-trip updates every client via applyEvent). The hook/view
-// pass camelCase + Date objects; the action maps them to the snake_case /
-// ISO-string wire shape the backend command expects.
+// Initial state is empty; `loadAll()` hydrates from the backend on mount, and
+// broadcast events keep it in sync (no optimistic local update — the broadcast
+// round-trip updates every client via applyEvent). The hook/view pass
+// camelCase + Date objects; the action maps them to the snake_case / ISO-string
+// wire shape the backend command expects.
 
 export const useEvents = create(() => ({
-  events: SEED_EVENTS,
+  events: [],
   // event.add — start/end are Date → ISO strings on the wire.
   addEvent: ({
     title,
