@@ -2,82 +2,121 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 14px;
+}
+
+.ring {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  display: grid;
+  place-items: center;
 }
 
 .gauge {
-  width: 220px;
-  height: 124px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 
 .track {
   fill: none;
   stroke: var(--line-strong);
-  stroke-width: 10;
+  stroke-width: 8;
   stroke-linecap: round;
+  opacity: 0.4;
 }
 
-.fillOuter {
+.fill {
   fill: none;
-  stroke: var(--accent-2);
-  stroke-width: 10;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.4s ease;
+  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--accent-2) 30%, transparent));
 }
 
-.trackInner {
-  fill: none;
+/* Watch-dial ticks — 12 marks ringing the inside of the outer track. The
+   cardinal ticks (12/3/6/9) are thicker + darker. */
+.tick {
   stroke: var(--line-strong);
-  stroke-width: 4;
+  stroke-width: 2;
   stroke-linecap: round;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-.fillInner {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 4;
+.tickMajor {
+  stroke: var(--muted);
+  stroke-width: 3;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.3s ease;
+  opacity: 0.85;
 }
 
-.stack {
-  margin-top: -10px;
+/* Day bead — solid accent-2 with a panel ring, riding the day-arc tip. */
+.knob {
+  fill: var(--accent-2);
+  stroke: var(--panel);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--accent-2) 45%, transparent));
+}
+
+.gradA {
+  stop-color: var(--accent-2);
+}
+
+.gradB {
+  stop-color: var(--accent);
+}
+
+.center {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 5px;
   text-align: center;
 }
 
 .time {
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 700;
-  color: var(--accent-2);
+  color: var(--ink);
   line-height: 1;
   letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.seconds {
+  margin-left: 2px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-2);
   font-variant-numeric: tabular-nums;
 }
 
 .weekday {
-  margin-top: 6px;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--ink);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .date {
-  font-size: 12px;
   color: var(--muted);
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
 
 @media (--until-desktop) {
-  .gauge {
-    width: 180px;
-    height: 102px;
+  .ring {
+    width: 188px;
+    height: 188px;
   }
   .time {
-    font-size: 28px;
+    font-size: 30px;
   }
 }

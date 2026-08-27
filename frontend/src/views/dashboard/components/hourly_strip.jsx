@@ -2,6 +2,9 @@ import { describeWeatherCode } from "../../../core/utils/weather_codes";
 import { formatTime24 } from "../../../core/utils/date_utils";
 import classes from "./hourly_strip.module.css";
 
+// Horizontal hourly timeline (next 4 hours). Each cell is a stacked
+// time · icon · temp column; thin vertical dividers separate them. Sits along
+// the bottom of the weather tile.
 export default function HourlyStrip({ hours }) {
   if (!hours || hours.length === 0) return null;
   return (

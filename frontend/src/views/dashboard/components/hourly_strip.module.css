@@ -1,37 +1,39 @@
-/* Hourly forecast — a compact vertical list of the next 4 hours, placed beside
-   the weather content in the now-section. Each row: time (left) · icon · temp
-   (right). No card/box; it reads as part of the weather block. A prominent
-   horizontal separator under the whole now-section (not here) divides it from
-   the upcoming/dish grid below. */
+/* Horizontal hourly timeline. Each cell is a stacked time · icon · temp
+   column; a thin vertical divider separates adjacent cells. */
 .strip {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
+  align-items: stretch;
+  width: 100%;
 }
 
 .cell {
+  flex: 1 1 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 7px;
+  padding: 2px 8px;
+}
+
+.cell + .cell {
+  border-left: 1px solid var(--line);
 }
 
 .hour {
-  flex: 0 0 auto;
-  min-width: 42px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
 .icon {
-  font-size: 18px;
+  font-size: 22px;
   line-height: 1;
 }
 
 .temp {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }

@@ -1,10 +1,14 @@
 import { describeWeatherCode } from "../../../core/utils/weather_codes";
 import { formatTime24 } from "../../../core/utils/date_utils";
+import HourlyStrip from "./hourly_strip";
 import classes from "./weather_card.module.css";
 
 const fmt = (iso) => (iso ? formatTime24(new Date(iso)) : "—");
 
-export default function WeatherCard({ weather, place }) {
+// The weather tile. Header carries the place + a "Change" action; the body is a
+// large icon badge beside the temperature + condition; a row of condition chips
+// (wind / humidity / sun); the hourly timeline is pinned to the bottom.
+export default function WeatherCard({ weather, place, hours, onChangeLocation }) {
   const { label, icon } = describeWeatherCode(
     weather.weatherCode,
     weather.isDay,
@@ -22,22 +26,34 @@ export default function WeatherCard({ weather, place }) {
 
   return (
     <div className={classes.wrap}>
+      <div className={classes.head}>
+        <div className={classes.place}>📍 {place}</div>
+        <button
+          type="button"
+          className={classes.changeLoc}
+          onClick={onChangeLocation}
+        >
+          Change
+        </button>
+      </div>
+
       <div className={classes.main}>
-        <span className={classes.icon}>{icon}</span>
+        <div className={classes.iconBadge}>{icon}</div>
         <div className={classes.tempBlock}>
           <span className={classes.temp}>{temp}</span>
+          <span className={classes.cond}>{label}</span>
           {feels && <span className={classes.feels}>feels {feels}</span>}
         </div>
       </div>
-      <div className={classes.label}>{label}</div>
-      {place && <div className={classes.place}>📍 {place}</div>}
-      <div className={classes.conditions}>
-        {wind && <span>{wind} wind</span>}
-        {humidity && <span>{humidity} humidity</span>}
+
+      <div className={classes.chips}>
+        {wind && <span className={classes.chip}>💨 {wind} wind</span>}
+        {humidity && <span className={classes.chip}>💧 {humidity} humidity</span>}
+        <span className={classes.chip}>↑ {fmt(weather.sunrise)} · ↓ {fmt(weather.sunset)}</span>
       </div>
-      <div className={classes.sun}>
-        <span className={classes.sunItem}>↑ {fmt(weather.sunrise)}</span>
-        <span className={classes.sunItem}>↓ {fmt(weather.sunset)}</span>
+
+      <div className={classes.forecast}>
+        <HourlyStrip hours={hours} />
       </div>
     </div>
   );

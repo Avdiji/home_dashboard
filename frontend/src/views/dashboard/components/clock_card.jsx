@@ -1,41 +1,68 @@
-import { SECONDS_PER_MINUTE } from "../../../core/constants";
 import classes from "./clock_card.module.css";
 
-// Half-gauge (top semicircle). Arc length = π·R.
-const R_OUTER = 84;
-const R_INNER = 66;
-const C_OUTER = Math.PI * R_OUTER;
-const C_INNER = Math.PI * R_INNER;
-// Arc path from left basepoint over the top to right basepoint (center 100,100).
-const arcPath = (r) => `M ${100 - r} 100 A ${r} ${r} 0 0 1 ${100 + r} 100`;
+// Full-circle ring gauge. Outer ring fills clockwise with day progress; a bead
+// rides its tip. 12 tick marks ring the inside like a watch dial. Time sits
+// centered inside the ring.
+const R = 84;
+const C = 2 * Math.PI * R;
+const TICKS = Array.from({ length: 12 }, (_, i) => i);
 
 export default function ClockCard({ clock }) {
-  const outerOffset = C_OUTER * (1 - clock.dayProgress / 100);
-  const innerOffset = C_INNER * (1 - Number(clock.seconds) / SECONDS_PER_MINUTE);
+  const dayOffset = C * (1 - clock.dayProgress / 100);
+  // Day bead: angle from top, sweeping clockwise as the day fills.
+  const dayAng = (clock.dayProgress / 100) * Math.PI * 2 - Math.PI / 2;
+  const knobX = 100 + R * Math.cos(dayAng);
+  const knobY = 100 + R * Math.sin(dayAng);
 
   return (
     <div className={classes.wrap}>
-      <svg viewBox="0 0 200 112" className={classes.gauge}>
-        <path d={arcPath(R_OUTER)} className={classes.track} />
-        <path
-          d={arcPath(R_OUTER)}
-          className={classes.fillOuter}
-          strokeDasharray={C_OUTER}
-          strokeDashoffset={outerOffset}
-        />
-        <path d={arcPath(R_INNER)} className={classes.trackInner} />
-        <path
-          d={arcPath(R_INNER)}
-          className={classes.fillInner}
-          strokeDasharray={C_INNER}
-          strokeDashoffset={innerOffset}
-        />
-      </svg>
-      <div className={classes.stack}>
-        <div className={classes.time}>{clock.time}</div>
-        <div className={classes.weekday}>{clock.weekday}</div>
-        <div className={classes.date}>{clock.date}</div>
+      <div className={classes.ring}>
+        <svg viewBox="0 0 200 200" className={classes.gauge}>
+          <defs>
+            <linearGradient id="clockRing" x1="0" y1="0" x2="1" y2="1">
+              <stop className={classes.gradA} offset="0%" />
+              <stop className={classes.gradB} offset="100%" />
+            </linearGradient>
+          </defs>
+          {TICKS.map((i) => {
+            const ang = (i * 30 - 90) * (Math.PI / 180);
+            const major = i % 3 === 0;
+            const r1 = major ? 71 : 73;
+            const r2 = 80;
+            return (
+              <line
+                key={i}
+                x1={100 + r1 * Math.cos(ang)}
+                y1={100 + r1 * Math.sin(ang)}
+                x2={100 + r2 * Math.cos(ang)}
+                y2={100 + r2 * Math.sin(ang)}
+                className={major ? classes.tickMajor : classes.tick}
+              />
+            );
+          })}
+          <circle cx="100" cy="100" r={R} className={classes.track} />
+          <circle
+            cx="100"
+            cy="100"
+            r={R}
+            className={classes.fill}
+            stroke="url(#clockRing)"
+            strokeWidth="8"
+            strokeDasharray={C}
+            strokeDashoffset={dayOffset}
+            transform="rotate(-90 100 100)"
+          />
+          <circle cx={knobX} cy={knobY} r="5.5" className={classes.knob} />
+        </svg>
+        <div className={classes.center}>
+          <div className={classes.time}>
+            {clock.time}
+            <span className={classes.seconds}>:{clock.seconds}</span>
+          </div>
+          <div className={classes.weekday}>{clock.weekday}</div>
+        </div>
       </div>
+      <div className={classes.date}>{clock.date}</div>
     </div>
   );
 }
