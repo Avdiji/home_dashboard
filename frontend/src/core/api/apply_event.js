@@ -23,6 +23,7 @@ import { ChecklistDTO } from "../dto/checklist.dto";
 import { ChecklistItemDTO } from "../dto/checklist_item.dto";
 import { RecipeDTO } from "../dto/recipe.dto";
 import { MealDTO } from "../dto/meal.dto";
+import { transition } from "../utils/view_transition";
 
 // upsert by id: replace if present, else append.
 const upsert = (arr, item) =>
@@ -101,7 +102,10 @@ const meals = (evt) => {
 };
 
 // applyEvent routes one inbound message to the right store. Error replies
-// (type:"error", sent only to the originator) are logged, not applied.
+// (type:"error", sent only to the originator) are logged, not applied. The
+// store mutation is wrapped in a View Transition so entity spawn/vanish
+// (items, lists, events, meals, persons, recipes) crossfades smoothly instead
+// of snapping.
 export function applyEvent(msg) {
   if (msg.type === "error") {
     console.error(
@@ -110,10 +114,13 @@ export function applyEvent(msg) {
     return;
   }
   const entity = msg.entity;
-  if (entity === "person") return persons(msg);
-  if (entity === "event") return events(msg);
-  if (entity === "checklist" || entity === "checklist_item") return checklists(msg);
-  if (entity === "recipe") return recipes(msg);
-  if (entity === "meal") return meals(msg);
-  console.warn("ws: unknown event entity", msg);
+  const route = () => {
+    if (entity === "person") return persons(msg);
+    if (entity === "event") return events(msg);
+    if (entity === "checklist" || entity === "checklist_item") return checklists(msg);
+    if (entity === "recipe") return recipes(msg);
+    if (entity === "meal") return meals(msg);
+    console.warn("ws: unknown event entity", msg);
+  };
+  transition(route);
 }

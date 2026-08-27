@@ -8,6 +8,7 @@ import { useMeals } from "../../../store/meals_store";
 import { useRecipes } from "../../../store/recipes_store";
 import { CALENDAR_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH } from "../../../core/nav_config";
 import { updateSun as updateThemeSun } from "../../../core/theme";
+import { transition } from "../../../core/utils/view_transition";
 import { WeatherDTO } from "../../../core/dto/weather.dto";
 import {
   WEEKDAYS_LONG_SUN,
@@ -327,13 +328,13 @@ export default function useDashboard() {
   const [editingMember, setEditingMember] = useState(null);
   const openNewMember = () => {
     setEditingMember(null);
-    setMemberFormOpen(true);
+    transition(() => setMemberFormOpen(true));
   };
   const openEditMember = (person) => {
     setEditingMember(person);
-    setMemberFormOpen(true);
+    transition(() => setMemberFormOpen(true));
   };
-  const closeMemberForm = () => setMemberFormOpen(false);
+  const closeMemberForm = () => transition(() => setMemberFormOpen(false));
 
   return {
     now,

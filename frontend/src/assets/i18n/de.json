@@ -93,7 +93,8 @@
     "removeItem": "Eintrag entfernen",
     "newListTitle": "Neue Liste",
     "titleLabel": "Titel",
-    "listNamePlaceholder": "Listenname"
+    "listNamePlaceholder": "Listenname",
+    "itemsLeft": "{{count}} offen"
   },
   "mealPlan": {
     "title": "Essensplan",

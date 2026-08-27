@@ -13,3 +13,43 @@ body {
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
 }
+
+/* Smooth theme switches + state changes (background/border/color). Kept on a
+   low-specificity `*` rule so component-level transitions still override. */
+* {
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    fill 0.16s ease,
+    stroke 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.16s ease;
+}
+
+/* View Transitions API: tune the same-document crossfade so entity
+   spawn/vanish + modal open/close feel smooth instead of snapping. The default
+   is ~250ms+crossfade; ~180ms reads as a quick fade without lag. Only `root`
+   (the whole app snapshot) is used — no named transitions. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.18s;
+  animation-timing-function: ease;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* Respect reduced-motion: skip the crossfade, keep instant updates usable. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

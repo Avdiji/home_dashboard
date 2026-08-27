@@ -93,7 +93,8 @@
     "removeItem": "Remove item",
     "newListTitle": "New list",
     "titleLabel": "Title",
-    "listNamePlaceholder": "List name"
+    "listNamePlaceholder": "List name",
+    "itemsLeft": "{{count}} left"
   },
   "mealPlan": {
     "title": "Meal Plan",

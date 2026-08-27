@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { usePersons } from "../../../store/persons_store";
 import { useChecklists } from "../../../store/checklists_store";
+import { transition } from "../../../core/utils/view_transition";
 
 export default function useChecklist() {
   // Entity state lives in the centralized stores — the dashboard's checklist
@@ -24,8 +25,8 @@ export default function useChecklist() {
       ? lists
       : lists.filter((l) => l.personIds.some((id) => memberFilter.has(id)));
 
-  const openNewList = () => setListFormOpen(true);
-  const closeListForm = () => setListFormOpen(false);
+  const openNewList = () => transition(() => setListFormOpen(true));
+  const closeListForm = () => transition(() => setListFormOpen(false));
 
   return {
     lists,

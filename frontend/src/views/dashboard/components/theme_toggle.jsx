@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { getMode, cycleMode, subscribe } from "../../../core/theme";
 import classes from "./theme_toggle.module.css";
 
-const ICON = { light: "☀️", dark: "🌙", auto: "🌅" };
+const ICON = { light: "☀️", dark: "🌙", auto: "🌗" };
 
 // Cycles the color mode: light → dark → auto → light. The theme module owns the
 // resolved theme (stamped on <html data-theme>); this button only changes the

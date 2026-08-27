@@ -2,49 +2,86 @@
   padding: 24px;
 }
 
-.toolbar {
+/* Page header + "New list" action sit on the same row so the create action is
+   anchored top-right (out of the filter row). */
+.header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-top: 4px;
-  margin-bottom: 24px;
 }
 
-.toolbar_right {
-  display: flex;
-  gap: 12px;
-  margin-left: auto;
-}
-
+/* Member filter — a grid of pills that wraps (max 6 per row on tablet/desktop,
+   2 on mobile) so long rosters fold into rows instead of one clipped bar. The
+   container itself is transparent so an incomplete last row doesn't leave a
+   colored block — empty cells show the page. Dividers are per-pill left
+   borders, suppressed on the first column of each row (via :nth-child) so no
+   stray line appears at a row's left edge. */
 .filter {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--accent-2);
+  margin: 4px 0 24px;
+  background: transparent;
+}
+
+@media (--tablet) {
+  .filter {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 .filterBtn {
   border: 0;
-  background: transparent;
+  background: var(--accent-2);
   color: var(--on-accent);
   min-height: 34px;
-  display: inline-flex;
+  min-width: 0;
+  display: flex;
   align-items: center;
-  padding: 6px 14px;
+  justify-content: center;
+  padding: 6px 10px;
   font: inherit;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: filter 0.15s ease;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.filterBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
+/* No divider on the first pill of each row. */
+@media (--mobile) {
+  .filterBtn:nth-child(2n + 1) {
+    border-left: 0;
+  }
+}
+
+@media (--tablet) {
+  .filterBtn:nth-child(6n + 1) {
+    border-left: 0;
+  }
+}
+
+/* Hover darkens, matching the app's accent-2 standard (AddButton) instead of
+   washing out with a white overlay. Applies to the active (inverted) pill too
+   so it gets feedback — brightness on its white bg reads as a subtle gray. */
+.filterBtn:hover,
+.filterBtn.active:hover {
+  filter: brightness(0.95);
 }
 
 .filterBtn.active {
   background: var(--on-accent);
   color: var(--accent-2);
   font-weight: 600;
+}
+
+/* Label truncates with an ellipsis when a name is too long for its cell; the
+   full name is exposed via the button's title tooltip. */
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

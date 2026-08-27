@@ -40,35 +40,34 @@ export default function Checklist() {
 
   return (
     <div className={classes.view}>
-      <PageHeader title={t("checklist.title")} subtitle={t("checklist.subtitle")} />
+      <div className={classes.header}>
+        <PageHeader title={t("checklist.title")} subtitle={t("checklist.subtitle")} />
+        <AddButton onClick={openNewList}>
+          {t("checklist.newList")}
+        </AddButton>
+      </div>
 
-      <div className={classes.toolbar}>
-        <div className={classes.filter}>
+      <div className={classes.filter}>
+        <button
+          type="button"
+          className={`${classes.filterBtn} ${allActive ? classes.active : ""}`}
+          onClick={clearMembers}
+        >
+          <span className={classes.label}>{t("checklist.all")}</span>
+        </button>
+        {persons.map((p) => (
           <button
+            key={p.id}
             type="button"
-            className={`${classes.filterBtn} ${allActive ? classes.active : ""}`}
-            onClick={clearMembers}
+            title={p.name}
+            className={`${classes.filterBtn} ${
+              memberFilter.has(p.id) ? classes.active : ""
+            }`}
+            onClick={() => toggleMember(p.id)}
           >
-            {t("checklist.all")}
+            <span className={classes.label}>{p.name}</span>
           </button>
-          {persons.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className={`${classes.filterBtn} ${
-                memberFilter.has(p.id) ? classes.active : ""
-              }`}
-              onClick={() => toggleMember(p.id)}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
-        <div className={classes.toolbar_right}>
-          <AddButton onClick={openNewList}>
-            {t("checklist.newList")}
-          </AddButton>
-        </div>
+        ))}
       </div>
 
       <div className={layout.twoColGrid}>

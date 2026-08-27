@@ -4,6 +4,7 @@ import { useRecipes } from "../../../store/recipes_store";
 import { useMeals } from "../../../store/meals_store";
 import { MEAL_PLAN_PATH } from "../../../core/nav_config";
 import { STATE_KEY_EDIT_RECIPE_ID, TAB_PLANNED } from "../../../core/constants";
+import { transition } from "../../../core/utils/view_transition";
 
 export default function useMealPlan() {
   // Entity state lives in the centralized stores — the dashboard's "today's
@@ -38,19 +39,19 @@ export default function useMealPlan() {
 
   const openNewRecipe = () => {
     setEditingRecipe(null);
-    setRecipeFormOpen(true);
+    transition(() => setRecipeFormOpen(true));
   };
   const openEditRecipe = (recipe) => {
     setEditingRecipe(recipe);
-    setRecipeFormOpen(true);
+    transition(() => setRecipeFormOpen(true));
   };
-  const closeRecipeForm = () => setRecipeFormOpen(false);
+  const closeRecipeForm = () => transition(() => setRecipeFormOpen(false));
 
   const openNewMeal = (date = null) => {
     setMealFormDate(date);
-    setMealFormOpen(true);
+    transition(() => setMealFormOpen(true));
   };
-  const closeMealForm = () => setMealFormOpen(false);
+  const closeMealForm = () => transition(() => setMealFormOpen(false));
 
   // Cross-feature deep link: the dashboard's "today's dish" navigates here with
   // `{ editRecipeId }` to open that recipe's edit modal.
@@ -62,7 +63,7 @@ export default function useMealPlan() {
     const found = recipes.find((r) => r.id === editRecipeId);
     if (found) {
       setEditingRecipe(found);
-      setRecipeFormOpen(true);
+      transition(() => setRecipeFormOpen(true));
     }
     navigate(MEAL_PLAN_PATH, { replace: true, state: null });
   }, [location.state, recipes, navigate]);

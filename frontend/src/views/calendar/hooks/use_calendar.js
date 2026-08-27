@@ -4,6 +4,7 @@ import { useEvents } from "../../../store/events_store";
 import { usePersons } from "../../../store/persons_store";
 import { CALENDAR_PATH } from "../../../core/nav_config";
 import { FREQUENCY_NONE } from "../../../core/frequency";
+import { transition } from "../../../core/utils/view_transition";
 import {
   STATE_KEY_EDIT_EVENT_ID,
   STATE_KEY_EVENT_START,
@@ -66,17 +67,17 @@ export default function useCalendar() {
     setEditingEvent(null);
     setFormStart(start ?? null);
     setEditingOccurrenceStart(null);
-    setFormOpen(true);
+    transition(() => setFormOpen(true));
   };
 
   const openEditForm = (occ) => {
     setEditingEvent(occ.event);
     setFormStart(null);
     setEditingOccurrenceStart(occ.start ?? null);
-    setFormOpen(true);
+    transition(() => setFormOpen(true));
   };
 
-  const closeForm = () => setFormOpen(false);
+  const closeForm = () => transition(() => setFormOpen(false));
 
   // Delete flow. For a one-off event there is nothing to choose — delete it.
   // For a recurring event, open the choice modal (this occurrence vs the whole
@@ -89,24 +90,24 @@ export default function useCalendar() {
       return;
     }
     setDeleteChoice({ eventId: event.id, occurrenceStart });
-    setDeleteChoiceOpen(true);
+    transition(() => setDeleteChoiceOpen(true));
   };
 
   const confirmDeleteAll = () => {
     if (deleteChoice) removeEvent(deleteChoice.eventId);
     setDeleteChoice(null);
-    setDeleteChoiceOpen(false);
+    transition(() => setDeleteChoiceOpen(false));
   };
 
   const confirmDeleteOne = () => {
     if (deleteChoice) excludeOccurrence(deleteChoice.eventId, deleteChoice.occurrenceStart);
     setDeleteChoice(null);
-    setDeleteChoiceOpen(false);
+    transition(() => setDeleteChoiceOpen(false));
   };
 
   const closeDeleteChoice = () => {
     setDeleteChoice(null);
-    setDeleteChoiceOpen(false);
+    transition(() => setDeleteChoiceOpen(false));
   };
 
   // Cross-feature deep link: another view (e.g. the dashboard upcoming list)
@@ -125,7 +126,7 @@ export default function useCalendar() {
       setEditingEvent(found);
       setFormStart(null);
       setEditingOccurrenceStart(startIso ? new Date(startIso) : null);
-      setFormOpen(true);
+      transition(() => setFormOpen(true));
     }
     // Consume the state so a back/forward re-entry doesn't reopen the modal.
     navigate(CALENDAR_PATH, { replace: true, state: null });
