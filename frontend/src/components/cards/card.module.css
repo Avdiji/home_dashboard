@@ -5,6 +5,7 @@
   box-shadow: var(--shadow-card);
   padding: 18px;
   min-width: 0;
+  animation: riseIn 0.26s ease both;
 }
 
 .header {

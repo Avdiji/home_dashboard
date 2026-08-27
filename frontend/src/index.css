@@ -14,17 +14,39 @@ body {
   overflow-x: hidden;
 }
 
-/* Smooth theme switches + state changes (background/border/color). Kept on a
-   low-specificity `*` rule so component-level transitions still override. */
+/* Smooth theme switches + hover/state changes (background/border/color). Kept
+   on a low-specificity `*` rule so component-level transitions still override.
+   This animates property *changes* on already-mounted elements; mount/unmount
+   spawn-vanish is handled by the keyframes below + the View Transitions API. */
 * {
   transition:
-    background-color 0.16s ease,
-    border-color 0.16s ease,
-    color 0.16s ease,
-    fill 0.16s ease,
-    stroke 0.16s ease,
-    box-shadow 0.16s ease,
-    opacity 0.16s ease;
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* Shared mount animations for entity spawn (items, cards, rows, chips, modal
+   dialog). Defined globally so any CSS module can reference them by name.
+   `both` fill keeps the from-state until the animation starts and the
+   to-state after, so newly mounted elements don't flash fully-visible before
+   animating. */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { transform: none; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* View Transitions API: tune the same-document crossfade so entity
@@ -41,15 +63,4 @@ body {
 }
 ::view-transition-new(root) {
   z-index: 2;
-}
-
-/* Respect reduced-motion: skip the crossfade, keep instant updates usable. */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
-  }
 }

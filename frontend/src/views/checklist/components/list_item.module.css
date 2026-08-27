@@ -4,6 +4,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  animation: riseIn 0.22s ease both;
 }
 
 .item:first-child {

@@ -8,6 +8,7 @@
   color: inherit;
   cursor: pointer;
   min-width: 0;
+  animation: riseIn 0.22s ease both;
 }
 
 .desc {
