@@ -23,6 +23,7 @@ export const useEvents = create(() => ({
     end,
     personIds,
     frequency,
+    interval,
   }) =>
     sendCommand("event.add", {
       title,
@@ -32,6 +33,7 @@ export const useEvents = create(() => ({
       end_at: end instanceof Date ? end.toISOString() : end,
       person_ids: personIds,
       frequency,
+      interval,
     }),
   // event.update — full patch; backend pointers treat each field as "provided".
   // Empty strings clear; absent keys would be no-op (the form always sends all).
@@ -45,8 +47,19 @@ export const useEvents = create(() => ({
       end_at: patch.end instanceof Date ? patch.end.toISOString() : patch.end,
       person_ids: patch.personIds,
       frequency: patch.frequency,
+      interval: patch.interval,
     }),
-  // event.delete — { eventId }
+  // event.delete — { eventId } — removes the whole event (every occurrence of a
+  // recurring series).
   removeEvent: (eventId) =>
     sendCommand("event.delete", { eventId }),
+  // event.excludeOccurrence — deletes one occurrence of a recurring series only.
+  // `start` is the occurrence's concrete start (ISO) so the backend can add it
+  // to the base event's exclusions; the broadcast event.updated re-expands and
+  // drops that instance everywhere.
+  excludeOccurrence: (eventId, start) =>
+    sendCommand("event.excludeOccurrence", {
+      eventId,
+      start: start instanceof Date ? start.toISOString() : start,
+    }),
 }));

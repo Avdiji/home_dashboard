@@ -11,6 +11,8 @@ export class EventDTO {
     end_at,
     person_ids = [],
     frequency = "none",
+    interval = 1,
+    exclusions = [],
   } = {}) {
     this.id = id;
     this.title = title;
@@ -20,6 +22,8 @@ export class EventDTO {
     this.end_at = end_at;
     this.person_ids = Array.isArray(person_ids) ? person_ids.slice() : [];
     this.frequency = frequency;
+    this.interval = interval;
+    this.exclusions = Array.isArray(exclusions) ? exclusions.slice() : [];
   }
 
   toModel() {
@@ -32,6 +36,8 @@ export class EventDTO {
       end: this.end_at,
       personIds: this.person_ids,
       frequency: this.frequency,
+      interval: this.interval,
+      exclusions: this.exclusions,
     });
   }
 }

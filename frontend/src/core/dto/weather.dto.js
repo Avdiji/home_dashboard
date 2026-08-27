@@ -19,6 +19,7 @@ export class WeatherDTO {
     sunrise,
     sunset,
     hours = [],
+    place = null,
   } = {}) {
     this.temperature = temperature_2m;
     this.apparentTemperature = apparent_temperature;
@@ -29,6 +30,7 @@ export class WeatherDTO {
     this.sunrise = sunrise;
     this.sunset = sunset;
     this.hours = Array.isArray(hours) ? hours.slice() : [];
+    this.place = place;
   }
 
   toModel() {
@@ -42,6 +44,7 @@ export class WeatherDTO {
       sunrise: this.sunrise,
       sunset: this.sunset,
       hours: this.hours,
+      place: this.place,
     });
   }
 }

@@ -5,6 +5,7 @@ import MonthView from "./components/month_view";
 import WeekView from "./components/week_view";
 import DayView from "./components/day_view";
 import EventForm from "./components/event_form";
+import DeleteChoice from "./components/delete_choice";
 import AddButton from "../../components/buttons/add_button";
 import useCalendar from "./hooks/use_calendar";
 import classes from "./calendar.module.css";
@@ -23,12 +24,18 @@ export default function Calendar() {
     formOpen,
     editingEvent,
     formStart,
+    editingOccurrenceStart,
     openNewForm,
     openEditForm,
     closeForm,
     addEvent,
     updateEvent,
-    removeEvent,
+    requestDelete,
+    deleteChoice,
+    deleteChoiceOpen,
+    confirmDeleteAll,
+    confirmDeleteOne,
+    closeDeleteChoice,
   } = useCalendar();
 
   return (
@@ -84,10 +91,20 @@ export default function Calendar() {
           persons={persons}
           event={editingEvent}
           initialStart={formStart}
+          occurrenceStart={editingOccurrenceStart}
           onClose={closeForm}
           onSave={addEvent}
           onUpdate={updateEvent}
-          onDelete={removeEvent}
+          onDelete={requestDelete}
+        />
+      )}
+
+      {deleteChoiceOpen && (
+        <DeleteChoice
+          occurrenceStart={deleteChoice?.occurrenceStart}
+          onAll={confirmDeleteAll}
+          onOne={confirmDeleteOne}
+          onClose={closeDeleteChoice}
         />
       )}
     </div>

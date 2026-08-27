@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS events (
     location    TEXT    NOT NULL DEFAULT '',
     start_at    TEXT    NOT NULL,   -- RFC 3339
     end_at      TEXT    NOT NULL,   -- RFC 3339
-    frequency   TEXT    NOT NULL DEFAULT 'none'  -- none|daily|weekly|monthly
+    frequency   TEXT    NOT NULL DEFAULT 'none',  -- none|daily|weekly|monthly|yearly
+    interval    INTEGER NOT NULL DEFAULT 1,      -- recurrence interval (every N units)
+    exclusions  TEXT    NOT NULL DEFAULT '[]'     -- JSON array of skipped occurrence starts (ISO 3339)
 );
 
 CREATE TABLE IF NOT EXISTS events_persons (

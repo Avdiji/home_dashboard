@@ -8,6 +8,8 @@ export class Event {
     end,
     personIds = [],
     frequency = "none",
+    interval = 1,
+    exclusions = [],
   } = {}) {
     this.id = id;
     this.title = title;
@@ -17,5 +19,7 @@ export class Event {
     this.end = end instanceof Date ? end : new Date(end);
     this.personIds = Array.isArray(personIds) ? personIds.slice() : [];
     this.frequency = frequency;
+    this.interval = interval || 1;
+    this.exclusions = Array.isArray(exclusions) ? exclusions.slice() : [];
   }
 }

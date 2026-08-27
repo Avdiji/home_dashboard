@@ -55,13 +55,14 @@ export const OPEN_METEO_CURRENT_FIELDS =
 export const OPEN_METEO_HOURLY_FIELDS = "temperature_2m,weather_code,is_day";
 export const OPEN_METEO_DAILY_FIELDS = "sunrise,sunset";
 export const OPEN_METEO_FORECAST_DAYS = 2; // enough hours to cover late-night rollover
-
-// --- IP geolocation fallback ----------------------------------------------
-// Free, no key. Used when navigator.geolocation is unavailable/denied/blocked
-// (e.g. dev server reached over LAN http — browsers block geolocation on
-// non-secure origins). Returns the browser IP's coarse lat/long (as strings)
-// so we can still fetch real Open-Meteo weather for an approximate location.
-export const IP_GEO_URL = "https://get.geojs.io/v1/ip/geo.json";
+// Forward geocoding (place name → coords). Free, no key. Used by the dashboard
+// weather picker so the user can set the location manually instead of relying
+// on browser geolocation.
+export const OPEN_METEO_GEOCODE_SEARCH_URL = "https://geocoding-api.open-meteo.com/v1/search";
+// localStorage key for the user's chosen weather location
+// ({ name, latitude, longitude, countryCode, admin1 }). Persists across reloads
+// so the dashboard re-fetches weather for the same place without re-prompting.
+export const WEATHER_LOCATION_STORAGE_KEY = "home_dashboard_weather_location";
 
 // --- Backend API config ----------------------------------------------------
 // URLs are origin-relative so they work from any host that serves the frontend

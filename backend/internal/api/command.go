@@ -8,7 +8,7 @@ import (
 	"homedashboard/internal/store"
 )
 
-var errBadFrequency = errors.New("invalid frequency (expected none|daily|weekly|monthly)")
+var errBadFrequency = errors.New("invalid frequency (expected none|daily|weekly|monthly|yearly)")
 
 // command is the client→server envelope (docs/asyncapi.yaml command messages).
 // Action names the noop; RequestID is the optional correlation id; Payload is
@@ -56,6 +56,8 @@ func (d *Dispatcher) Dispatch(raw []byte) (events [][]byte, reply []byte) {
 		return d.eventUpdate(cmd)
 	case "event.delete":
 		return d.eventDelete(cmd)
+	case "event.excludeOccurrence":
+		return d.eventExcludeOccurrence(cmd)
 
 	// ---- checklists ----
 	case "checklist.add":
@@ -121,7 +123,24 @@ func (d *Dispatcher) personAdd(cmd command) ([][]byte, []byte) {
 	if err != nil {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "create person: "+err.Error())
 	}
-	return [][]byte{marshalEvent(personCreated(person, cmd.RequestID))}, nil
+	events := [][]byte{marshalEvent(personCreated(person, cmd.RequestID))}
+	// A birthday kicks off a yearly recurring "Birthday" series on the
+	// calendar, assigned to the new member. The series is a normal event the
+	// user can edit/delete like any other; it just gets created for them.
+	if p.Birthday != nil && *p.Birthday != "" {
+		bday, err := d.store.CreateEvent(&model.Event{
+			Title:      p.Name + "'s birthday",
+			StartAt:    *p.Birthday + "T00:00:00",
+			EndAt:      *p.Birthday + "T23:59:59",
+			PersonIDs:  []int{person.ID},
+			Frequency:  "yearly",
+			Interval:   1,
+		})
+		if err == nil {
+			events = append(events, marshalEvent(eventCreated(bday, cmd.RequestID)))
+		}
+	}
+	return events, nil
 }
 
 type personUpdatePayload struct {
@@ -171,6 +190,7 @@ type eventAddPayload struct {
 	EndAt       string  `json:"end_at"`
 	PersonIDs   []int   `json:"person_ids"`
 	Frequency   *string `json:"frequency"`
+	Interval    *int    `json:"interval"`
 }
 
 func (d *Dispatcher) eventAdd(cmd command) ([][]byte, []byte) {
@@ -184,12 +204,19 @@ func (d *Dispatcher) eventAdd(cmd command) ([][]byte, []byte) {
 	if p.StartAt == "" || p.EndAt == "" {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "start_at and end_at are required")
 	}
+	if p.EndAt < p.StartAt {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "end_at must not be before start_at")
+	}
 	freq := "none"
 	if p.Frequency != nil {
 		freq = *p.Frequency
 	}
 	if err := validateFrequency(freq); err != nil {
 		return nil, marshalError(cmd.Action, cmd.RequestID, err.Error())
+	}
+	interval := 1
+	if p.Interval != nil && *p.Interval > 1 {
+		interval = *p.Interval
 	}
 	ids := p.PersonIDs
 	if ids == nil {
@@ -198,6 +225,7 @@ func (d *Dispatcher) eventAdd(cmd command) ([][]byte, []byte) {
 	e, err := d.store.CreateEvent(&model.Event{
 		Title: p.Title, Description: p.Description, Location: p.Location,
 		StartAt: p.StartAt, EndAt: p.EndAt, PersonIDs: ids, Frequency: freq,
+		Interval: interval,
 	})
 	if err != nil {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "create event: "+err.Error())
@@ -214,6 +242,7 @@ type eventUpdatePayload struct {
 	EndAt       *string `json:"end_at"`
 	PersonIDs   *[]int  `json:"person_ids"`
 	Frequency   *string `json:"frequency"`
+	Interval    *int    `json:"interval"`
 }
 
 func (d *Dispatcher) eventUpdate(cmd command) ([][]byte, []byte) {
@@ -226,9 +255,13 @@ func (d *Dispatcher) eventUpdate(cmd command) ([][]byte, []byte) {
 			return nil, marshalError(cmd.Action, cmd.RequestID, err.Error())
 		}
 	}
+	if p.StartAt != nil && p.EndAt != nil && *p.EndAt < *p.StartAt {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "end_at must not be before start_at")
+	}
 	e, err := d.store.UpdateEvent(p.EventID, store.EventPatch{
 		Title: p.Title, Description: p.Description, Location: p.Location,
 		StartAt: p.StartAt, EndAt: p.EndAt, PersonIDs: p.PersonIDs, Frequency: p.Frequency,
+		Interval: p.Interval,
 	})
 	if err != nil {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "update event: "+err.Error())
@@ -253,6 +286,30 @@ func (d *Dispatcher) eventDelete(cmd command) ([][]byte, []byte) {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "delete event: "+err.Error())
 	}
 	return [][]byte{marshalEvent(eventDeleted(id, cmd.RequestID))}, nil
+}
+
+// event.excludeOccurrence backs "delete this occurrence only": add the
+// occurrence's start (ISO) to the base event's exclusions, leaving the rest of
+// the recurring series intact. Broadcasts event.updated (the base record
+// changed) so every client re-expands and drops that one instance.
+type eventExcludePayload struct {
+	EventID int    `json:"eventId"`
+	Start   string `json:"start"` // ISO 3339 occurrence start
+}
+
+func (d *Dispatcher) eventExcludeOccurrence(cmd command) ([][]byte, []byte) {
+	var p eventExcludePayload
+	if ok, err := decode(cmd, &p); !ok {
+		return nil, err
+	}
+	if p.Start == "" {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "start is required")
+	}
+	e, err := d.store.ExcludeOccurrence(p.EventID, p.Start)
+	if err != nil {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "exclude occurrence: "+err.Error())
+	}
+	return [][]byte{marshalEvent(eventUpdated(e, cmd.RequestID))}, nil
 }
 
 // ===== checklists =====
@@ -355,7 +412,7 @@ func (d *Dispatcher) itemAdd(cmd command) ([][]byte, []byte) {
 }
 
 type itemTogglePayload struct {
-	ListID  int `json:"listId"`
+	ListID int `json:"listId"`
 	ItemID int `json:"itemId"`
 }
 
@@ -372,8 +429,8 @@ func (d *Dispatcher) itemToggle(cmd command) ([][]byte, []byte) {
 }
 
 type itemDeletePayload struct {
-	ListID  int `json:"listId"`
-	ItemID  int `json:"itemId"`
+	ListID int `json:"listId"`
+	ItemID int `json:"itemId"`
 }
 
 func (d *Dispatcher) itemDelete(cmd command) ([][]byte, []byte) {
@@ -421,12 +478,12 @@ func (d *Dispatcher) recipeAdd(cmd command) ([][]byte, []byte) {
 }
 
 type recipeUpdatePayload struct {
-	RecipeID    int      `json:"recipeId"`
-	Title       *string  `json:"title"`
-	Description *string  `json:"description"`
+	RecipeID    int       `json:"recipeId"`
+	Title       *string   `json:"title"`
+	Description *string   `json:"description"`
 	Ingredients *[]string `json:"ingredients"`
-	Servings    *int     `json:"servings"`
-	Minutes     *int     `json:"minutes"`
+	Servings    *int      `json:"servings"`
+	Minutes     *int      `json:"minutes"`
 }
 
 func (d *Dispatcher) recipeUpdate(cmd command) ([][]byte, []byte) {
@@ -506,7 +563,7 @@ func (d *Dispatcher) mealDelete(cmd command) ([][]byte, []byte) {
 
 func validateFrequency(f string) error {
 	switch f {
-	case "none", "daily", "weekly", "monthly":
+	case "none", "daily", "weekly", "monthly", "yearly":
 		return nil
 	}
 	return errBadFrequency

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePersons } from "../../../store/persons_store";
 import { useEvents } from "../../../store/events_store";
@@ -10,7 +10,7 @@ import { WeatherDTO } from "../../../core/dto/weather.dto";
 import {
   WEEKDAYS_LONG_SUN,
   formatDate,
-  formatTime24,
+  zonedParts,
   MS_DAY,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
@@ -33,63 +33,11 @@ import {
   OPEN_METEO_HOURLY_FIELDS,
   OPEN_METEO_DAILY_FIELDS,
   OPEN_METEO_FORECAST_DAYS,
-  IP_GEO_URL,
+  OPEN_METEO_GEOCODE_SEARCH_URL,
+  WEATHER_LOCATION_STORAGE_KEY,
 } from "../../../core/constants";
 
-// Seeded weather fallback so the card always renders something even before
-// geolocation resolves (or if permission is denied / offline). Sunrise/sunset
-// are seeded relative to today; hours is a 4-step plausible hourly forecast.
-// Weather is dashboard-only lifecycle state (not a shared entity), so it stays
-// in this hook rather than the centralized store.
-const todayISO = new Date().toISOString().slice(0, 10);
-// isDay for a seed hour = 1 when the hour falls between sunrise and sunset,
-// else 0 (night). Mirrors Open-Meteo's per-hour is_day so the hourly strip
-// shows moon icons after sunset instead of sun.
-const seedIsDay = (hourISO, sunriseISO, sunsetISO) => {
-  if (!sunriseISO || !sunsetISO) return 1;
-  const t = new Date(hourISO).getTime();
-  return t >= new Date(sunriseISO).getTime() && t < new Date(sunsetISO).getTime()
-    ? 1
-    : 0;
-};
-const seedHours = (startHour, temps, codes, sunriseISO, sunsetISO) =>
-  temps.map((t, i) => {
-    // Build via a Date so startHour + i rolls past midnight correctly
-    // (startHour 23 + 2 -> 01:00 next day, not "25:00" -> NaN).
-    const d = new Date(`${todayISO}T00:00:00`);
-    d.setHours(startHour + i);
-    const pad = (n) => String(n).padStart(2, "0");
-    const dateISO = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const time = `${dateISO}T${pad(d.getHours())}:00`;
-    return {
-      time,
-      temperature: t,
-      weatherCode: codes[i],
-      isDay: seedIsDay(time, sunriseISO, sunsetISO),
-    };
-  });
-const SEED_SUNRISE = `${todayISO}T06:24`;
-const SEED_SUNSET = `${todayISO}T21:08`;
-const SEED_WEATHER = new WeatherDTO({
-  temperature_2m: 18,
-  apparent_temperature: 17,
-  relative_humidity_2m: 64,
-  weather_code: 2,
-  wind_speed_10m: 12,
-  is_day: 1,
-  sunrise: SEED_SUNRISE,
-  sunset: SEED_SUNSET,
-  hours: seedHours(
-    new Date().getHours() + 1,
-    [18, 19, 20, 19],
-    [2, 1, 0, 0],
-    SEED_SUNRISE,
-    SEED_SUNSET,
-  ),
-}).toModel();
-
-const greeting = (d) => {
-  const h = d.getHours();
+const greeting = (h) => {
   if (h < GREETING_AFTERNOON_HOUR) return "Good morning";
   if (h < GREETING_EVENING_HOUR) return "Good afternoon";
   return "Good evening";
@@ -112,36 +60,60 @@ export default function useDashboard() {
 
   // Live clock — first ticking timer in the app. Ticks every second so the
   // seconds readout, day-progress bar and upcoming relative times stay live.
+  // The clock displays the selected weather location's local time (via its
+  // IANA timezone); with no location set it falls back to the browser's zone.
   const [now, setNow] = useState(() => new Date());
+  const [location, setLocation] = useState(() => {
+    try {
+      const raw = localStorage.getItem(WEATHER_LOCATION_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), CLOCK_TICK_MS);
     return () => clearInterval(id);
   }, []);
 
   const clock = useMemo(() => {
-    const secs = now.getSeconds();
-    const elapsed =
-      now.getHours() * SECONDS_PER_HOUR +
-      now.getMinutes() * SECONDS_PER_MINUTE +
-      secs;
+    const pad = (n) => String(n).padStart(2, "0");
+    const zp = location?.timezone ? zonedParts(now, location.timezone) : null;
+    const hours = zp ? zp.hours : now.getHours();
+    const minutes = zp ? zp.minutes : now.getMinutes();
+    const seconds = zp ? zp.seconds : now.getSeconds();
+    const wd = zp && zp.weekday >= 0 ? zp.weekday : now.getDay();
+    const elapsed = hours * SECONDS_PER_HOUR + minutes * SECONDS_PER_MINUTE + seconds;
+    const date = zp
+      ? `${pad(zp.day)}-${pad(zp.month + 1)}-${zp.year}`
+      : formatDate(now);
     return {
-      time: formatTime24(now),
-      seconds: String(secs).padStart(2, "0"),
-      weekday: WEEKDAYS_LONG_SUN[now.getDay()],
-      date: formatDate(now),
-      greeting: greeting(now),
+      time: `${pad(hours)}:${pad(minutes)}`,
+      seconds: pad(seconds),
+      weekday: WEEKDAYS_LONG_SUN[wd],
+      date,
+      greeting: greeting(hours),
       dayProgress: (elapsed / SECONDS_PER_DAY) * 100,
     };
-  }, [now]);
+  }, [now, location]);
 
-  // Weather — live geolocation + Open-Meteo (free, no API key). Falls back to
-  // the seed on denial / error / unsupported. Open-Meteo is a third-party API,
-  // not the project backend — the "all data seeded" rule doesn't apply here.
-  // Coords are captured once (after the first geolocation grant) and reused —
-  // the 15-min refetch does NOT re-prompt for location. 15 min matches Open-Meteo's
-  // `current` update cadence (more frequent just returns cached data).
-  const [weather, setWeather] = useState(SEED_WEATHER);
-  const coordsRef = useRef(null);
+  // Weather — manual location + Open-Meteo (free, no API key). The user picks a
+  // place via a forward-geocode search; it's persisted in localStorage so it
+  // survives reloads. No browser geolocation, no IP-geo guess: if no place is
+  // set, the dashboard shows a location picker instead of weather. Open-Meteo
+  // is a third-party API, not the project backend — the "all data seeded" rule
+  // doesn't apply. The 15-min refetch reuses the stored place; 15 min matches
+  // Open-Meteo's `current` update cadence.
+  const [weather, setWeather] = useState(null);
+  // Place label is derived from the stored location so it survives reloads
+  // (restoring `location` from localStorage restores the label too — a
+  // separate state would reset to null on every client restart).
+  const place = useMemo(() => {
+    if (!location) return null;
+    return location.countryCode ? `${location.name}, ${location.countryCode}` : location.name;
+  }, [location]);
+  const [locationResults, setLocationResults] = useState([]);
+  const [locSearching, setLocSearching] = useState(false);
 
   const fetchWeather = useCallback((latitude, longitude) => {
     const url =
@@ -182,51 +154,71 @@ export default function useDashboard() {
       .catch((e) => console.error("Open-Meteo fetch failed", e));
   }, []);
 
-  // First fetch: geolocation → store coords → fetch. Geolocation is blocked on
-  // non-secure origins (http + non-localhost, e.g. the dev server reached over
-  // LAN), so on unavailable/deny/error fall back to IP-based geolocation —
-  // coarse, but still yields real Open-Meteo weather for an approximate place
-  // instead of staying stuck on the hardcoded seed.
-  useEffect(() => {
-    const fallbackToIP = () => {
-      fetch(IP_GEO_URL)
-        .then((r) => r.json())
-        .then((geo) => {
-          const latitude = parseFloat(geo.latitude);
-          const longitude = parseFloat(geo.longitude);
-          if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-            coordsRef.current = { latitude, longitude };
-            fetchWeather(latitude, longitude);
-          }
-        })
-        .catch((e) => console.error("IP geo fallback failed", e));
-    };
-
-    if (!navigator.geolocation) {
-      fallbackToIP();
+  // Forward-geocode a typed query → candidate places (name → coords).
+  const searchLocation = useCallback((query) => {
+    const q = query.trim();
+    if (!q) {
+      setLocationResults([]);
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        coordsRef.current = { latitude, longitude };
-        fetchWeather(latitude, longitude);
-      },
-      (err) => {
-        console.error("Geolocation failed, falling back to IP geo", err);
-        fallbackToIP();
-      },
-    );
-  }, [fetchWeather]);
+    setLocSearching(true);
+    const url =
+      `${OPEN_METEO_GEOCODE_SEARCH_URL}?name=${encodeURIComponent(q)}` +
+      `&count=6&language=en&format=json`;
+    fetch(url)
+      .then((r) => r.json())
+      .then((res) => setLocationResults(res?.results ?? []))
+      .catch((e) => console.error("Open-Meteo geocode search failed", e))
+      .finally(() => setLocSearching(false));
+  }, []);
 
-  // Refetch every 15 min using the stored coords (no re-prompt).
+  // Pick a search result: persist it, label the card with the place name (the
+  // result carries the name — no separate reverse-geocode hop), and the location
+  // effect below fetches weather for it.
+  const chooseLocation = useCallback((hit) => {
+    const next = {
+      name: hit.name,
+      latitude: hit.latitude,
+      longitude: hit.longitude,
+      countryCode: hit.country_code ?? null,
+      admin1: hit.admin1 ?? null,
+      timezone: hit.timezone ?? null,
+    };
+    try {
+      localStorage.setItem(WEATHER_LOCATION_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* localStorage may be unavailable (private mode) — weather still works in-session */
+    }
+    setLocation(next);
+    setLocationResults([]);
+  }, []);
+
+  // Clear the saved place → the picker reappears so the user can set a new one.
+  const changeLocation = useCallback(() => {
+    try {
+      localStorage.removeItem(WEATHER_LOCATION_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    setLocation(null);
+    setWeather(null);
+    setLocationResults([]);
+  }, []);
+
+  // Initial fetch + re-fetch whenever the saved location changes.
   useEffect(() => {
-    const id = setInterval(() => {
-      const c = coordsRef.current;
-      if (c) fetchWeather(c.latitude, c.longitude);
-    }, WEATHER_REFETCH_MS);
+    if (location) fetchWeather(location.latitude, location.longitude);
+  }, [location, fetchWeather]);
+
+  // Refetch every 15 min using the stored place.
+  useEffect(() => {
+    if (!location) return;
+    const id = setInterval(
+      () => fetchWeather(location.latitude, location.longitude),
+      WEATHER_REFETCH_MS,
+    );
     return () => clearInterval(id);
-  }, [fetchWeather]);
+  }, [location, fetchWeather]);
 
   // personById — derived from the store roster so it stays in sync as members
   // change (once the backend lands). Used to resolve the person chips on
@@ -332,6 +324,13 @@ export default function useDashboard() {
     now,
     clock,
     weather,
+    place,
+    location,
+    locationResults,
+    locSearching,
+    searchLocation,
+    chooseLocation,
+    changeLocation,
     todaysDish,
     upcoming,
     goToEvent,

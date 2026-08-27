@@ -16,6 +16,7 @@ export default function EventForm({
   persons,
   event = null,
   initialStart,
+  occurrenceStart = null,
   onClose,
   onSave,
   onUpdate,
@@ -29,6 +30,7 @@ export default function EventForm({
   const [end, setEnd] = useState(field(event?.end ?? addHour(startInit, 1)));
   const [assigned, setAssigned] = useState(() => new Set(event?.personIds ?? []));
   const [frequency, setFrequency] = useState(event?.frequency ?? FREQUENCY_NONE);
+  const [interval, setInterval] = useState(event?.interval ?? 1);
 
   const toggleAssign = (id) => {
     setAssigned((cur) => {
@@ -39,6 +41,16 @@ export default function EventForm({
     });
   };
 
+  // Keep end at/after start. Moving start past end bumps end to start+1h so
+  // the two fields can never describe an event that ends before it begins.
+  const onStartChange = (v) => {
+    setStart(v);
+    const s = fromLocalInputValue(v);
+    if (fromLocalInputValue(end) <= s) setEnd(field(addHour(s, 1)));
+  };
+
+  const endBeforeStart = fromLocalInputValue(end) <= fromLocalInputValue(start);
+
   const payload = () => ({
     title: title.trim(),
     description: description.trim(),
@@ -47,17 +59,18 @@ export default function EventForm({
     end: fromLocalInputValue(end),
     personIds: [...assigned],
     frequency,
+    interval: frequency === FREQUENCY_NONE ? 1 : Math.max(1, Number(interval) || 1),
   });
 
   const submit = () => {
-    if (!title.trim()) return;
+    if (!title.trim() || endBeforeStart) return;
     if (event) onUpdate?.(event.id, payload());
     else onSave?.(payload());
     onClose();
   };
 
   const remove = () => {
-    if (event) onDelete?.(event.id);
+    if (event) onDelete?.(event, occurrenceStart);
     onClose();
   };
 
@@ -66,7 +79,7 @@ export default function EventForm({
       title={event ? "Edit event" : "New event"}
       onClose={onClose}
       onSave={submit}
-      saveDisabled={!title.trim()}
+      saveDisabled={!title.trim() || endBeforeStart}
       onDelete={event ? remove : null}
     >
       <label className={controls.row}>
@@ -96,7 +109,7 @@ export default function EventForm({
             type="datetime-local"
             className={controls.input}
             value={start}
-            onChange={(e) => setStart(e.target.value)}
+            onChange={(e) => onStartChange(e.target.value)}
           />
         </label>
         <label className={controls.row}>
@@ -115,18 +128,33 @@ export default function EventForm({
         <AssignPicker persons={persons} selected={assigned} onToggle={toggleAssign} />
       </div>
 
-      <label className={controls.row}>
+      <div className={`${classes.repeat} ${controls.row}`}>
         <span className={controls.lbl}>Repeat</span>
-        <select
-          className={controls.select}
-          value={frequency}
-          onChange={(e) => setFrequency(e.target.value)}
-        >
-          {FREQUENCIES.map((f) => (
-            <option key={f.value} value={f.value}>{f.label}</option>
-          ))}
-        </select>
-      </label>
+        <div className={classes.repeatControls}>
+          {frequency !== FREQUENCY_NONE && (
+            <>
+              <span className={classes.every}>Every</span>
+              <input
+                type="number"
+                min="1"
+                max="99"
+                className={`${controls.input} ${classes.interval}`}
+                value={interval}
+                onChange={(e) => setInterval(e.target.value)}
+              />
+            </>
+          )}
+          <select
+            className={controls.select}
+            value={frequency}
+            onChange={(e) => setFrequency(e.target.value)}
+          >
+            {FREQUENCIES.map((f) => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <label className={`${controls.row} ${controls.col} ${controls.gap_above}`}>
         <span className={controls.lbl}>Description</span>
