@@ -7,7 +7,6 @@ import {
   formatTime24,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
-import { eventDisplayTitle } from "../../../core/utils/event_display";
 import EventCard from "../../../components/event_card/event_card";
 import classes from "./day_view.module.css";
 
@@ -42,7 +41,7 @@ export default function DayView({ cursor, events, persons, onSelectOccurrence })
               as="li"
               onClick={() => onSelectOccurrence(occ)}
               time={`${formatTime24(start)} – ${formatTime24(end)}`}
-              title={eventDisplayTitle(event, persons, t)}
+              title={event.title}
               location={event.location}
               description={event.description}
               names={names}

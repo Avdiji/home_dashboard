@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { formatTime24 } from "../../../core/utils/date_utils";
-import { eventDisplayTitle } from "../../../core/utils/event_display";
 import {
   MS_PER_MINUTE,
   MINUTES_PER_HOUR,
@@ -47,7 +46,7 @@ export default function UpcomingCard({ now, events, onEventClick }) {
                 </span>
               </>
             }
-            title={eventDisplayTitle(e, e.persons, t)}
+            title={e.title}
             location={e.location}
             names={e.persons.map((p) => p.name)}
           />

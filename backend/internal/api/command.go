@@ -129,13 +129,12 @@ func (d *Dispatcher) personAdd(cmd command) ([][]byte, []byte) {
 	// user can edit/delete like any other; it just gets created for them.
 	if p.Birthday != nil && *p.Birthday != "" {
 		bday, err := d.store.CreateEvent(&model.Event{
-			Title:      p.Name,
-			IsBirthday: true,
-			StartAt:    *p.Birthday + "T00:00:00",
-			EndAt:      *p.Birthday + "T23:59:59",
-			PersonIDs:  []int{person.ID},
-			Frequency:  "yearly",
-			Interval:   1,
+			Title:     p.Name + " 🎂",
+			StartAt:   *p.Birthday + "T00:00:00",
+			EndAt:     *p.Birthday + "T23:59:59",
+			PersonIDs: []int{person.ID},
+			Frequency: "yearly",
+			Interval:  1,
 		})
 		if err == nil {
 			events = append(events, marshalEvent(eventCreated(bday, cmd.RequestID)))

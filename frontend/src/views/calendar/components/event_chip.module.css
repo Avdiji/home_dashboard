@@ -5,7 +5,7 @@
   width: 100%;
   border: 0;
   border-radius: 6px;
-  background: var(--accent);
+  background: var(--accent-2);
   color: var(--on-accent);
   padding: 2px 6px;
   font: inherit;
@@ -54,7 +54,7 @@
 
 /* Week variant: bigger, shows time + who. */
 .week {
-  background: var(--accent);
+  background: var(--accent-2);
   padding: 4px 8px;
   font-size: 12px;
 }

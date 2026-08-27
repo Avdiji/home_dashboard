@@ -176,8 +176,6 @@
     "monthShortDec": "Dec"
   },
   "event": {
-    "birthdayTitle": "{{name}}'s birthday",
-    "birthday": "Birthday",
     "frequencyOnce": "Once",
     "frequencyDaily": "Daily",
     "frequencyWeekly": "Weekly",

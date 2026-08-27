@@ -8,15 +8,14 @@ package model
 // expanding a recurring event — supports deleting a single occurrence without
 // removing the whole series.
 type Event struct {
-	ID         int      `json:"id"`
-	Title      string   `json:"title"`
+	ID          int      `json:"id"`
+	Title       string   `json:"title"`
 	Description string   `json:"description"`
 	Location    string   `json:"location"`
-	StartAt    string   `json:"start_at"`
-	EndAt      string   `json:"end_at"`
-	PersonIDs  []int    `json:"person_ids"`
-	Frequency  string   `json:"frequency"`
-	Interval   int      `json:"interval"`
-	Exclusions []string `json:"exclusions"`
-	IsBirthday bool     `json:"is_birthday"`
+	StartAt     string   `json:"start_at"`
+	EndAt       string   `json:"end_at"`
+	PersonIDs   []int    `json:"person_ids"`
+	Frequency   string   `json:"frequency"`
+	Interval    int      `json:"interval"`
+	Exclusions  []string `json:"exclusions"`
 }

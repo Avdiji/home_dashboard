@@ -17,9 +17,6 @@ func migrate(db *sql.DB) error {
 	if err := ensureColumn(db, "events", "exclusions", "TEXT NOT NULL DEFAULT '[]'"); err != nil {
 		return err
 	}
-	if err := ensureColumn(db, "events", "is_birthday", "INTEGER NOT NULL DEFAULT 0"); err != nil {
-		return err
-	}
 	return nil
 }
 

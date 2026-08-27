@@ -1,15 +1,12 @@
-import { useTranslation } from "react-i18next";
 import { formatTime24 } from "../../../core/utils/date_utils";
-import { eventDisplayTitle } from "../../../core/utils/event_display";
 import classes from "./event_chip.module.css";
 
 export default function EventChip({ occ, persons, onClick, variant = "month" }) {
-  const { t } = useTranslation();
   const { event, start } = occ;
   const names = event.personIds
     .map((id) => persons.find((p) => p.id === id)?.name)
     .filter(Boolean);
-  const title = eventDisplayTitle(event, persons, t);
+  const title = event.title;
 
   const Tag = onClick ? "button" : "div";
   const interactive = Boolean(onClick);

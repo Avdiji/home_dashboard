@@ -13,7 +13,6 @@ export class EventDTO {
     frequency = "none",
     interval = 1,
     exclusions = [],
-    is_birthday = false,
   } = {}) {
     this.id = id;
     this.title = title;
@@ -25,7 +24,6 @@ export class EventDTO {
     this.frequency = frequency;
     this.interval = interval;
     this.exclusions = Array.isArray(exclusions) ? exclusions.slice() : [];
-    this.is_birthday = is_birthday;
   }
 
   toModel() {
@@ -40,7 +38,6 @@ export class EventDTO {
       frequency: this.frequency,
       interval: this.interval,
       exclusions: this.exclusions,
-      isBirthday: this.is_birthday,
     });
   }
 }

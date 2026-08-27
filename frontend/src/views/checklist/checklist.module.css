@@ -44,7 +44,7 @@
 }
 
 .filterBtn.active {
-  background: rgba(0, 0, 0, 0.18);
-  color: var(--on-accent);
+  background: var(--on-accent);
+  color: var(--accent-2);
   font-weight: 600;
 }

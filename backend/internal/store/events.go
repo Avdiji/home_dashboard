@@ -23,7 +23,7 @@ type EventPatch struct {
 }
 
 // eventColumns is the canonical read column list, used by ListEvents + scanEvent.
-const eventColumns = `id, title, description, location, start_at, end_at, frequency, interval, exclusions, is_birthday`
+const eventColumns = `id, title, description, location, start_at, end_at, frequency, interval, exclusions`
 
 // normalize fills defaults for legacy rows / unset fields so callers always
 // see a well-formed model: interval >= 1, exclusions non-nil.
@@ -42,9 +42,9 @@ func (s *Store) CreateEvent(e *model.Event) (*model.Event, error) {
 	normalize(e)
 	var created *model.Event
 	err := s.tx(func(txn *sql.Tx) error {
-		res, e2 := txn.Exec(`INSERT INTO events (title, description, location, start_at, end_at, frequency, interval, exclusions, is_birthday)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-			e.Title, e.Description, e.Location, e.StartAt, e.EndAt, e.Frequency, e.Interval, exclusionsJSON(e.Exclusions), e.IsBirthday)
+		res, e2 := txn.Exec(`INSERT INTO events (title, description, location, start_at, end_at, frequency, interval, exclusions)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+			e.Title, e.Description, e.Location, e.StartAt, e.EndAt, e.Frequency, e.Interval, exclusionsJSON(e.Exclusions))
 		if e2 != nil {
 			return e2
 		}
@@ -118,13 +118,11 @@ func (s *Store) ListEvents() ([]model.Event, error) {
 	for rows.Next() {
 		var e model.Event
 		var exclRaw string
-		var isBday int
 		if err := rows.Scan(&e.ID, &e.Title, &e.Description, &e.Location, &e.StartAt, &e.EndAt,
-			&e.Frequency, &e.Interval, &exclRaw, &isBday); err != nil {
+			&e.Frequency, &e.Interval, &exclRaw); err != nil {
 			rows.Close()
 			return nil, err
 		}
-		e.IsBirthday = isBday == 1
 		e.Exclusions = parseExclusions(exclRaw)
 		normalize(&e)
 		e.PersonIDs = []int{}
@@ -182,17 +180,15 @@ type qer interface {
 func scanEvent(q qer, id int) (*model.Event, error) {
 	e := &model.Event{}
 	var exclRaw string
-	var isBday int
 	err := q.QueryRow(`SELECT `+eventColumns+` FROM events WHERE id = ?`, id).
 		Scan(&e.ID, &e.Title, &e.Description, &e.Location, &e.StartAt, &e.EndAt,
-			&e.Frequency, &e.Interval, &exclRaw, &isBday)
+			&e.Frequency, &e.Interval, &exclRaw)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
-	e.IsBirthday = isBday == 1
 	e.Exclusions = parseExclusions(exclRaw)
 	normalize(e)
 	e.PersonIDs = []int{}
