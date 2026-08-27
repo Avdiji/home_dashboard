@@ -19,14 +19,18 @@
 
 .btn,
 .arrow {
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 8px;
-  background: var(--panel);
-  color: var(--ink);
+  background: var(--accent-2);
+  color: var(--on-accent);
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
   padding: 6px 12px;
   font: inherit;
   font-size: 13px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .arrow {
@@ -37,6 +41,5 @@
 
 .btn:hover,
 .arrow:hover {
-  border-color: var(--accent);
-  background: var(--panel-2);
+  background: rgba(255, 255, 255, 0.14);
 }

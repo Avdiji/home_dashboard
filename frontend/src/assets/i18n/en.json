@@ -183,5 +183,10 @@
     "frequencyWeekly": "Weekly",
     "frequencyMonthly": "Monthly",
     "frequencyYearly": "Yearly"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto (sunrise/sunset)"
   }
 }

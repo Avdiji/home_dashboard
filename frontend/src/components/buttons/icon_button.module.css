@@ -27,6 +27,13 @@
   background: var(--accent);
 }
 
+/* Dark mode: the panel is dark, so whiten the inactive black-silhouette icons
+   for contrast. The active button keeps its (light) accent bg, so its icon
+   stays black to read against it. */
+:root[data-theme="dark"] .icon_button:not(.active) img {
+  filter: brightness(0) invert(1);
+}
+
 @media (--mobile) {
   .icon_button {
     width: 56px;

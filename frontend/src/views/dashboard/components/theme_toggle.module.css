@@ -1,0 +1,27 @@
+.toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 0;
+  background: var(--accent-2);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-2-soft);
+}
+
+.icon {
+  font-size: 20px;
+  line-height: 1;
+}

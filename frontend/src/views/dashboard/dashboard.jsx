@@ -9,6 +9,7 @@ import DishCard from "./components/dish_card";
 import ChecklistCard from "./components/checklist_card";
 import MembersCard from "./components/members_card";
 import MemberForm from "./components/member_form";
+import ThemeToggle from "./components/theme_toggle";
 import useDashboard from "./hooks/use_dashboard";
 import classes from "./dashboard.module.css";
 
@@ -51,7 +52,10 @@ export default function Dashboard() {
 
   return (
     <div className={classes.view}>
-      <PageHeader title={t("nav.home")} subtitle={t(clock.greetingKey)} />
+      <div className={classes.header}>
+        <PageHeader title={t("nav.home")} subtitle={t(clock.greetingKey)} />
+        <ThemeToggle />
+      </div>
 
       <div className={classes.mega}>
         <div className={classes.stack}>

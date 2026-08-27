@@ -6,6 +6,7 @@
   --muted: #6b7280;
   --accent: #b5a3fd;
   --accent-2: #2563eb;
+  --accent-2-soft: rgba(37, 99, 182, 0.12);
   --line: #e3e6ee;
   --line-strong: #c3c7d4;
   --on-accent: #ffffff;
@@ -17,4 +18,28 @@
   --ok: #16a34a;
   --warn: #ca8a04;
   --danger: #dc2626;
+}
+
+/* Dark mode — the theme module stamps data-theme="dark" on <html>.
+   Every token is redefined so nothing leaks the light palette. */
+:root[data-theme="dark"] {
+  --bg: #0f1115;
+  --panel: #1a1d24;
+  --panel-2: #22262f;
+  --ink: #e8ebf3;
+  --muted: #8b93a3;
+  --accent: #c4b5fd;
+  --accent-2: #3b82f6;
+  --accent-2-soft: rgba(59, 130, 246, 0.22);
+  --line: #2a2f3a;
+  --line-strong: #3a4050;
+  --on-accent: #ffffff;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --ok: #22c55e;
+  --warn: #eab308;
+  --danger: #f87171;
 }

@@ -7,6 +7,7 @@ import { useChecklists } from "../../../store/checklists_store";
 import { useMeals } from "../../../store/meals_store";
 import { useRecipes } from "../../../store/recipes_store";
 import { CALENDAR_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH } from "../../../core/nav_config";
+import { updateSun as updateThemeSun } from "../../../core/theme";
 import { WeatherDTO } from "../../../core/dto/weather.dto";
 import {
   WEEKDAYS_LONG_SUN,
@@ -223,6 +224,16 @@ export default function useDashboard() {
     );
     return () => clearInterval(id);
   }, [location, fetchWeather]);
+
+  // Feed sunrise/sunset + the location's IANA timezone to the theme module so
+  // Auto mode (light/dark by sun) works app-wide. The tz is required: Open-Meteo
+  // returns sun times in the location's local wall-clock (no offset), so Auto
+  // must compare them against the location's current time — not the browser's.
+  // Refreshed on each weather fetch (initial + 15-min refetch).
+  useEffect(() => {
+    if (weather?.sunrise && weather?.sunset)
+      updateThemeSun(weather.sunrise, weather.sunset, location?.timezone);
+  }, [weather, location]);
 
   // personById — derived from the store roster so it stays in sync as members
   // change (once the backend lands). Used to resolve the person chips on

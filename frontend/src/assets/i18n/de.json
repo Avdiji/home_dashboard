@@ -183,5 +183,10 @@
     "frequencyWeekly": "Wöchentlich",
     "frequencyMonthly": "Monatlich",
     "frequencyYearly": "Jährlich"
+  },
+  "theme": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "auto": "Automatisch (Sonnenauf-/untergang)"
   }
 }

@@ -64,6 +64,17 @@ export const OPEN_METEO_GEOCODE_SEARCH_URL = "https://geocoding-api.open-meteo.c
 // so the dashboard re-fetches weather for the same place without re-prompting.
 export const WEATHER_LOCATION_STORAGE_KEY = "home_dashboard_weather_location";
 
+// --- Theme ----------------------------------------------------------------
+// The UI offers three modes: Light, Dark, Auto. Auto resolves light/dark from
+// the dashboard's fetched sunrise/sunset (cached in localStorage so it applies
+// app-wide, not just on the dashboard), falling back to prefers-color-scheme
+// until weather data exists. The resolved theme is stamped on <html> as
+// data-theme="light"|"dark" by core/theme.js before first render (no FOUC).
+export const THEME_MODE_STORAGE_KEY = "home_dashboard_theme_mode";
+export const THEME_SUN_STORAGE_KEY = "home_dashboard_theme_sun";
+export const THEME_RESOLVE_INTERVAL_MS = 60 * 1000; // auto re-resolve cadence
+export const THEME_MODES = ["light", "dark", "auto"]; // cycle order
+
 // --- Backend API config ----------------------------------------------------
 // URLs are origin-relative so they work from any host that serves the frontend
 // (desktop localhost OR a phone on the LAN hitting the dev server). In dev the

@@ -16,7 +16,7 @@
 }
 
 .lbl {
-  width: 72px;
+  width: 96px;
   flex: 0 0 auto;
   font-size: 13px;
   font-weight: 600;
@@ -54,6 +54,13 @@
 .input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Dark mode: the native date/time picker indicator is a black glyph that
+   disappears on the dark input bg — invert it so it reads. */
+:root[data-theme="dark"] .input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
 
 .gap_above {
