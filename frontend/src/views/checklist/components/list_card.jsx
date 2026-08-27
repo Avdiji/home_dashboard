@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Card from "../../../components/cards/card";
 import AddButton from "../../../components/buttons/add_button";
 import RemoveButton from "../../../components/buttons/remove_button";
@@ -17,6 +18,7 @@ export default function ListCard(props) {
     onAddItem,
     onToggleAssignee,
   } = props;
+  const { t } = useTranslation();
   const [draft, setDraft] = useState("");
 
   return (
@@ -26,12 +28,12 @@ export default function ListCard(props) {
           className={classes.title_input}
           value={list.title}
           onChange={(e) => onUpdateTitle(list.id, e.target.value)}
-          aria-label="List title"
+          aria-label={t("checklist.listTitleAria")}
         />
       }
-      badge={`${list.remainingItems} left`}
+      badge={t("checklist.itemsLeft", { count: list.remainingItems })}
       headerActions={
-        <RemoveButton title="Remove list" onClick={() => onRemoveList(list.id)} />
+        <RemoveButton title={t("checklist.removeList")} onClick={() => onRemoveList(list.id)} />
       }
     >
       <div className={classes.assignRow}>
@@ -57,7 +59,7 @@ export default function ListCard(props) {
         <input
           className={classes.add_input}
           value={draft}
-          placeholder="Add item…"
+          placeholder={t("checklist.addItemPlaceholder")}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") onAddItem(list.id, draft);

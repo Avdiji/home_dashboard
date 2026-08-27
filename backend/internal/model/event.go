@@ -18,4 +18,5 @@ type Event struct {
 	Frequency  string   `json:"frequency"`
 	Interval   int      `json:"interval"`
 	Exclusions []string `json:"exclusions"`
+	IsBirthday bool     `json:"is_birthday"`
 }

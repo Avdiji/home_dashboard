@@ -1,3 +1,4 @@
+import { useTranslation, Trans } from "react-i18next";
 import modalClasses from "../../../components/modal/modal.module.css";
 import classes from "./delete_choice.module.css";
 
@@ -6,6 +7,7 @@ import classes from "./delete_choice.module.css";
 // `occurrenceStart` is the clicked instance's start (shown as a hint); `onAll`
 // deletes the whole series, `onOne` excludes just this occurrence.
 export default function DeleteChoice({ occurrenceStart, onAll, onOne, onClose }) {
+  const { t } = useTranslation();
   const when = occurrenceStart
     ? new Date(occurrenceStart).toLocaleString(undefined, {
         month: "short",
@@ -20,11 +22,11 @@ export default function DeleteChoice({ occurrenceStart, onAll, onOne, onClose })
   return (
     <div className={modalClasses.overlay} onClick={onClose}>
       <div className={modalClasses.dialog} onClick={stop}>
-        <h2 className={modalClasses.title}>Delete recurring event</h2>
+        <h2 className={modalClasses.title}>{t("calendar.deleteRecurringTitle")}</h2>
 
         {when && (
           <p className={classes.hint}>
-            This instance is on <strong>{when}</strong>. Choose what to delete.
+            <Trans i18nKey="calendar.deleteRecurringHint" components={{ bold: <strong /> }} values={{ when }} />
           </p>
         )}
 
@@ -34,7 +36,7 @@ export default function DeleteChoice({ occurrenceStart, onAll, onOne, onClose })
             className={`${modalClasses.delete} ${classes.danger_btn}`}
             onClick={onOne}
           >
-            This occurrence
+            {t("calendar.thisOccurrence")}
           </button>
           <div className={modalClasses.actions_right}>
             <button
@@ -42,14 +44,14 @@ export default function DeleteChoice({ occurrenceStart, onAll, onOne, onClose })
               className={modalClasses.cancel}
               onClick={onClose}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="button"
               className={`${modalClasses.delete} ${classes.danger_btn}`}
               onClick={onAll}
             >
-              Entire series
+              {t("calendar.entireSeries")}
             </button>
           </div>
         </div>

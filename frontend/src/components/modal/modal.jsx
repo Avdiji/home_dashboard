@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import classes from "./modal.module.css";
 
 export default function Modal({
@@ -9,6 +10,7 @@ export default function Modal({
   children,
   className,
 }) {
+  const { t } = useTranslation();
   return (
     <div className={classes.overlay} onClick={onClose}>
       <div
@@ -20,12 +22,12 @@ export default function Modal({
         <div className={classes.actions}>
           {onDelete && (
             <button type="button" className={classes.delete} onClick={onDelete}>
-              Delete
+              {t("common.delete")}
             </button>
           )}
           <div className={classes.actions_right}>
             <button type="button" className={classes.cancel} onClick={onClose}>
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="button"
@@ -33,7 +35,7 @@ export default function Modal({
               onClick={onSave}
               disabled={saveDisabled}
             >
-              Save
+              {t("common.save")}
             </button>
           </div>
         </div>

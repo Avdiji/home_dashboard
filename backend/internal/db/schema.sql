@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS events (
     end_at      TEXT    NOT NULL,   -- RFC 3339
     frequency   TEXT    NOT NULL DEFAULT 'none',  -- none|daily|weekly|monthly|yearly
     interval    INTEGER NOT NULL DEFAULT 1,      -- recurrence interval (every N units)
-    exclusions  TEXT    NOT NULL DEFAULT '[]'     -- JSON array of skipped occurrence starts (ISO 3339)
+    exclusions  TEXT    NOT NULL DEFAULT '[]',    -- JSON array of skipped occurrence starts (ISO 3339)
+    is_birthday INTEGER NOT NULL DEFAULT 0       -- 0/1: auto-created birthday event (title localized on the client)
 );
 
 CREATE TABLE IF NOT EXISTS events_persons (

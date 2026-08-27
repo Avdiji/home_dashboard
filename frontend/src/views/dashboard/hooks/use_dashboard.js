@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { usePersons } from "../../../store/persons_store";
 import { useEvents } from "../../../store/events_store";
 import { useChecklists } from "../../../store/checklists_store";
@@ -37,13 +38,14 @@ import {
   WEATHER_LOCATION_STORAGE_KEY,
 } from "../../../core/constants";
 
-const greeting = (h) => {
-  if (h < GREETING_AFTERNOON_HOUR) return "Good morning";
-  if (h < GREETING_EVENING_HOUR) return "Good afternoon";
-  return "Good evening";
+const greetingKey = (h) => {
+  if (h < GREETING_AFTERNOON_HOUR) return "dashboard.greetingMorning";
+  if (h < GREETING_EVENING_HOUR) return "dashboard.greetingAfternoon";
+  return "dashboard.greetingEvening";
 };
 
 export default function useDashboard() {
+  const { t, i18n } = useTranslation();
   // Entity state lives in the centralized stores — the dashboard is a view
   // over the same persons/events/checklists/meals/recipes the other features
   // mutate, so it re-renders when any of them changes (once the backend lands
@@ -92,7 +94,7 @@ export default function useDashboard() {
       seconds: pad(seconds),
       weekday: WEEKDAYS_LONG_SUN[wd],
       date,
-      greeting: greeting(hours),
+      greetingKey: greetingKey(hours),
       dayProgress: (elapsed / SECONDS_PER_DAY) * 100,
     };
   }, [now, location]);
@@ -110,8 +112,10 @@ export default function useDashboard() {
   // separate state would reset to null on every client restart).
   const place = useMemo(() => {
     if (!location) return null;
-    return location.countryCode ? `${location.name}, ${location.countryCode}` : location.name;
-  }, [location]);
+    return location.countryCode
+      ? t("dashboard.placeFormat", { name: location.name, countryCode: location.countryCode })
+      : location.name;
+  }, [location, t, i18n.language]);
   const [locationResults, setLocationResults] = useState([]);
   const [locSearching, setLocSearching] = useState(false);
 

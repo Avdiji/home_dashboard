@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import RemoveButton from "../../../components/buttons/remove_button";
 import classes from "./list_item.module.css";
 
 export default function ListItem(props) {
   const { item, onToggle, onRemove } = props;
+  const { t } = useTranslation();
   const done = item.is_done;
 
   return (
@@ -18,7 +20,7 @@ export default function ListItem(props) {
       >
         {item.itemName}
       </span>
-      <RemoveButton title="Remove item" size="sm" onClick={onRemove} />
+      <RemoveButton title={t("checklist.removeItem")} size="sm" onClick={onRemove} />
     </li>
   );
 }

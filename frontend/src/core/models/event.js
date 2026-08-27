@@ -10,6 +10,7 @@ export class Event {
     frequency = "none",
     interval = 1,
     exclusions = [],
+    isBirthday = false,
   } = {}) {
     this.id = id;
     this.title = title;
@@ -21,5 +22,6 @@ export class Event {
     this.frequency = frequency;
     this.interval = interval || 1;
     this.exclusions = Array.isArray(exclusions) ? exclusions.slice() : [];
+    this.isBirthday = Boolean(isBirthday);
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import classes from "./clock_card.module.css";
 
 // Full-circle ring gauge. Outer ring fills clockwise with day progress; a bead
@@ -8,6 +9,7 @@ const C = 2 * Math.PI * R;
 const TICKS = Array.from({ length: 12 }, (_, i) => i);
 
 export default function ClockCard({ clock }) {
+  const { t } = useTranslation();
   const dayOffset = C * (1 - clock.dayProgress / 100);
   // Day bead: angle from top, sweeping clockwise as the day fills.
   const dayAng = (clock.dayProgress / 100) * Math.PI * 2 - Math.PI / 2;
@@ -59,7 +61,7 @@ export default function ClockCard({ clock }) {
             {clock.time}
             <span className={classes.seconds}>:{clock.seconds}</span>
           </div>
-          <div className={classes.weekday}>{clock.weekday}</div>
+          <div className={classes.weekday}>{t(clock.weekday)}</div>
         </div>
       </div>
       <div className={classes.date}>{clock.date}</div>

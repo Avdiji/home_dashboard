@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FREQUENCIES, FREQUENCY_NONE } from "../../../core/frequency";
 import {
   toLocalInputValue,
@@ -22,6 +23,7 @@ export default function EventForm({
   onUpdate,
   onDelete,
 }) {
+  const { t } = useTranslation();
   const startInit = initialStart ?? new Date();
   const [title, setTitle] = useState(event?.title ?? "");
   const [description, setDescription] = useState(event?.description ?? "");
@@ -76,35 +78,35 @@ export default function EventForm({
 
   return (
     <Modal
-      title={event ? "Edit event" : "New event"}
+      title={event ? t("calendar.editEvent") : t("calendar.newEventTitle")}
       onClose={onClose}
       onSave={submit}
       saveDisabled={!title.trim() || endBeforeStart}
       onDelete={event ? remove : null}
     >
       <label className={controls.row}>
-        <span className={controls.lbl}>Title</span>
+        <span className={controls.lbl}>{t("calendar.titleLabel")}</span>
         <input
           className={controls.input}
           value={title}
-          placeholder="What's the event?"
+          placeholder={t("calendar.titlePlaceholder")}
           onChange={(e) => setTitle(e.target.value)}
         />
       </label>
 
       <label className={controls.row}>
-        <span className={controls.lbl}>Location</span>
+        <span className={controls.lbl}>{t("calendar.locationLabel")}</span>
         <input
           className={controls.input}
           value={location}
-          placeholder="Optional"
+          placeholder={t("common.optional")}
           onChange={(e) => setLocation(e.target.value)}
         />
       </label>
 
       <div className={`${classes.dates} ${controls.gap_above}`}>
         <label className={controls.row}>
-          <span className={controls.lbl}>Start</span>
+          <span className={controls.lbl}>{t("calendar.startLabel")}</span>
           <input
             type="datetime-local"
             className={controls.input}
@@ -113,7 +115,7 @@ export default function EventForm({
           />
         </label>
         <label className={controls.row}>
-          <span className={controls.lbl}>End</span>
+          <span className={controls.lbl}>{t("calendar.endLabel")}</span>
           <input
             type="datetime-local"
             className={controls.input}
@@ -124,16 +126,16 @@ export default function EventForm({
       </div>
 
       <div className={`${controls.row} ${controls.gap_above}`}>
-        <span className={controls.lbl}>Members</span>
+        <span className={controls.lbl}>{t("calendar.membersLabel")}</span>
         <AssignPicker persons={persons} selected={assigned} onToggle={toggleAssign} />
       </div>
 
       <div className={`${classes.repeat} ${controls.row}`}>
-        <span className={controls.lbl}>Repeat</span>
+        <span className={controls.lbl}>{t("calendar.repeatLabel")}</span>
         <div className={classes.repeatControls}>
           {frequency !== FREQUENCY_NONE && (
             <>
-              <span className={classes.every}>Every</span>
+              <span className={classes.every}>{t("calendar.every")}</span>
               <input
                 type="number"
                 min="1"
@@ -150,18 +152,18 @@ export default function EventForm({
             onChange={(e) => setFrequency(e.target.value)}
           >
             {FREQUENCIES.map((f) => (
-              <option key={f.value} value={f.value}>{f.label}</option>
+              <option key={f.value} value={f.value}>{t(f.labelKey)}</option>
             ))}
           </select>
         </div>
       </div>
 
       <label className={`${controls.row} ${controls.col} ${controls.gap_above}`}>
-        <span className={controls.lbl}>Description</span>
+        <span className={controls.lbl}>{t("calendar.descriptionLabel")}</span>
         <textarea
           className={controls.textarea}
           value={description}
-          placeholder="Optional"
+          placeholder={t("common.optional")}
           rows={3}
           onChange={(e) => setDescription(e.target.value)}
         />

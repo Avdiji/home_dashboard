@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import classes from "./add_button.module.css";
 
 export default function AddButton(props) {
-  const { onClick, children = "Add", variant, size, disabled } = props;
+  const { t } = useTranslation();
+  const { onClick, children = t("common.add"), variant, size, disabled } = props;
 
   const cls = [classes.add_button];
   if (variant && classes[variant]) cls.push(classes[variant]);

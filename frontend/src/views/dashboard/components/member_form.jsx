@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "../../../components/modal/modal";
 import controls from "../../../components/forms/form_controls.module.css";
 
 export default function MemberForm({ person = null, onClose, onSave, onUpdate }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(person?.name ?? "");
   const [birthday, setBirthday] = useState(person?.birthday ?? "");
 
@@ -16,22 +18,22 @@ export default function MemberForm({ person = null, onClose, onSave, onUpdate })
 
   return (
     <Modal
-      title={person ? "Edit member" : "New member"}
+      title={person ? t("dashboard.editMember") : t("dashboard.newMemberTitle")}
       onClose={onClose}
       onSave={submit}
       saveDisabled={!name.trim()}
     >
       <label className={controls.row}>
-        <span className={controls.lbl}>Name</span>
+        <span className={controls.lbl}>{t("dashboard.nameLabel")}</span>
         <input
           className={controls.input}
           value={name}
-          placeholder="Member name"
+          placeholder={t("dashboard.memberNamePlaceholder")}
           onChange={(e) => setName(e.target.value)}
         />
       </label>
       <label className={controls.row}>
-        <span className={controls.lbl}>Birthday</span>
+        <span className={controls.lbl}>{t("dashboard.birthdayLabel")}</span>
         <input
           type="date"
           className={controls.input}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import CalendarNav from "./components/calendar_nav";
 import { VIEW_DAY, VIEW_WEEK, VIEW_MONTH, VIEWS } from "./view_modes";
 import SegmentedControl from "../../components/segmented_control/segmented_control";
@@ -11,6 +12,7 @@ import useCalendar from "./hooks/use_calendar";
 import classes from "./calendar.module.css";
 
 export default function Calendar() {
+  const { t } = useTranslation();
   const {
     events,
     persons,
@@ -49,11 +51,11 @@ export default function Calendar() {
         />
         <div className={classes.right}>
           <SegmentedControl
-            items={VIEWS.map((v) => ({ key: v.label, label: v.label, value: v.value }))}
+            items={VIEWS.map((v) => ({ key: v.key, label: t(v.labelKey), value: v.value }))}
             value={view}
             onChange={setView}
           />
-          <AddButton onClick={() => openNewForm(new Date())}>+ New event</AddButton>
+          <AddButton onClick={() => openNewForm(new Date())}>{t("calendar.newEvent")}</AddButton>
         </div>
       </div>
 

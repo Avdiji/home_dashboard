@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   WEEKDAYS,
   isSameDay,
@@ -14,6 +15,7 @@ import EventChip from "./event_chip";
 import classes from "./week_view.module.css";
 
 export default function WeekView({ cursor, events, persons, onSelectOccurrence, onSelectDay }) {
+  const { t } = useTranslation();
   const days = useMemo(() => {
     const start = startOfWeek(cursor);
     return Array.from({ length: DAYS_PER_WEEK }, (_, i) => addDay(start, i));
@@ -50,7 +52,7 @@ export default function WeekView({ cursor, events, persons, onSelectOccurrence, 
                 className={classes.dayhead}
                 onClick={() => onSelectDay?.(day)}
               >
-                <span className={classes.wd}>{WEEKDAYS[(day.getDay() + DAYS_PER_WEEK - 1) % DAYS_PER_WEEK]}</span>
+                <span className={classes.wd}>{t(WEEKDAYS[(day.getDay() + DAYS_PER_WEEK - 1) % DAYS_PER_WEEK])}</span>
                 <span className={classes.dnum}>{day.getDate()}</span>
               </button>
               <div className={classes.events}>

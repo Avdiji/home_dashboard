@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "../../../components/modal/modal";
 import controls from "../../../components/forms/form_controls.module.css";
 import classes from "./recipe_form.module.css";
 
 export default function RecipeForm({ recipe = null, onClose, onSave, onUpdate, onDelete }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(recipe?.title ?? "");
   const [description, setDescription] = useState(recipe?.description ?? "");
   const [ingredients, setIngredients] = useState((recipe?.ingredients ?? []).join("\n"));
@@ -35,64 +37,64 @@ export default function RecipeForm({ recipe = null, onClose, onSave, onUpdate, o
 
   return (
     <Modal
-      title={recipe ? "Edit recipe" : "New recipe"}
+      title={recipe ? t("mealPlan.editRecipe") : t("mealPlan.newRecipeTitle")}
       onClose={onClose}
       onSave={submit}
       saveDisabled={!title.trim()}
       onDelete={recipe ? remove : null}
     >
       <label className={controls.row}>
-        <span className={controls.lbl}>Title</span>
+        <span className={controls.lbl}>{t("mealPlan.titleLabel")}</span>
         <input
           className={controls.input}
           value={title}
-          placeholder="Recipe name"
+          placeholder={t("mealPlan.recipeNamePlaceholder")}
           onChange={(e) => setTitle(e.target.value)}
         />
       </label>
 
       <div className={`${classes.meta} ${controls.gap_above}`}>
         <label className={controls.row}>
-          <span className={controls.lbl}>Servings</span>
+          <span className={controls.lbl}>{t("mealPlan.servingsLabel")}</span>
           <input
             type="number"
             min="0"
             className={controls.input}
             value={servings}
-            placeholder="Optional"
+            placeholder={t("common.optional")}
             onChange={(e) => setServings(e.target.value)}
           />
         </label>
         <label className={controls.row}>
-          <span className={controls.lbl}>Minutes</span>
+          <span className={controls.lbl}>{t("mealPlan.minutesLabel")}</span>
           <input
             type="number"
             min="0"
             className={controls.input}
             value={minutes}
-            placeholder="Optional"
+            placeholder={t("common.optional")}
             onChange={(e) => setMinutes(e.target.value)}
           />
         </label>
       </div>
 
       <label className={`${controls.row} ${controls.col} ${controls.gap_above}`}>
-        <span className={controls.lbl}>Description</span>
+        <span className={controls.lbl}>{t("mealPlan.descriptionLabel")}</span>
         <textarea
           className={controls.textarea}
           value={description}
-          placeholder="Optional"
+          placeholder={t("common.optional")}
           rows={2}
           onChange={(e) => setDescription(e.target.value)}
         />
       </label>
 
       <label className={`${controls.row} ${controls.col}`}>
-        <span className={controls.lbl}>Ingredients</span>
+        <span className={controls.lbl}>{t("mealPlan.ingredientsLabel")}</span>
         <textarea
           className={controls.textarea}
           value={ingredients}
-          placeholder="One per line"
+          placeholder={t("mealPlan.onePerLine")}
           rows={5}
           onChange={(e) => setIngredients(e.target.value)}
         />

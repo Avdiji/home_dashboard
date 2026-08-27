@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import classes from "./feature_panel.module.css";
 
 import IconButton from "../buttons/icon_button";
@@ -27,15 +28,16 @@ const activeIndex = (pathname) => {
 export default function FeaturePanel() {
   const { pathname } = useLocation();
   const nav = useNavigate();
+  const { t } = useTranslation();
   const selected = useMemo(() => activeIndex(pathname), [pathname]);
 
   return (
     <nav className={classes.feature_panel}>
       {FEATURES.map((f, i) => (
         <IconButton
-          key={f.title}
+          key={f.path}
           src={f.src}
-          title={f.title}
+          title={t(f.titleKey)}
           active={selected === i}
           onClick={() => nav(f.path)}
         />

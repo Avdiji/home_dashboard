@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import AddButton from "../../components/buttons/add_button";
 import PageHeader from "../../components/page_header/page_header";
 import layout from "../../components/layout/layout.module.css";
@@ -7,6 +8,7 @@ import useChecklist from "./hooks/use_checklist";
 import classes from "./checklist.module.css";
 
 export default function Checklist() {
+  const { t } = useTranslation();
   const {
     visibleLists,
     persons,
@@ -38,7 +40,7 @@ export default function Checklist() {
 
   return (
     <div className={classes.view}>
-      <PageHeader title="Checklist" subtitle="Shared checklists" />
+      <PageHeader title={t("checklist.title")} subtitle={t("checklist.subtitle")} />
 
       <div className={classes.toolbar}>
         <div className={classes.filter}>
@@ -47,7 +49,7 @@ export default function Checklist() {
             className={`${classes.filterBtn} ${allActive ? classes.active : ""}`}
             onClick={clearMembers}
           >
-            All
+            {t("checklist.all")}
           </button>
           {persons.map((p) => (
             <button
@@ -64,7 +66,7 @@ export default function Checklist() {
         </div>
         <div className={classes.toolbar_right}>
           <AddButton onClick={openNewList}>
-            + New list
+            {t("checklist.newList")}
           </AddButton>
         </div>
       </div>

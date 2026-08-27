@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import classes from "./assign_picker.module.css";
 
 export default function AssignPicker({
   persons,
   selected,
   onToggle,
-  placeholder = "Assign members",
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -25,10 +26,10 @@ export default function AssignPicker({
 
   const label =
     selectedNames.length === 0
-      ? placeholder
+      ? t("common.assignMembers")
       : selectedNames.length <= 2
         ? selectedNames.join(", ")
-        : `${selectedNames.length} members`;
+        : t("common.membersCount", { count: selectedNames.length });
 
   return (
     <div className={classes.picker} ref={ref}>
@@ -58,7 +59,7 @@ export default function AssignPicker({
                 </li>
               );
             })}
-            {persons.length === 0 && <li className={classes.empty}>No members</li>}
+            {persons.length === 0 && <li className={classes.empty}>{t("common.noMembers")}</li>}
           </ul>
         </div>
       )}

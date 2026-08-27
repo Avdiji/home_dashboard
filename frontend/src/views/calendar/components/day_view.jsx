@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   isSameDay,
   startOfDay,
@@ -6,10 +7,12 @@ import {
   formatTime24,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
+import { eventDisplayTitle } from "../../../core/utils/event_display";
 import EventCard from "../../../components/event_card/event_card";
 import classes from "./day_view.module.css";
 
 export default function DayView({ cursor, events, persons, onSelectOccurrence }) {
+  const { t } = useTranslation();
   const rangeStart = startOfDay(cursor);
   const rangeEnd = endOfDay(cursor);
 
@@ -23,9 +26,9 @@ export default function DayView({ cursor, events, persons, onSelectOccurrence })
 
   return (
     <div className={isToday ? `${classes.day} ${classes.today}` : classes.day}>
-      {isToday && <div className={classes.today_badge}>Today</div>}
+      {isToday && <div className={classes.today_badge}>{t("calendar.today")}</div>}
       {occurrences.length === 0 && (
-        <div className={classes.empty}>No events today.</div>
+        <div className={classes.empty}>{t("calendar.noEventsToday")}</div>
       )}
       <ul className={classes.list}>
         {occurrences.map((occ) => {
@@ -39,7 +42,7 @@ export default function DayView({ cursor, events, persons, onSelectOccurrence })
               as="li"
               onClick={() => onSelectOccurrence(occ)}
               time={`${formatTime24(start)} – ${formatTime24(end)}`}
-              title={event.title}
+              title={eventDisplayTitle(event, persons, t)}
               location={event.location}
               description={event.description}
               names={names}

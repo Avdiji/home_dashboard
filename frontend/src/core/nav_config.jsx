@@ -10,8 +10,8 @@ export const CHECKLIST_PATH = "/checklist";
 export const MEAL_PLAN_PATH = "/meals";
 
 export const FEATURES = [
-  { title: "Home", path: DASHBOARD_PATH, src: dashboard_icon },
-  { title: "Calendar", path: CALENDAR_PATH, src: calendar_icon },
-  { title: "Checklist", path: CHECKLIST_PATH, src: checklist_icon },
-  { title: "Meal Plan", path: MEAL_PLAN_PATH, src: meal_plan_icon }
+  { titleKey: "nav.home", path: DASHBOARD_PATH, src: dashboard_icon },
+  { titleKey: "nav.calendar", path: CALENDAR_PATH, src: calendar_icon },
+  { titleKey: "nav.checklist", path: CHECKLIST_PATH, src: checklist_icon },
+  { titleKey: "nav.mealPlan", path: MEAL_PLAN_PATH, src: meal_plan_icon }
 ];

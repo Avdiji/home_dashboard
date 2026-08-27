@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   WEEKDAYS,
   isSameDay,
@@ -15,6 +16,7 @@ import EventChip from "./event_chip";
 import classes from "./month_view.module.css";
 
 export default function MonthView({ cursor, events, persons, onSelectOccurrence, onSelectDay }) {
+  const { t } = useTranslation();
   const cells = useMemo(() => {
     const start = startOfWeek(startOfMonth(cursor));
     const end = startOfMonth(cursor);
@@ -46,7 +48,7 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
     <div className={classes.month}>
       <div className={classes.weekhead}>
         {WEEKDAYS.map((d) => (
-          <div key={d} className={classes.wd}>{d}</div>
+          <div key={d} className={classes.wd}>{t(d)}</div>
         ))}
       </div>
       <div className={classes.grid}>
@@ -73,7 +75,7 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
                 ))}
                 {extra > 0 && (
                   <span className={classes.more}>
-                    +{extra} more
+                    {t("calendar.moreEvents", { count: extra })}
                   </span>
                 )}
               </div>

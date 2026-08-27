@@ -1,18 +1,21 @@
-import { MONTHS } from "../../../core/utils/date_utils";
+import { useTranslation } from "react-i18next";
+import { MONTHS_SHORT } from "../../../core/utils/date_utils";
 import classes from "./members_card.module.css";
 
 const initials = (name) => (name?.trim()?.[0] ?? "?").toUpperCase();
 
 // "Jul 23" from an ISO "YYYY-MM-DD" birthday, or null. Parsed as local so the
-// day doesn't shift with timezone.
-const birthdayLabel = (iso) => {
-  if (!iso) return null;
-  const d = new Date(`${iso}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return null;
-  return `${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
-};
-
+// day doesn't shift with timezone. The month is an i18n key resolved via t.
 export default function MembersCard({ persons, onAdd, onEdit, onRemove }) {
+  const { t } = useTranslation();
+
+  const birthdayLabel = (iso) => {
+    if (!iso) return null;
+    const d = new Date(`${iso}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return null;
+    return `${t(MONTHS_SHORT[d.getMonth()])} ${d.getDate()}`;
+  };
+
   return (
     <div className={classes.wrap}>
       <div className={classes.row}>
@@ -25,7 +28,7 @@ export default function MembersCard({ persons, onAdd, onEdit, onRemove }) {
                 type="button"
                 className={classes.name}
                 onClick={() => onEdit(p)}
-                title="Edit member"
+                title={t("dashboard.editMember")}
               >
                 {p.name}
               </button>
@@ -33,7 +36,7 @@ export default function MembersCard({ persons, onAdd, onEdit, onRemove }) {
               <button
                 type="button"
                 className={classes.remove}
-                title="Remove member"
+                title={t("dashboard.removeMember")}
                 onClick={() => onRemove(p.id)}
               >
                 ✕
@@ -41,10 +44,10 @@ export default function MembersCard({ persons, onAdd, onEdit, onRemove }) {
             </div>
           );
         })}
-        {persons.length === 0 && <span className={classes.empty}>No members yet</span>}
+        {persons.length === 0 && <span className={classes.empty}>{t("dashboard.noMembers")}</span>}
       </div>
       <button type="button" className={classes.add} onClick={onAdd}>
-        + Add member
+        {t("dashboard.addMember")}
       </button>
     </div>
   );

@@ -5,9 +5,9 @@ export const FREQUENCY_MONTHLY = "monthly";
 export const FREQUENCY_YEARLY = "yearly";
 
 export const FREQUENCIES = [
-  { value: FREQUENCY_NONE, label: "Once" },
-  { value: FREQUENCY_DAILY, label: "Daily" },
-  { value: FREQUENCY_WEEKLY, label: "Weekly" },
-  { value: FREQUENCY_MONTHLY, label: "Monthly" },
-  { value: FREQUENCY_YEARLY, label: "Yearly" },
+  { value: FREQUENCY_NONE, labelKey: "event.frequencyOnce" },
+  { value: FREQUENCY_DAILY, labelKey: "event.frequencyDaily" },
+  { value: FREQUENCY_WEEKLY, labelKey: "event.frequencyWeekly" },
+  { value: FREQUENCY_MONTHLY, labelKey: "event.frequencyMonthly" },
+  { value: FREQUENCY_YEARLY, labelKey: "event.frequencyYearly" },
 ];

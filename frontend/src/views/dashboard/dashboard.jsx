@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import PageHeader from "../../components/page_header/page_header";
 import layout from "../../components/layout/layout.module.css";
 import ClockCard from "./components/clock_card";
@@ -19,6 +20,7 @@ const Section = ({ label, children }) => (
 );
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const {
     now,
     clock,
@@ -49,7 +51,7 @@ export default function Dashboard() {
 
   return (
     <div className={classes.view}>
-      <PageHeader title="Home" subtitle={clock.greeting} />
+      <PageHeader title={t("nav.home")} subtitle={t(clock.greetingKey)} />
 
       <div className={classes.mega}>
         <div className={classes.stack}>
@@ -69,13 +71,13 @@ export default function Dashboard() {
                   />
                 ) : (
                   <div className={classes.pending}>
-                    <span className={classes.weatherPending}>Loading weather…</span>
+                    <span className={classes.weatherPending}>{t("dashboard.loadingWeather")}</span>
                     <button
                       type="button"
                       className={classes.changeLoc}
                       onClick={changeLocation}
                     >
-                      Change location
+                      {t("dashboard.changeLocation")}
                     </button>
                   </div>
                 )
@@ -91,10 +93,10 @@ export default function Dashboard() {
           </div>
 
           <div className={layout.twoColGrid}>
-            <Section label="Upcoming">
+            <Section label={t("dashboard.sectionUpcoming")}>
               <UpcomingCard now={now} events={upcoming} onEventClick={goToEvent} />
             </Section>
-            <Section label="Today's dish">
+            <Section label={t("dashboard.sectionTodaysDish")}>
               <DishCard
                 dish={todaysDish}
                 onClick={todaysDish?.recipe ? goToRecipe : undefined}
@@ -102,11 +104,11 @@ export default function Dashboard() {
             </Section>
           </div>
 
-          <Section label="Checklists">
+          <Section label={t("dashboard.sectionChecklists")}>
             <ChecklistCard lists={checklists} onOpen={goToChecklist} />
           </Section>
 
-          <Section label="Members">
+          <Section label={t("dashboard.sectionMembers")}>
             <MembersCard
               persons={persons}
               onAdd={openNewMember}

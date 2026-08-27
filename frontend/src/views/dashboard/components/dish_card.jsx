@@ -1,11 +1,13 @@
+import { useTranslation } from "react-i18next";
 import classes from "./dish_card.module.css";
 
 export default function DishCard({ dish, onClick }) {
+  const { t } = useTranslation();
   if (!dish) {
     return (
       <div className={classes.empty}>
         <div className={classes.hero}>🍽️</div>
-        <div className={classes.emptyText}>Nothing planned today</div>
+        <div className={classes.emptyText}>{t("dashboard.nothingPlannedToday")}</div>
       </div>
     );
   }
@@ -33,10 +35,10 @@ export default function DishCard({ dish, onClick }) {
       {r && (r.servings != null || r.minutes != null) && (
         <div className={classes.badges}>
           {r.servings != null && (
-            <span className={classes.badge}>{r.servings} servings</span>
+            <span className={classes.badge}>{t("dashboard.servings", { count: r.servings })}</span>
           )}
           {r.minutes != null && (
-            <span className={classes.badge}>{r.minutes} min</span>
+            <span className={classes.badge}>{t("dashboard.minutesShort", { count: r.minutes })}</span>
           )}
         </div>
       )}

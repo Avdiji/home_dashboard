@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import classes from "./location_picker.module.css";
 
 // Manual location picker for the dashboard weather section. Shown when no
@@ -7,6 +8,7 @@ import classes from "./location_picker.module.css";
 // onSelect with the Open-Meteo geocoding hit (name, latitude, longitude,
 // country_code, admin1).
 export default function LocationPicker({ searching, results, onSearch, onSelect }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const boxRef = useRef(null);
@@ -47,13 +49,13 @@ export default function LocationPicker({ searching, results, onSearch, onSelect 
 
   return (
     <div className={classes.box} ref={boxRef}>
-      <div className={classes.head}>📍 Set a location for the weather</div>
+      <div className={classes.head}>{t("dashboard.setLocationPrompt")}</div>
       <div className={classes.field}>
         <input
           className={classes.input}
           type="text"
           value={query}
-          placeholder="Search a city…"
+          placeholder={t("dashboard.searchCityPlaceholder")}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onKey}
           onFocus={() => results.length && setOpen(true)}
@@ -61,9 +63,9 @@ export default function LocationPicker({ searching, results, onSearch, onSelect 
       </div>
       {open && (
         <div className={classes.results}>
-          {searching && <div className={classes.row}>Searching…</div>}
+          {searching && <div className={classes.row}>{t("dashboard.searching")}</div>}
           {!searching && results.length === 0 && query.trim() && (
-            <div className={classes.row}>No matches</div>
+            <div className={classes.row}>{t("dashboard.noMatches")}</div>
           )}
           {!searching &&
             results.map((hit) => (

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CHECKLIST_GLANCE_LIMIT } from "../../../core/constants";
 import classes from "./checklist_card.module.css";
 
@@ -6,8 +7,9 @@ import classes from "./checklist_card.module.css";
 // a progress bar (done/total), and the remaining count. The whole card is a
 // link to the checklist feature — no per-item interaction here (view-only).
 export default function ChecklistCard({ lists, onOpen }) {
+  const { t } = useTranslation();
   if (!lists || lists.length === 0) {
-    return <div className={classes.empty}>No lists yet</div>;
+    return <div className={classes.empty}>{t("dashboard.noLists")}</div>;
   }
   const activate = () => onOpen?.();
   const onKeyDown = (e) => {
@@ -33,9 +35,9 @@ export default function ChecklistCard({ lists, onOpen }) {
             </div>
             <div className={classes.foot}>
               <span className={classes.done}>
-                {l.done}/{l.total}
+                {t("dashboard.doneTotal", { done: l.done, total: l.total })}
               </span>
-              <span className={classes.left}>{l.remaining} left</span>
+              <span className={classes.left}>{t("dashboard.itemsLeft", { count: l.remaining })}</span>
             </div>
           </div>
         ))}

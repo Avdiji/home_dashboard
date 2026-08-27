@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import PageHeader from "../../components/page_header/page_header";
 import AddButton from "../../components/buttons/add_button";
 import SegmentedControl from "../../components/segmented_control/segmented_control";
@@ -11,11 +12,12 @@ import { TAB_PLANNED, TAB_RECIPES } from "../../core/constants";
 import classes from "./meal_plan.module.css";
 
 const TABS = [
-  { key: TAB_PLANNED, label: "Planned dishes", value: TAB_PLANNED },
-  { key: TAB_RECIPES, label: "Recipes", value: TAB_RECIPES },
+  { key: TAB_PLANNED, labelKey: "mealPlan.plannedDishes", value: TAB_PLANNED },
+  { key: TAB_RECIPES, labelKey: "mealPlan.recipes", value: TAB_RECIPES },
 ];
 
 export default function MealPlan() {
+  const { t } = useTranslation();
   const {
     recipes,
     mealsByDate,
@@ -40,16 +42,20 @@ export default function MealPlan() {
 
   return (
     <div className={classes.view}>
-      <PageHeader title="Meal Plan" subtitle="Recipes & planned dishes" />
+      <PageHeader title={t("mealPlan.title")} subtitle={t("mealPlan.subtitle")} />
 
       <div className={classes.toolbar}>
-        <SegmentedControl items={TABS} value={tab} onChange={setTab} />
+        <SegmentedControl
+          items={TABS.map((tab) => ({ key: tab.key, label: t(tab.labelKey), value: tab.value }))}
+          value={tab}
+          onChange={setTab}
+        />
         <div className={classes.toolbar_right}>
           {tab === TAB_RECIPES ? (
-            <AddButton onClick={openNewRecipe}>+ New recipe</AddButton>
+            <AddButton onClick={openNewRecipe}>{t("mealPlan.newRecipe")}</AddButton>
           ) : (
             <AddButton onClick={() => openNewMeal()}>
-              + Plan a dish
+              {t("mealPlan.planDish")}
             </AddButton>
           )}
         </div>

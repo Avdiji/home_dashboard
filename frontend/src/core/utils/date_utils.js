@@ -1,41 +1,45 @@
+import i18n from "../i18n";
+
 export const MS_DAY = 86400000;
 
-export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// Weekday/month arrays hold i18n KEYS (resolved by the render site or the
+// format helpers below via i18n.t). Components subscribed via useTranslation
+// re-render on language change and re-call these, so the keys resolve in the
+// current language. Keep the Mon-first / Sun-first orderings intact.
+export const WEEKDAYS = [
+  "dates.weekdayMon", "dates.weekdayTue", "dates.weekdayWed", "dates.weekdayThu",
+  "dates.weekdayFri", "dates.weekdaySat", "dates.weekdaySun",
+];
 // Sun-first (matches Date#getDay, 0=Sun). Used by meal row's weekday label.
-export const WEEKDAYS_SUN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+export const WEEKDAYS_SUN = [
+  "dates.weekdaySun", "dates.weekdayMon", "dates.weekdayTue", "dates.weekdayWed",
+  "dates.weekdayThu", "dates.weekdayFri", "dates.weekdaySat",
+];
 export const WEEKDAYS_LONG = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
+  "dates.weekdayLongMon", "dates.weekdayLongTue", "dates.weekdayLongWed", "dates.weekdayLongThu",
+  "dates.weekdayLongFri", "dates.weekdayLongSat", "dates.weekdayLongSun",
 ];
 // Sun-first long names (matches Date#getDay, 0=Sun). Used by the dashboard clock.
 export const WEEKDAYS_LONG_SUN = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
+  "dates.weekdayLongSun", "dates.weekdayLongMon", "dates.weekdayLongTue", "dates.weekdayLongWed",
+  "dates.weekdayLongThu", "dates.weekdayLongFri", "dates.weekdayLongSat",
 ];
 export const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "dates.monthJan", "dates.monthFeb", "dates.monthMar", "dates.monthApr",
+  "dates.monthMay", "dates.monthJun", "dates.monthJul", "dates.monthAug",
+  "dates.monthSep", "dates.monthOct", "dates.monthNov", "dates.monthDec",
 ];
+// Short month keys (e.g. "Jan"). Used by the dashboard members birthday label
+// and the calendar week title when it spans two months.
+export const MONTHS_SHORT = [
+  "dates.monthShortJan", "dates.monthShortFeb", "dates.monthShortMar", "dates.monthShortApr",
+  "dates.monthShortMay", "dates.monthShortJun", "dates.monthShortJul", "dates.monthShortAug",
+  "dates.monthShortSep", "dates.monthShortOct", "dates.monthShortNov", "dates.monthShortDec",
+];
+// English short weekday tokens, Sun-first. Internal only — zonedParts matches
+// the tokens emitted by Intl.DateTimeFormat("en-US", …) against this array to
+// recover a 0-6 Sun-first weekday index. Not for display.
+const EN_WEEKDAY_SHORT_SUN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function startOfDay(d) {
   const x = new Date(d);
@@ -116,19 +120,19 @@ export function formatTime24(d) {
 }
 
 export function formatMonthTitle(d) {
-  return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${i18n.t(MONTHS[d.getMonth()])} ${d.getFullYear()}`;
 }
 
 export function formatWeekTitle(start, end) {
   const sameMonth = start.getMonth() === end.getMonth();
   if (sameMonth) {
-    return `${MONTHS[start.getMonth()]} ${start.getDate()} – ${end.getDate()} ${end.getFullYear()}`;
+    return `${i18n.t(MONTHS[start.getMonth()])} ${start.getDate()} – ${end.getDate()} ${end.getFullYear()}`;
   }
-  return `${MONTHS[start.getMonth()].slice(0, 3)} ${start.getDate()} – ${MONTHS[end.getMonth()].slice(0, 3)} ${end.getDate()} ${end.getFullYear()}`;
+  return `${i18n.t(MONTHS_SHORT[start.getMonth()])} ${start.getDate()} – ${i18n.t(MONTHS_SHORT[end.getMonth()])} ${end.getDate()} ${end.getFullYear()}`;
 }
 
 export function formatDayTitle(d) {
-  return `${WEEKDAYS_LONG[(d.getDay() + 6) % 7]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${i18n.t(WEEKDAYS_LONG[(d.getDay() + 6) % 7])}, ${d.getDate()} ${i18n.t(MONTHS[d.getMonth()])} ${d.getFullYear()}`;
 }
 
 // datetime-local input value (YYYY-MM-DDTHH:MM), local time.
@@ -155,7 +159,7 @@ export function formatDate(d) {
 // Short weekday label, e.g. "Mon". Accepts a Date or an ISO "YYYY-MM-DD" string.
 export function formatWeekdayShort(d) {
   const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
-  return WEEKDAYS_SUN[date.getDay()];
+  return i18n.t(WEEKDAYS_SUN[date.getDay()]);
 }
 
 // Wall-clock parts of `date` as they read in `timeZone` (IANA name, e.g.
@@ -187,6 +191,6 @@ export function zonedParts(date, timeZone) {
     hours,
     minutes: Number(m.minute),
     seconds: Number(m.second),
-    weekday: WEEKDAYS_SUN.indexOf(m.weekday), // 0-6 Sun-first; -1 if unresolved
+    weekday: EN_WEEKDAY_SHORT_SUN.indexOf(m.weekday), // 0-6 Sun-first; -1 if unresolved
   };
 }
