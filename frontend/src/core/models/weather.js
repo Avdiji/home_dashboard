@@ -9,6 +9,7 @@ export class Weather {
     sunrise = null,
     sunset = null,
     hours = [],
+    place = null,
   } = {}) {
     this.temperature = temperature;
     this.apparentTemperature = apparentTemperature;
@@ -19,5 +20,9 @@ export class Weather {
     this.sunrise = sunrise;
     this.sunset = sunset;
     this.hours = Array.isArray(hours) ? hours.slice() : [];
+    // Place name for the coords the weather was fetched for (e.g. "Berlin, DE").
+    // Resolved separately (reverse geocoding / IP geo) by the dashboard hook —
+    // not part of the Open-Meteo forecast payload itself.
+    this.place = place;
   }
 }

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEvents } from "../../../store/events_store";
 import { usePersons } from "../../../store/persons_store";
 import { CALENDAR_PATH } from "../../../core/nav_config";
+import { FREQUENCY_NONE } from "../../../core/frequency";
 import {
   STATE_KEY_EDIT_EVENT_ID,
   STATE_KEY_EVENT_START,
@@ -28,12 +29,20 @@ export default function useCalendar() {
   const addEvent = useEvents((s) => s.addEvent);
   const updateEvent = useEvents((s) => s.updateEvent);
   const removeEvent = useEvents((s) => s.removeEvent);
+  const excludeOccurrence = useEvents((s) => s.excludeOccurrence);
 
   const [view, setView] = useState(VIEW_DAY);
   const [cursor, setCursor] = useState(() => new Date());
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [formStart, setFormStart] = useState(null);
+  // The occurrence's concrete start for the event in the edit form. For a
+  // recurring event this is the clicked instance (not the base start) so the
+  // "delete this occurrence only" choice knows which instance to exclude.
+  const [editingOccurrenceStart, setEditingOccurrenceStart] = useState(null);
+  // Delete-choice modal for recurring events: { eventId, occurrenceStart }.
+  const [deleteChoice, setDeleteChoice] = useState(null);
+  const [deleteChoiceOpen, setDeleteChoiceOpen] = useState(false);
 
   const goPrev = () => {
     setCursor((c) =>
@@ -56,16 +65,49 @@ export default function useCalendar() {
   const openNewForm = (start) => {
     setEditingEvent(null);
     setFormStart(start ?? null);
+    setEditingOccurrenceStart(null);
     setFormOpen(true);
   };
 
   const openEditForm = (occ) => {
     setEditingEvent(occ.event);
     setFormStart(null);
+    setEditingOccurrenceStart(occ.start ?? null);
     setFormOpen(true);
   };
 
   const closeForm = () => setFormOpen(false);
+
+  // Delete flow. For a one-off event there is nothing to choose — delete it.
+  // For a recurring event, open the choice modal (this occurrence vs the whole
+  // series). The edit form closes itself via onClose; the choice modal is the
+  // follow-up.
+  const requestDelete = (event, occurrenceStart) => {
+    if (!event) return;
+    if (event.frequency === FREQUENCY_NONE || !occurrenceStart) {
+      removeEvent(event.id);
+      return;
+    }
+    setDeleteChoice({ eventId: event.id, occurrenceStart });
+    setDeleteChoiceOpen(true);
+  };
+
+  const confirmDeleteAll = () => {
+    if (deleteChoice) removeEvent(deleteChoice.eventId);
+    setDeleteChoice(null);
+    setDeleteChoiceOpen(false);
+  };
+
+  const confirmDeleteOne = () => {
+    if (deleteChoice) excludeOccurrence(deleteChoice.eventId, deleteChoice.occurrenceStart);
+    setDeleteChoice(null);
+    setDeleteChoiceOpen(false);
+  };
+
+  const closeDeleteChoice = () => {
+    setDeleteChoice(null);
+    setDeleteChoiceOpen(false);
+  };
 
   // Cross-feature deep link: another view (e.g. the dashboard upcoming list)
   // navigates here with `{ editEventId, eventStart }` to open that event's edit
@@ -82,6 +124,7 @@ export default function useCalendar() {
       if (startIso) setCursor(new Date(startIso));
       setEditingEvent(found);
       setFormStart(null);
+      setEditingOccurrenceStart(startIso ? new Date(startIso) : null);
       setFormOpen(true);
     }
     // Consume the state so a back/forward re-entry doesn't reopen the modal.
@@ -101,11 +144,17 @@ export default function useCalendar() {
     formOpen,
     editingEvent,
     formStart,
+    editingOccurrenceStart,
     openNewForm,
     openEditForm,
     closeForm,
     addEvent,
     updateEvent,
-    removeEvent,
+    requestDelete,
+    deleteChoice,
+    deleteChoiceOpen,
+    confirmDeleteAll,
+    confirmDeleteOne,
+    closeDeleteChoice,
   };
 }

@@ -157,3 +157,36 @@ export function formatWeekdayShort(d) {
   const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
   return WEEKDAYS_SUN[date.getDay()];
 }
+
+// Wall-clock parts of `date` as they read in `timeZone` (IANA name, e.g.
+// "America/New_York"). Returns null when `timeZone` is falsy so callers can
+// fall back to the Date's local getters. Used by the dashboard clock to show
+// the selected weather location's local time instead of the browser's.
+//   weekday: 0-6 Sun-first (matches Date#getDay) for indexing WEEKDAYS_LONG_SUN.
+export function zonedParts(date, timeZone) {
+  if (!timeZone) return null;
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const m = {};
+  for (const p of fmt.formatToParts(date)) m[p.type] = p.value;
+  // hour12:false can yield "24" at midnight in some environments — normalize.
+  const hours = Number(m.hour) % 24;
+  return {
+    year: Number(m.year),
+    month: Number(m.month) - 1, // 0-based, matches Date#getMonth
+    day: Number(m.day),
+    hours,
+    minutes: Number(m.minute),
+    seconds: Number(m.second),
+    weekday: WEEKDAYS_SUN.indexOf(m.weekday), // 0-6 Sun-first; -1 if unresolved
+  };
+}

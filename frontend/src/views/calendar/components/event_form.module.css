@@ -10,3 +10,24 @@
 .dates > * {
   flex: 1;
 }
+
+.repeat {
+  align-items: center;
+}
+
+.repeatControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.every {
+  color: var(--muted);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.interval {
+  width: 5rem;
+  flex: 0 0 auto;
+}

@@ -2,6 +2,7 @@ import PageHeader from "../../components/page_header/page_header";
 import layout from "../../components/layout/layout.module.css";
 import ClockCard from "./components/clock_card";
 import WeatherCard from "./components/weather_card";
+import LocationPicker from "./components/location_picker";
 import HourlyStrip from "./components/hourly_strip";
 import UpcomingCard from "./components/upcoming_card";
 import DishCard from "./components/dish_card";
@@ -23,6 +24,13 @@ export default function Dashboard() {
     now,
     clock,
     weather,
+    place,
+    location,
+    locationResults,
+    locSearching,
+    searchLocation,
+    chooseLocation,
+    changeLocation,
     todaysDish,
     upcoming,
     goToEvent,
@@ -48,15 +56,41 @@ export default function Dashboard() {
         <div className={classes.stack}>
           <div className={classes.now}>
             <ClockCard clock={clock} />
-            <div className={classes.nowRight}>
-              <div className={classes.nowWeather}>
-                <WeatherCard weather={weather} />
+            {location ? (
+              <div className={classes.nowRight}>
+                <div className={classes.nowWeather}>
+                  {weather ? (
+                    <WeatherCard weather={weather} place={place} />
+                  ) : (
+                    <span className={classes.weatherPending}>Loading weather…</span>
+                  )}
+                  <button
+                    type="button"
+                    className={classes.changeLoc}
+                    onClick={changeLocation}
+                  >
+                    Change location
+                  </button>
+                </div>
+                {weather && (
+                  <>
+                    <div className={classes.sep} />
+                    <div className={classes.nowHourly}>
+                      <HourlyStrip hours={weather.hours} />
+                    </div>
+                  </>
+                )}
               </div>
-              <div className={classes.sep} />
-              <div className={classes.nowHourly}>
-                <HourlyStrip hours={weather.hours} />
+            ) : (
+              <div className={classes.nowRight}>
+                <LocationPicker
+                  searching={locSearching}
+                  results={locationResults}
+                  onSearch={searchLocation}
+                  onSelect={chooseLocation}
+                />
               </div>
-            </div>
+            )}
           </div>
 
           <div className={layout.twoColGrid}>

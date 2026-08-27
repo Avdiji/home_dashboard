@@ -41,6 +41,30 @@
 .nowWeather {
   flex: 0 0 auto;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weatherPending {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.changeLoc {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.changeLoc:hover {
+  color: var(--ink);
 }
 
 .nowHourly {
@@ -104,6 +128,12 @@
     align-self: stretch;
   }
   .nowHourly {
+    align-self: center;
+  }
+  .nowWeather {
+    align-items: center;
+  }
+  .changeLoc {
     align-self: center;
   }
 }

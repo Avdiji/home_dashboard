@@ -1,19 +1,20 @@
 import { create } from "zustand";
-import { SEED_EVENTS } from "../core/seeds/events";
+import { sendCommand } from "../core/api/transport";
 
 // Centralized calendar events state. Single source of truth shared by the
 // calendar (event CRUD) and the dashboard (upcoming list — a view over the
 // same events so a row click deep-links to the real event id). Module-level
 // store — no provider needed; subscribe via `useEvents((s) => s.events)`.
 //
-// Seeds still define the initial state; swap for a fetch once the backend
-// lands. Mutations are noops with full signatures — the signature is the spec
-// for the future backend call. Websocket wiring (later stage) calls these
-// actions / set() on incoming event pushes so every client updates.
+// Initial state is empty; `loadAll()` hydrates from the backend on mount, and
+// broadcast events keep it in sync (no optimistic local update — the broadcast
+// round-trip updates every client via applyEvent). The hook/view pass
+// camelCase + Date objects; the action maps them to the snake_case / ISO-string
+// wire shape the backend command expects.
 
 export const useEvents = create(() => ({
-  events: SEED_EVENTS,
-  // noop — add event wiring handled once backend lands
+  events: [],
+  // event.add — start/end are Date → ISO strings on the wire.
   addEvent: ({
     title,
     description,
@@ -22,9 +23,43 @@ export const useEvents = create(() => ({
     end,
     personIds,
     frequency,
-  }) => {},
-  // noop — update event wiring handled once backend lands
-  updateEvent: (eventId, patch) => {},
-  // noop — remove event wiring handled once backend lands
-  removeEvent: (eventId) => {},
+    interval,
+  }) =>
+    sendCommand("event.add", {
+      title,
+      description,
+      location,
+      start_at: start instanceof Date ? start.toISOString() : start,
+      end_at: end instanceof Date ? end.toISOString() : end,
+      person_ids: personIds,
+      frequency,
+      interval,
+    }),
+  // event.update — full patch; backend pointers treat each field as "provided".
+  // Empty strings clear; absent keys would be no-op (the form always sends all).
+  updateEvent: (eventId, patch) =>
+    sendCommand("event.update", {
+      eventId,
+      title: patch.title,
+      description: patch.description,
+      location: patch.location,
+      start_at: patch.start instanceof Date ? patch.start.toISOString() : patch.start,
+      end_at: patch.end instanceof Date ? patch.end.toISOString() : patch.end,
+      person_ids: patch.personIds,
+      frequency: patch.frequency,
+      interval: patch.interval,
+    }),
+  // event.delete — { eventId } — removes the whole event (every occurrence of a
+  // recurring series).
+  removeEvent: (eventId) =>
+    sendCommand("event.delete", { eventId }),
+  // event.excludeOccurrence — deletes one occurrence of a recurring series only.
+  // `start` is the occurrence's concrete start (ISO) so the backend can add it
+  // to the base event's exclusions; the broadcast event.updated re-expands and
+  // drops that instance everywhere.
+  excludeOccurrence: (eventId, start) =>
+    sendCommand("event.excludeOccurrence", {
+      eventId,
+      start: start instanceof Date ? start.toISOString() : start,
+    }),
 }));

@@ -4,7 +4,7 @@ import classes from "./weather_card.module.css";
 
 const fmt = (iso) => (iso ? formatTime24(new Date(iso)) : "—");
 
-export default function WeatherCard({ weather }) {
+export default function WeatherCard({ weather, place }) {
   const { label, icon } = describeWeatherCode(
     weather.weatherCode,
     weather.isDay,
@@ -30,6 +30,7 @@ export default function WeatherCard({ weather }) {
         </div>
       </div>
       <div className={classes.label}>{label}</div>
+      {place && <div className={classes.place}>📍 {place}</div>}
       <div className={classes.conditions}>
         {wind && <span>{wind} wind</span>}
         {humidity && <span>{humidity} humidity</span>}

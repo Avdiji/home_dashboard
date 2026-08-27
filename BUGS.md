@@ -2,8 +2,6 @@ Known bugs/TODOs
 
 Dashboard:
 
-Recipes:
-    1. ability to upload recipes with image
 
 Calendar:
     1. make sure that current day is being updated properly...
@@ -14,8 +12,9 @@ Calendar:
 General:
     1. introduce light and darkmode (switch between the two, depending on sunrise and nightfall)
     2. i18n
-    3. AsyncAPI doc -> GO ws interfaces
     4. enable smooth transitions (everywhere)
     5. all constants should be centralized
+    7. allow persisting events yearly
+    8. allow for more granular cycles (every two/three weeks...)
     
 
