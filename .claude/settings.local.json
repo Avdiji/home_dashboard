@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s \"https://api.open-meteo.com/v1/forecast?latitude=47.37&longitude=8.55&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day&hourly=temperature_2m,weather_code,is_day&forecast_days=2&daily=sunrise,sunset&timezone=auto\")",
+      "Bash(grep -rn \"VITE\\\\|localhost\\\\|host\" vite.config.*)",
+      "Bash(ls vite.config.*)",
+      "Bash(curl -s \"https://get.geojs.io/v1/ip/geo.json\")",
+      "Bash(python -c \"import yaml,sys; yaml.safe_load\\(open\\('docs/asyncapi.yaml',encoding='utf-8'\\)\\); print\\('ok'\\)\")",
+      "Bash(node -e \"const y=require\\('js-yaml'\\);require\\('fs'\\);try{y.load\\(require\\('fs'\\).readFileSync\\('docs/asyncapi.yaml','utf8'\\)\\);console.log\\('ok'\\)}catch\\(e\\){console.error\\(e.message\\);process.exit\\(1\\)}\")",
+      "Bash(go version *)",
+      "PowerShell($go = \\(Get-Command go -ErrorAction SilentlyContinue\\); if \\($go\\) { go version } else { \"go not found\" })",
+      "PowerShell($paths = @\\(\"$env:USERPROFILE\\\\go\\\\bin\",\"$env:LOCALAPPDATA\\\\Programs\\\\Go\\\\bin\",\"C:\\\\Program Files\\\\Go\\\\bin\",\"C:\\\\Go\\\\bin\",\"$env:USERPROFILE\\\\scoop\\\\apps\\\\go\\\\current\\\\bin\"\\); foreach\\($p in $paths\\){ if\\(Test-Path \"$p\\\\go.exe\"\\){ \"FOUND: $p\\\\go.exe\"; & \"$p\\\\go.exe\" version; break } }; \"done\")",
+      "Bash(go build *)"
+    ]
+  }
+}
