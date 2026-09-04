@@ -1,3 +1,19 @@
+# Standalone stack: same as docker-compose.yml, plus a tailscale sidecar that
+# exposes the app on your tailnet.
+#
+# Usage:
+#   docker compose -f docker-compose.tailscale.yml up
+#
+# The tailscale container owns the network namespace; backend and frontend
+# join it (network_mode: service:tailscale) instead of publishing their own
+# ports, so both become reachable at the sidecar's tailnet IP/hostname —
+# http://home-dashboard:5173 (frontend) and http://home-dashboard:8080 (backend)
+# from any device in your tailnet. Because they share a netns, the frontend
+# reaches the backend at "localhost" rather than the compose service name.
+#
+# Requires a TS_AUTHKEY in .env (see .env.example) — generate one at
+# https://login.tailscale.com/admin/settings/keys.
+
 services:
   tailscale:
     image: tailscale/tailscale:latest
@@ -6,7 +22,6 @@ services:
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_EXTRA_ARGS=--advertise-tags=tag:home-dashboard
     volumes:
       - tailscale-state:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
@@ -19,17 +34,37 @@ services:
     restart: unless-stopped
 
   backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     network_mode: service:tailscale
-    ports: !reset []
+    environment:
+      - HOME_DASHBOARD_DB=/data/home_dashboard.db
+    volumes:
+      - ./backend:/app
+      - backend-db:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/api/persons"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 10s
     depends_on:
       tailscale:
         condition: service_started
 
   frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     network_mode: service:tailscale
-    ports: !reset []
     environment:
       - BACKEND_HOST=localhost
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
     depends_on:
       backend:
         condition: service_healthy
@@ -38,3 +73,5 @@ services:
 
 volumes:
   tailscale-state:
+  backend-db:
+  frontend-node-modules:

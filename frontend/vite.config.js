@@ -14,6 +14,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
+    // Allows the tailnet MagicDNS hostname (e.g. home-dashboard.<tailnet>.ts.net)
+    // through Vite's host check when served via the tailscale sidecar
+    // (docker-compose.tailscale.yml). ".ts.net" covers any tailnet suffix.
+    allowedHosts: ['home-dashboard', '.ts.net'],
     proxy: {
       '/api': { target: `http://${backendHost}:8080`, changeOrigin: true },
       '/ws': { target: `ws://${backendHost}:8080`, ws: true, changeOrigin: true },
