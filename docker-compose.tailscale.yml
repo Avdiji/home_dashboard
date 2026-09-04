@@ -1,0 +1,40 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-home-dashboard
+    hostname: home-dashboard
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--advertise-tags=tag:home-dashboard
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    ports:
+      - "5173:5173"
+      - "8080:8080"
+    restart: unless-stopped
+
+  backend:
+    network_mode: service:tailscale
+    ports: !reset []
+    depends_on:
+      tailscale:
+        condition: service_started
+
+  frontend:
+    network_mode: service:tailscale
+    ports: !reset []
+    environment:
+      - BACKEND_HOST=localhost
+    depends_on:
+      backend:
+        condition: service_healthy
+      tailscale:
+        condition: service_started
+
+volumes:
+  tailscale-state:
