@@ -80,7 +80,10 @@
     "deleteRecurringTitle": "Wiederkehrendes Ereignis löschen",
     "deleteRecurringHint": "Diese Instanz ist am <bold>{{when}}</bold>. Wähle, was gelöscht werden soll.",
     "thisOccurrence": "Diese Instanz",
-    "entireSeries": "Gesamte Serie"
+    "entireSeries": "Gesamte Serie",
+    "overlapWarningTitle": "Überschneidendes Ereignis",
+    "overlapWarningHint": "Dies überschneidet sich mit:",
+    "saveAnyway": "Trotzdem speichern"
   },
   "checklist": {
     "title": "Checkliste",

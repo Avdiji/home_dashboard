@@ -80,7 +80,10 @@
     "deleteRecurringTitle": "Delete recurring event",
     "deleteRecurringHint": "This instance is on <bold>{{when}}</bold>. Choose what to delete.",
     "thisOccurrence": "This occurrence",
-    "entireSeries": "Entire series"
+    "entireSeries": "Entire series",
+    "overlapWarningTitle": "Overlapping event",
+    "overlapWarningHint": "This overlaps with:",
+    "saveAnyway": "Save anyway"
   },
   "checklist": {
     "title": "Checklist",

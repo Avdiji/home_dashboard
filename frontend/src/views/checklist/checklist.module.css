@@ -12,84 +12,48 @@
   flex-wrap: wrap;
 }
 
-/* Member filter — a grid of pills on tablet/desktop (6 per row, folding long
-   rosters into rows instead of one clipped bar). On mobile it's a wrapping
-   flex row instead — each pill is only as wide as its name needs, so the row
-   takes up as little horizontal space as possible rather than stretching
-   pills to fill fixed columns. The container itself is transparent so an
-   incomplete last row doesn't leave a colored block — empty cells show the
-   page. Dividers are per-pill left borders, suppressed on the first column of
-   each row (via :nth-child) so no stray line appears at a row's left edge —
-   tablet/desktop grid only, since the mobile row's wrap points aren't fixed. */
+/* Member filter — same underline-tab style as SegmentedControl (calendar view
+   switcher, meal plan tabs): no background/border box at all, just a row of
+   plain text buttons. Selected ones get accent-2 text + a colored underline.
+   No fill/box ever changes size, so selecting never shifts anything below. */
 .filter {
   display: flex;
   flex-wrap: wrap;
-  gap: 1px;
+  gap: 4px 20px;
   max-width: 100%;
   margin: 4px 0 24px;
-  background: transparent;
-}
-
-@media (--tablet) {
-  .filter {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0;
-    border-radius: 8px;
-    overflow: hidden;
-  }
 }
 
 .filterBtn {
   border: 0;
-  background: var(--accent-2);
-  color: var(--on-accent);
-  min-height: 34px;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  min-height: 30px;
   min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
+  padding: 5px 2px;
   font: inherit;
   font-size: 13px;
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 @media (--mobile) {
   .filterBtn {
     font-size: 12px;
-    padding: 5px 10px;
-    /* Every pill is the same width, sized to fit an 8-char name — longer
-       names truncate via .label's ellipsis instead of growing the pill. */
-    flex: 0 0 auto;
-    width: calc(8ch + 20px);
   }
 }
 
-@media (--tablet) {
-  .filterBtn {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  /* No divider on the first pill of each row. */
-  .filterBtn:nth-child(6n + 1) {
-    border-left: 0;
-  }
-}
-
-/* Hover darkens, matching the app's accent-2 standard (AddButton) instead of
-   washing out with a white overlay. Applies to the active (inverted) pill too
-   so it gets feedback — brightness on its white bg reads as a subtle gray. */
-.filterBtn:hover,
-.filterBtn.active:hover {
-  filter: brightness(0.95);
+.filterBtn:hover {
+  color: var(--ink);
 }
 
 .filterBtn.active {
-  background: var(--on-accent);
   color: var(--accent-2);
-  font-weight: 600;
+  border-bottom-color: var(--accent-2);
 }
 
 /* Label truncates with an ellipsis when a name is too long for its cell; the

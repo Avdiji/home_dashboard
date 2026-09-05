@@ -8,13 +8,23 @@ import {
 } from "../../../core/utils/date_utils";
 import AssignPicker from "../../../components/assign_picker/assign_picker";
 import Modal from "../../../components/modal/modal";
+import OverlapWarning from "./overlap_warning";
+import { expandAll } from "../../../core/utils/recurrence";
 import controls from "../../../components/forms/form_controls.module.css";
 import classes from "./event_form.module.css";
 
 const field = (d) => toLocalInputValue(d);
 
+// Occurrences of other events (excluding the one being edited) whose time
+// range overlaps [start, end).
+function findConflicts(events, start, end, excludeId) {
+  const others = excludeId == null ? events : events.filter((e) => e.id !== excludeId);
+  return expandAll(others, start, end).filter((o) => o.start < end && o.end > start);
+}
+
 export default function EventForm({
   persons,
+  events = [],
   event = null,
   initialStart,
   occurrenceStart = null,
@@ -33,6 +43,9 @@ export default function EventForm({
   const [assigned, setAssigned] = useState(() => new Set(event?.personIds ?? []));
   const [frequency, setFrequency] = useState(event?.frequency ?? FREQUENCY_NONE);
   const [interval, setInterval] = useState(event?.interval ?? 1);
+  // Pending save awaiting the user's confirmation past a detected overlap:
+  // { payload, conflicts } or null.
+  const [pendingOverlap, setPendingOverlap] = useState(null);
 
   const toggleAssign = (id) => {
     setAssigned((cur) => {
@@ -64,11 +77,25 @@ export default function EventForm({
     interval: frequency === FREQUENCY_NONE ? 1 : Math.max(1, Number(interval) || 1),
   });
 
+  const save = (p) => {
+    if (event) onUpdate?.(event.id, p);
+    else onSave?.(p);
+    onClose();
+  };
+
   const submit = () => {
     if (!title.trim() || endBeforeStart) return;
-    if (event) onUpdate?.(event.id, payload());
-    else onSave?.(payload());
-    onClose();
+    const p = payload();
+    const conflicts = findConflicts(events, p.start, p.end, event?.id);
+    if (conflicts.length) {
+      setPendingOverlap({ payload: p, conflicts });
+      return;
+    }
+    save(p);
+  };
+
+  const confirmSaveAnyway = () => {
+    if (pendingOverlap) save(pendingOverlap.payload);
   };
 
   const remove = () => {
@@ -77,6 +104,7 @@ export default function EventForm({
   };
 
   return (
+    <>
     <Modal
       title={event ? t("calendar.editEvent") : t("calendar.newEventTitle")}
       onClose={onClose}
@@ -169,5 +197,14 @@ export default function EventForm({
         />
       </label>
     </Modal>
+
+    {pendingOverlap && (
+      <OverlapWarning
+        conflicts={pendingOverlap.conflicts}
+        onConfirm={confirmSaveAnyway}
+        onClose={() => setPendingOverlap(null)}
+      />
+    )}
+    </>
   );
 }

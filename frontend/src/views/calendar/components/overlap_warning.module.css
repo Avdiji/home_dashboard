@@ -1,0 +1,35 @@
+.hint {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border-left: 3px solid var(--warn);
+  border-radius: 8px;
+}
+
+.item_title {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.item_time {
+  color: var(--muted);
+  font-size: 13px;
+}

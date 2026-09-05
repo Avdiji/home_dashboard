@@ -91,6 +91,7 @@ export default function Calendar() {
       {formOpen && (
         <EventForm
           persons={persons}
+          events={events}
           event={editingEvent}
           initialStart={formStart}
           occurrenceStart={editingOccurrenceStart}
