@@ -17,7 +17,11 @@ export default defineConfig({
     // Allows the tailnet MagicDNS hostname (e.g. home-dashboard.<tailnet>.ts.net)
     // through Vite's host check when served via the tailscale sidecar
     // (docker-compose.tailscale.yml). ".ts.net" covers any tailnet suffix.
-    allowedHosts: ['home-dashboard', '.ts.net'],
+    // "frontend" is the compose service name the chromium container's
+    // --app=http://frontend:5173 uses as its Host header on the plain
+    // docker-compose.yml stack (no tailscale sidecar to rewrite it to
+    // localhost).
+    allowedHosts: ['home-dashboard', '.ts.net', 'frontend'],
     proxy: {
       '/api': { target: `http://${backendHost}:8080`, changeOrigin: true },
       '/ws': { target: `ws://${backendHost}:8080`, ws: true, changeOrigin: true },

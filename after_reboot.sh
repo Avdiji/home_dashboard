@@ -36,6 +36,13 @@ fi
 echo "Docker is up."
 
 cd "$(dirname "$0")"
-docker compose -f docker-compose.tailscale.yml up
+# --force-recreate: "unplugging the Pi" is an unclean shutdown, so any
+# container left over from before the power-cut has a writable layer written
+# mid-kill (chromium profile lock files, crash-restore state, etc.). Reusing
+# that container as-is (plain `up`) can leave chromium/onboard in a bad state
+# instead of the clean boot every other run gets — recreate so every boot
+# starts from the same known-good state. --remove-orphans drops the
+# non-tailscale compose file's containers if that was used previously.
+docker compose -f docker-compose.tailscale.yml up -d --force-recreate --remove-orphans
 
 echo "Stack starting — check with: docker compose -f docker-compose.tailscale.yml ps"
