@@ -7,7 +7,8 @@
 # docker-compose.yml / docker-compose.tailscale.yml) has nothing to connect
 # to until it does. This makes the Pi boot into the graphical target, starts
 # lightdm/X now, waits for the X socket and the docker daemon, then brings
-# the whole stack up so the script exits instead of blocking.
+# the whole stack up in the foreground (Ctrl-C stops it) so its logs are
+# visible directly in this terminal.
 set -e
 
 sudo systemctl set-default graphical.target
@@ -43,6 +44,4 @@ cd "$(dirname "$0")"
 # instead of the clean boot every other run gets — recreate so every boot
 # starts from the same known-good state. --remove-orphans drops the
 # non-tailscale compose file's containers if that was used previously.
-docker compose -f docker-compose.tailscale.yml up -d --force-recreate --remove-orphans
-
-echo "Stack starting — check with: docker compose -f docker-compose.tailscale.yml ps"
+docker compose -f docker-compose.tailscale.yml up --force-recreate --remove-orphans
