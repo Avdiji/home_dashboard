@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./components/layout/Layout";
+import Layout from "./components/layout/layout";
 import Dashboard from "./views/dashboard/dashboard";
 
 import {CALENDAR_PATH, DASHBOARD_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH} from "./core/nav_config";
