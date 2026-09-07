@@ -8,25 +8,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         chromium \
         fonts-noto-color-emoji \
         locales \
+        onboard \
+        dbus-x11 \
+        at-spi2-core \
     && rm -rf /var/lib/apt/lists/* \
     && sed -i '/de_DE.UTF-8/s/^# //' /etc/locale.gen \
     && locale-gen
 
 ENV LANG=de_DE.UTF-8 \
     LANGUAGE=de_DE:de \
-    LC_ALL=de_DE.UTF-8
+    LC_ALL=de_DE.UTF-8 \
+    GTK_MODULES=gail:atk-bridge
 
-ENTRYPOINT ["chromium", \
-    "--kiosk", \
-    "--no-sandbox", \
-    "--no-first-run", \
-    "--disable-infobars", \
-    "--noerrdialogs", \
-    "--start-fullscreen", \
-    "--password-store=basic", \
-    "--lang=de", \
-    "--check-for-update-interval=31536000", \
-    "--touch-events=enabled", \
-    "--enable-touchview", \
-    "--force-tablet-mode", \
-    "--enable-virtual-keyboard"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
