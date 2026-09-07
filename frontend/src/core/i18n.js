@@ -20,6 +20,11 @@ i18n
     },
     supportedLngs: ["en", "de"],
     fallbackLng: "en",
+    // Detected navigator languages are region-qualified (e.g. "de-DE",
+    // "en-US"), but supportedLngs only lists language codes — without this,
+    // i18next requires an exact match and silently falls back to en for
+    // every regional variant.
+    load: "languageOnly",
     detection: {
       order: ["navigator", "htmlTag"],
       caches: [], // do not persist — browser language is the source of truth
