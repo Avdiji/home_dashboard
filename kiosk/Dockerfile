@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         onboard \
         dbus-x11 \
         at-spi2-core \
+        matchbox-window-manager \
     && rm -rf /var/lib/apt/lists/* \
     && sed -i '/de_DE.UTF-8/s/^# //' /etc/locale.gen \
     && locale-gen
