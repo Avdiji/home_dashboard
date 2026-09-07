@@ -7,7 +7,7 @@
 # docker-compose.yml / docker-compose.tailscale.yml) has nothing to connect
 # to until it does. This makes the Pi boot into the graphical target, starts
 # lightdm/X now, waits for the X socket and the docker daemon, then brings
-# the whole stack up detached so the script exits instead of blocking.
+# the whole stack up so the script exits instead of blocking.
 set -e
 
 sudo systemctl set-default graphical.target
