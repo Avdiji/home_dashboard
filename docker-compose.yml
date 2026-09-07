@@ -41,6 +41,8 @@ services:
     build:
       context: ./kiosk
       dockerfile: Dockerfile
+    devices:
+      - /dev/dri:/dev/dri
     environment:
       - DISPLAY=${DISPLAY:-:0}
     volumes:

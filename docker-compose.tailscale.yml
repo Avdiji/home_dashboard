@@ -77,6 +77,8 @@ services:
       context: ./kiosk
       dockerfile: Dockerfile
     network_mode: service:tailscale
+    devices:
+      - /dev/dri:/dev/dri
     environment:
       - DISPLAY=${DISPLAY:-:0}
     volumes:

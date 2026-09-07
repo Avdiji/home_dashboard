@@ -25,4 +25,8 @@ ENTRYPOINT ["chromium", \
     "--start-fullscreen", \
     "--password-store=basic", \
     "--lang=de", \
-    "--check-for-update-interval=31536000"]
+    "--check-for-update-interval=31536000", \
+    "--touch-events=enabled", \
+    "--enable-touchview", \
+    "--force-tablet-mode", \
+    "--enable-virtual-keyboard"]
