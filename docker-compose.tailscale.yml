@@ -71,6 +71,23 @@ services:
       tailscale:
         condition: service_started
 
+  chromium:
+    container_name: chromium
+    build:
+      context: ./kiosk
+      dockerfile: Dockerfile
+    network_mode: service:tailscale
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    shm_size: "1gb"
+    command: ["http://localhost:5173"]
+    restart: unless-stopped
+    depends_on:
+      frontend:
+        condition: service_started
+
 volumes:
   tailscale-state:
   backend-db:
