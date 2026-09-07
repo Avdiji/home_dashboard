@@ -12,11 +12,24 @@ set -e
 eval "$(dbus-launch --sh-syntax)"
 export DBUS_SESSION_BUS_ADDRESS
 
-# Lazy D-Bus activation of org.a11y.Bus races onboard's first connection
-# attempt on a cold container start, so launch the AT-SPI registry up front
-# and give it a moment to publish its bus address before onboard looks for it.
+# Lazy D-Bus activation of org.a11y.Bus races onboard's and chromium's first
+# connection attempt on a cold container start — and that race is much more
+# likely to be lost on a real host boot (dockerd, lightdm/X, and the other
+# 3 containers all starting at once on a Pi) than in a warm restart on an
+# already-idle host. Chromium checks for the accessibility bus exactly once
+# at launch and never retries, so if it's exec'd before at-spi-bus-launcher
+# has published org.a11y.Bus on the session bus, accessibility (and with it
+# onboard's auto-show) stays silently off for the container's whole life —
+# a fixed sleep is a guess at that timing, so poll for the bus instead,
+# bounded so a genuinely broken at-spi doesn't hang the container forever.
 /usr/libexec/at-spi-bus-launcher --launch-immediately &
-sleep 1
+i=0
+while [ "$i" -lt 50 ] && ! dbus-send --session --print-reply \
+        --dest=org.a11y.Bus /org/a11y/bus org.a11y.Bus.GetAddress \
+        >/dev/null 2>&1; do
+    i=$((i + 1))
+    sleep 0.2
+done
 
 # Onboard's auto-show-on-focus is a GSettings key (org.onboard.auto-show
 # enabled), defaulting to false — "-a" on the onboard CLI means
