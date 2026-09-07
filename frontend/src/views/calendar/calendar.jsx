@@ -55,7 +55,9 @@ export default function Calendar() {
             value={view}
             onChange={setView}
           />
-          <AddButton onClick={() => openNewForm(new Date())}>{t("calendar.newEvent")}</AddButton>
+          <div className={classes.addBtn}>
+            <AddButton onClick={() => openNewForm(new Date())}>{t("calendar.newEvent")}</AddButton>
+          </div>
         </div>
       </div>
 
