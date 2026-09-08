@@ -60,6 +60,31 @@ gsettings set org.gnome.desktop.interface toolkit-accessibility true
 
 onboard --size=800x300 --layout=Compact &
 
+# Chromium needs to cover the whole screen, but --start-fullscreen sets EWMH
+# _NET_WM_STATE_FULLSCREEN — which openbox (like most window managers)
+# promotes to a stacking layer above *everything* else, including onboard's
+# own "always on top" window, no matter what onboard requests. Confirmed on
+# this device: dropping a running chromium's fullscreen state via `wmctrl -b
+# remove,fullscreen` made the on-screen keyboard appear on top instantly.
+# So size the window to the screen instead of asking for real fullscreen —
+# visually identical (already borderless via the openbox decor=no rule +
+# --app's chromeless mode), but chromium then stays in the WM's normal
+# stacking layer, where onboard can actually rise above it. GTK/Gdk is
+# already a dependency of onboard, so this needs no extra package.
+SCREEN_SIZE=$(python3 -c '
+import gi
+gi.require_version("Gdk", "3.0")
+from gi.repository import Gdk
+s = Gdk.Screen.get_default()
+print(f"{s.get_width()},{s.get_height()}")
+' 2>/dev/null)
+if [ -n "$SCREEN_SIZE" ]; then
+    WINDOW_SIZE_FLAG="--window-size=$SCREEN_SIZE"
+else
+    echo "Could not detect screen size — falling back to --start-fullscreen (this hides the on-screen keyboard behind chromium)." >&2
+    WINDOW_SIZE_FLAG="--start-fullscreen"
+fi
+
 # Confirms chromium actually published itself as an AT-SPI application (not
 # just that the bus exists — see below). onboard has nothing to listen to
 # until this is true.
@@ -108,7 +133,7 @@ registered=0
 while [ "$attempt" -le "$max_attempts" ]; do
     chromium \
         --app="$1" \
-        --start-fullscreen \
+        "$WINDOW_SIZE_FLAG" \
         --window-position=0,0 \
         --no-sandbox \
         --test-type \
