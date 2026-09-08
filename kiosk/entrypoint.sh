@@ -60,6 +60,25 @@ gsettings set org.gnome.desktop.interface toolkit-accessibility true
 
 onboard --size=800x300 --layout=Compact &
 
+# Confirms chromium actually published itself as an AT-SPI application (not
+# just that the bus exists — see below). onboard has nothing to listen to
+# until this is true.
+chromium_registered() {
+    python3 -c '
+import sys, gi
+gi.require_version("Atspi", "2.0")
+from gi.repository import Atspi
+d = Atspi.get_desktop(0)
+for i in range(d.get_child_count()):
+    try:
+        if d.get_child_at_index(i).get_name() == "Chromium":
+            sys.exit(0)
+    except Exception:
+        pass
+sys.exit(1)
+' 2>/dev/null
+}
+
 # --disable-background-networking stops GCM/sync/registration pings, which
 # this unofficial Debian Chromium build has no API keys for and which just
 # spam the log with harmless 401 "wrong_secret" errors otherwise.
@@ -73,18 +92,59 @@ onboard --size=800x300 --layout=Compact &
 # --test-type suppresses the "You are using an unsupported command-line
 # flag: --no-sandbox" infobar that would otherwise sit at the top of every
 # launch.
-exec chromium \
-    --app="$1" \
-    --start-fullscreen \
-    --window-position=0,0 \
-    --no-sandbox \
-    --test-type \
-    --no-first-run \
-    --disable-infobars \
-    --noerrdialogs \
-    --password-store=basic \
-    --lang=de \
-    --check-for-update-interval=31536000 \
-    --disable-background-networking \
-    --touch-events=enabled \
-    --force-renderer-accessibility
+#
+# Getting the a11y bus up in time (above) isn't the whole story: even with
+# the bus ready, chromium's own AT-SPI registration is a separate one-shot
+# step that can still lose the race under cold-boot CPU/disk contention —
+# confirmed on this device: the exact same launch that fails to register on
+# a cold container consistently succeeds seconds later on a plain restart of
+# an already-warm one. So launch it backgrounded, confirm registration
+# within a bounded window, and kill + retry in place (no full container
+# restart needed, and each retry is already warm) instead of running for the
+# container's whole life with a silently broken keyboard.
+attempt=1
+max_attempts=5
+registered=0
+while [ "$attempt" -le "$max_attempts" ]; do
+    chromium \
+        --app="$1" \
+        --start-fullscreen \
+        --window-position=0,0 \
+        --no-sandbox \
+        --test-type \
+        --no-first-run \
+        --disable-infobars \
+        --noerrdialogs \
+        --password-store=basic \
+        --lang=de \
+        --check-for-update-interval=31536000 \
+        --disable-background-networking \
+        --touch-events=enabled \
+        --force-renderer-accessibility &
+    chromium_pid=$!
+
+    i=0
+    while [ "$i" -lt 30 ]; do
+        if chromium_registered; then
+            registered=1
+            break
+        fi
+        i=$((i + 1))
+        sleep 0.5
+    done
+    [ "$registered" -eq 1 ] && break
+
+    echo "chromium (attempt $attempt/$max_attempts) didn't register with AT-SPI within 15s — killing and retrying." >&2
+    kill "$chromium_pid" 2>/dev/null
+    wait "$chromium_pid" 2>/dev/null
+    attempt=$((attempt + 1))
+done
+
+if [ "$registered" -ne 1 ]; then
+    echo "chromium never registered with AT-SPI after $max_attempts attempts — giving up so the container restarts fresh." >&2
+    kill "$chromium_pid" 2>/dev/null
+    exit 1
+fi
+
+trap 'kill -TERM "$chromium_pid" 2>/dev/null' TERM INT
+wait "$chromium_pid"
