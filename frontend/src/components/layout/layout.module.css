@@ -12,6 +12,14 @@
   min-height: 0;
   min-width: 0;
   overflow: auto;
+  /* touch-scrollable kiosk, no mouse — the scrollbar itself is just visual
+     noise sitting at the screen edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
 }
 
 @media (--mobile) {

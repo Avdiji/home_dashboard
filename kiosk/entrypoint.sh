@@ -30,6 +30,19 @@ while [ "$i" -lt 50 ] && ! dbus-send --session --print-reply \
     i=$((i + 1))
     sleep 0.2
 done
+# A cold host boot (dockerd, lightdm/X, and 3 other containers all starting
+# at once, cold SD-card page cache) can still lose this race past the 10s
+# bound above. Since chromium never retries the accessibility bus after
+# launch, proceeding anyway would leave onboard's auto-show broken for the
+# container's whole life — bail out instead so the "restart: unless-stopped"
+# policy on this service restarts the container with a fresh dbus session
+# and another shot at the race, instead of requiring a manual re-run.
+if ! dbus-send --session --print-reply \
+        --dest=org.a11y.Bus /org/a11y/bus org.a11y.Bus.GetAddress \
+        >/dev/null 2>&1; then
+    echo "org.a11y.Bus did not come up after 10s — restarting for a fresh attempt." >&2
+    exit 1
+fi
 
 # Onboard's auto-show-on-focus is a GSettings key (org.onboard.auto-show
 # enabled), defaulting to false — "-a" on the onboard CLI means
