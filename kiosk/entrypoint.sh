@@ -12,6 +12,17 @@ set -e
 eval "$(dbus-launch --sh-syntax)"
 export DBUS_SESSION_BUS_ADDRESS
 
+# GTK_MODULES=gail:atk-bridge (Dockerfile) makes chromium's accessibility
+# bridge probe for the system bus in addition to the session bus above.
+# This container has no init system, so nothing ever started one — the
+# probe failed outright ("Failed to connect to the bus: ... system_bus_socket:
+# No such file or directory") and chromium's AT-SPI registration never
+# completed as a result, no matter how long the retry loop below waited.
+# Confirmed with a direct AT-SPI desktop query: chromium never appeared,
+# across all 5 retry attempts, until this was added.
+mkdir -p /run/dbus
+dbus-daemon --system --fork
+
 # Lazy D-Bus activation of org.a11y.Bus races onboard's and chromium's first
 # connection attempt on a cold container start — and that race is much more
 # likely to be lost on a real host boot (dockerd, lightdm/X, and the other
@@ -160,8 +171,15 @@ while [ "$attempt" -le "$max_attempts" ]; do
     [ "$registered" -eq 1 ] && break
 
     echo "chromium (attempt $attempt/$max_attempts) didn't register with AT-SPI within 15s — killing and retrying." >&2
-    kill "$chromium_pid" 2>/dev/null
-    wait "$chromium_pid" 2>/dev/null
+    # `wait` on a process we just killed reports its kill signal as a non-zero
+    # exit status — under `set -e` that was fatal right here, before
+    # `attempt` ever incremented, so the script (this container's PID 1) died
+    # and the "restart: unless-stopped" policy brought up a brand new
+    # container instead of looping in place. Every retry silently looked like
+    # "attempt 1/5" forever. `|| true` lets a killed process's own exit status
+    # pass through without aborting the script.
+    kill "$chromium_pid" 2>/dev/null || true
+    wait "$chromium_pid" 2>/dev/null || true
     attempt=$((attempt + 1))
 done
 

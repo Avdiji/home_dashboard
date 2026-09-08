@@ -7,6 +7,13 @@
 # below silently falls back to en-US in every chromium process, so
 # navigator.language reads "en-US" and the frontend's i18next
 # LanguageDetector (browser-language-based) serves English.
+#
+# dbus (in addition to dbus-x11): GTK_MODULES=gail:atk-bridge below makes
+# chromium's accessibility bridge probe the system bus, not just the
+# session bus dbus-x11's dbus-launch sets up in entrypoint.sh. dbus-x11
+# alone ships no system bus config, so that probe failed outright and
+# chromium never completed AT-SPI registration — confirmed directly by
+# querying the AT-SPI desktop, which never listed chromium at all.
 
 FROM debian:bookworm-slim
 
@@ -16,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         fonts-noto-color-emoji \
         locales \
         onboard \
+        dbus \
         dbus-x11 \
         at-spi2-core \
         gir1.2-atspi-2.0 \

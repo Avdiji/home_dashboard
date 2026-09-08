@@ -206,11 +206,32 @@ if ! grep -q "^TS_AUTHKEY=..*" "$REPO_DIR/.env"; then
     echo "Reusable) and set TS_AUTHKEY in $REPO_DIR/.env before rebooting," >&2
     echo "or the tailscale sidecar — and backend/frontend/chromium, which" >&2
     echo "share its network namespace — will crash-loop." >&2
+    # A missing key was directly responsible for a real crash-loop in
+    # testing: the tailscale container never authenticated, so it kept
+    # restarting, and backend/frontend/chromium (sharing its network
+    # namespace) restarted with it every time. Ask for the key right here
+    # when there's an interactive terminal to ask on, instead of relying on
+    # the warning above being read before the first reboot.
+    if [ -t 0 ]; then
+        read -rp "Tailscale auth key (blank to skip and set it later): " ts_key
+        if [ -n "$ts_key" ]; then
+            sed -i "s/^TS_AUTHKEY=.*/TS_AUTHKEY=$ts_key/" "$REPO_DIR/.env"
+        fi
+    fi
 fi
 
 # Root always has docker socket access regardless of group membership timing,
 # so this doesn't need to wait for $TARGET_USER's new docker group to take
 # effect (which needs a fresh login session anyway).
+#
+# Stop a live home-dashboard.service first: this script is documented as
+# safe to re-run (e.g. re-provisioning an existing device), but the build
+# below isn't safe to run concurrently with the service's own `docker
+# compose` invocation — two compose processes racing the same containers
+# produced real name-conflict errors in testing. No-op (the `|| true`) on a
+# freshly-imaged Pi where the service doesn't exist yet.
+sudo systemctl stop home-dashboard.service 2>/dev/null || true
+
 echo "Pre-building app images so the first real boot doesn't wait on this..."
 if ! (cd "$REPO_DIR" && sudo docker compose -f docker-compose.tailscale.yml build); then
     echo "WARNING: image pre-build failed — home-dashboard.service will just" >&2
