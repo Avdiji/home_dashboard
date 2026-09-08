@@ -44,4 +44,9 @@ cd "$(dirname "$0")"
 # instead of the clean boot every other run gets — recreate so every boot
 # starts from the same known-good state. --remove-orphans drops the
 # non-tailscale compose file's containers if that was used previously.
-docker compose -f docker-compose.tailscale.yml up --force-recreate --remove-orphans
+# --build: this runs unattended on every boot (see home-dashboard.service),
+# so a `git pull` that changed a Dockerfile or kiosk/entrypoint.sh must take
+# effect on the very next reboot with no separate manual `docker compose
+# build` step — otherwise the device silently keeps running stale images
+# forever. Docker's build cache makes this a fast no-op when nothing changed.
+docker compose -f docker-compose.tailscale.yml up --build --force-recreate --remove-orphans
