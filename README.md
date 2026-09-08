@@ -4,6 +4,24 @@ Complete setup for a Raspberry Pi 5 running a containerized fullstack app with T
 
 Tested on: Raspberry Pi OS (Debian Trixie-based, 64-bit / aarch64).
 
+## Automated setup (new devices)
+
+After steps 1-3 below (install git, clone this repo, `cd` in), run:
+
+```bash
+./after_initial_boot.sh
+```
+
+This automates everything in sections 2 and 4-7 — Docker, the X11/openbox/
+lightdm kiosk stack, the GPU pin, autologin, `xhost` persistence, the
+borderless chromium window, and a systemd service that runs `after_reboot.sh`
+on every boot — over a plain SSH session, no local console needed. One
+`sudo reboot` at the end and the device is plug-and-play from then on: unplug/
+replug power and the kiosk comes back on its own, no SSH required again.
+
+The sections below are what that script encodes — read them if something
+needs troubleshooting, or if you're setting a device up by hand instead.
+
 ---
 
 ## 1. Install Git

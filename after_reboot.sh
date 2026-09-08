@@ -1,18 +1,18 @@
 #!/bin/bash
-# Run this once after unplugging/power-cycling the Pi to get everything back
-# up with no further steps.
+# Brings the app stack up. Safe to run by hand (e.g. after pulling new code,
+# or to force a clean restart) and is also exactly what the home-dashboard
+# systemd service runs automatically on every boot — see after_initial_boot.sh,
+# which provisions that service plus the X11/lightdm/docker setup this relies
+# on, once per device.
 #
-# The host boots into multi-user.target (no X), so lightdm/X never starts on
-# its own — and the chromium container's host X passthrough (see
-# docker-compose.yml / docker-compose.tailscale.yml) has nothing to connect
-# to until it does. This makes the Pi boot into the graphical target, starts
-# lightdm/X now, waits for the X socket and the docker daemon, then brings
-# the whole stack up in the foreground (Ctrl-C stops it) so its logs are
-# visible directly in this terminal.
+# Needs no sudo: after_initial_boot.sh already made graphical.target the
+# permanent boot default and enabled lightdm as a systemd service, so X is
+# either already up or already on its way up by the time this runs — we just
+# wait for its socket instead of starting it ourselves (starting it here too
+# would need sudo, which a boot-time systemd service can't interactively
+# provide). Docker needs no sudo either, since that same script added this
+# user to the docker group.
 set -e
-
-sudo systemctl set-default graphical.target
-sudo systemctl start lightdm
 
 echo "Waiting for X server..."
 for i in $(seq 1 30); do
