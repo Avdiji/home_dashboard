@@ -105,7 +105,7 @@
   border-top: 1px solid var(--line);
 }
 
-@media (--until-desktop) {
+@media (--mobile) {
   .main {
     justify-content: center;
   }

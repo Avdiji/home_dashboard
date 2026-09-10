@@ -25,7 +25,8 @@
 
 /* "Now" section — one card holding the clock (left) and the weather + forecast
    (right), separated by a thin vertical rule. A single panel-2 block, matching
-   the other dashboard cards. Stacks on tablet/mobile (rule → horizontal). */
+   the other dashboard cards. Stacks on mobile only (rule → horizontal); tablet
+   keeps the desktop row layout. */
 .now {
   display: flex;
   align-items: stretch;
@@ -88,7 +89,7 @@
   color: var(--ink);
 }
 
-@media (--until-desktop) {
+@media (--mobile) {
   .now {
     flex-direction: column;
     gap: 18px;
@@ -123,10 +124,10 @@
   color: var(--muted);
 }
 
-/* Tablet + mobile: the two tiles stack (clock tile, then weather tile). Each
+/* Mobile only: the two tiles stack (clock tile, then weather tile). Each
    tile already centers its own content, so the stacking is handled by the
-   single-column grid above. */
-@media (--until-desktop) {
+   single-column grid above. Tablet keeps the desktop layout. */
+@media (--mobile) {
   .timeTile,
   .weatherTile {
     padding: 18px 16px;

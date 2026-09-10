@@ -111,7 +111,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (--until-desktop) {
+@media (--mobile) {
   .ring {
     width: 188px;
     height: 188px;
