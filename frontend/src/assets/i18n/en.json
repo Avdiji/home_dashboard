@@ -122,7 +122,9 @@
     "descriptionLabel": "Description",
     "ingredientsLabel": "Ingredients",
     "recipeNamePlaceholder": "Recipe name",
-    "onePerLine": "One per line"
+    "onePerLine": "One per line",
+    "showMore": "+{{count}} more",
+    "showLess": "Show less"
   },
   "weather": {
     "unknown": "Unknown",

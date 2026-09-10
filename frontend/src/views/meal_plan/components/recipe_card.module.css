@@ -34,3 +34,20 @@
   border-radius: 999px;
   padding: 2px 10px;
 }
+
+.moreBtn {
+  display: block;
+  margin: 8px 0 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.moreBtn:hover {
+  color: var(--ink);
+}

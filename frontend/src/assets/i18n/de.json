@@ -122,7 +122,9 @@
     "descriptionLabel": "Beschreibung",
     "ingredientsLabel": "Zutaten",
     "recipeNamePlaceholder": "Rezeptname",
-    "onePerLine": "Eine pro Zeile"
+    "onePerLine": "Eine pro Zeile",
+    "showMore": "+{{count}} weitere",
+    "showLess": "Weniger anzeigen"
   },
   "weather": {
     "unknown": "Unbekannt",
