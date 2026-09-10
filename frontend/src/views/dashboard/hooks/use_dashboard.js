@@ -121,7 +121,7 @@ export default function useDashboard() {
   const [locationResults, setLocationResults] = useState([]);
   const [locSearching, setLocSearching] = useState(false);
 
-  const fetchWeather = useCallback((latitude, longitude) => {
+  const fetchWeather = useCallback((latitude, longitude, timezone) => {
     const url =
       `${OPEN_METEO_FORECAST_URL}?latitude=${latitude}` +
       `&longitude=${longitude}` +
@@ -136,8 +136,19 @@ export default function useDashboard() {
         const hours = [];
         const h = res?.hourly;
         if (h?.time && h.temperature_2m && h.weather_code) {
-          const nowMs = Date.now();
-          const startIdx = h.time.findIndex((t) => new Date(t).getTime() >= nowMs);
+          // hourly.time entries are local wall-clock strings for the queried
+          // location (no offset), so `new Date(t)` would parse them in the
+          // browser's own timezone. Compare against the location's own current
+          // wall-clock time instead — otherwise a location in a different
+          // timezone than the device picks the wrong starting hour.
+          const pad = (n) => String(n).padStart(2, "0");
+          const zp = timezone ? zonedParts(new Date(), timezone) : null;
+          const nowKey = zp
+            ? `${zp.year}-${pad(zp.month + 1)}-${pad(zp.day)}T${pad(zp.hours)}:${pad(zp.minutes)}`
+            : null;
+          const startIdx = nowKey
+            ? h.time.findIndex((t) => t >= nowKey)
+            : h.time.findIndex((t) => new Date(t).getTime() >= Date.now());
           const from = startIdx < 0 ? 0 : startIdx;
           for (let i = from; i < Math.min(from + HOURLY_FORECAST_COUNT, h.time.length); i++) {
             hours.push({
@@ -213,14 +224,14 @@ export default function useDashboard() {
 
   // Initial fetch + re-fetch whenever the saved location changes.
   useEffect(() => {
-    if (location) fetchWeather(location.latitude, location.longitude);
+    if (location) fetchWeather(location.latitude, location.longitude, location.timezone);
   }, [location, fetchWeather]);
 
   // Refetch every 15 min using the stored place.
   useEffect(() => {
     if (!location) return;
     const id = setInterval(
-      () => fetchWeather(location.latitude, location.longitude),
+      () => fetchWeather(location.latitude, location.longitude, location.timezone),
       WEATHER_REFETCH_MS,
     );
     return () => clearInterval(id);

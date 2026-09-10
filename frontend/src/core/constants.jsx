@@ -11,7 +11,7 @@ export const WEATHER_REFETCH_MS = 15 * 60 * 1000; // 15 min — Open-Meteo `curr
 
 // --- Display limits / slices ---------------------------------------------
 export const UPCOMING_LIMIT = 3; // dashboard upcoming events shown
-export const HOURLY_FORECAST_COUNT = 4; // hourly forecast entries extracted
+export const HOURLY_FORECAST_COUNT = 10; // hourly forecast entries extracted (scrollable strip)
 export const CHECKLIST_GLANCE_LIMIT = 6; // dashboard checklist glance cap
 export const CHECKLIST_AUTO_DELETE_MS = 3000; // grace window to uncheck before a checked item auto-deletes
 export const MONTH_CELL_MAX_EVENTS = 3; // event chips per month cell before "+N more"

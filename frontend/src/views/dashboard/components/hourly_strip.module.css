@@ -1,13 +1,17 @@
-/* Horizontal hourly timeline. Each cell is a stacked time · icon · temp
-   column; a thin vertical divider separates adjacent cells. */
+/* Horizontal hourly timeline. Each cell is sized to show exactly
+   HOURS_VISIBLE at a time (see .cell); the rest scroll into view. A thin
+   vertical divider separates adjacent cells. */
 .strip {
   display: flex;
   align-items: stretch;
   width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .cell {
-  flex: 1 1 0;
+  /* 5 cells fill the strip's width before the rest scroll offscreen. */
+  flex: 0 0 calc(100% / 5);
   min-width: 0;
   display: flex;
   flex-direction: column;
