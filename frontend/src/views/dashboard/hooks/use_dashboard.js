@@ -275,10 +275,15 @@ export default function useDashboard() {
   // every tick so past events drop off and later ones roll in. Read from the
   // shared events store so a calendar mutation reflects here too. expandAll
   // over a 90-day forward window is enough to cover monthly recurrences.
+  // expandAll itself keeps anything still overlapping `now` (occurrence end >=
+  // now) — right for the calendar's range views, wrong here: an event whose
+  // start already passed (but whose end hasn't) must not linger as "upcoming",
+  // so filter by occurrence start explicitly.
   const upcoming = useMemo(() => {
     const from = now;
     const to = new Date(now.getTime() + UPCOMING_WINDOW_DAYS * MS_DAY);
     return expandAll(events, from, to)
+      .filter((occ) => occ.start >= from)
       .slice(0, UPCOMING_LIMIT)
       .map((occ) => ({
         id: occ.event.id,
