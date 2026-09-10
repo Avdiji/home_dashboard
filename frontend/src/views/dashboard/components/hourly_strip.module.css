@@ -6,7 +6,20 @@
   align-items: stretch;
   width: 100%;
   overflow-x: auto;
-  scrollbar-width: thin;
+  cursor: grab;
+  /* Scrollable but the scrollbar itself is visual noise on a touch/kiosk
+     dashboard — same treatment as layout.module.css's .content. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+.dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .cell {

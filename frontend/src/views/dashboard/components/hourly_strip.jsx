@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { describeWeatherCode } from "../../../core/utils/weather_codes";
 import classes from "./hourly_strip.module.css";
 
@@ -5,9 +6,58 @@ import classes from "./hourly_strip.module.css";
 // scroll). Each cell is a stacked time · icon · temp column; thin vertical
 // dividers separate them. Sits along the bottom of the weather tile.
 export default function HourlyStrip({ hours }) {
+  const stripRef = useRef(null);
+  // Mutable per-drag values live in a ref (mousemove fires far too often to
+  // route through setState); `dragging` alone is state, just to toggle the
+  // grab/grabbing cursor class.
+  const dragRef = useRef({ dragging: false, startX: 0, startScrollLeft: 0 });
+  const [dragging, setDragging] = useState(false);
+
+  // A touch swipe scrolls the strip natively, but this dashboard targets
+  // mouse-only kiosk hardware (Raspberry Pi + monitor, no trackpad/wheel) —
+  // so a left-mouse-button drag has to work too.
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return;
+    dragRef.current = {
+      dragging: true,
+      startX: e.pageX,
+      startScrollLeft: stripRef.current.scrollLeft,
+    };
+    setDragging(true);
+  };
+
+  const handleMouseMove = (e) => {
+    const drag = dragRef.current;
+    if (!drag.dragging) return;
+    e.preventDefault();
+    stripRef.current.scrollLeft = drag.startScrollLeft - (e.pageX - drag.startX);
+  };
+
+  const endDrag = () => {
+    if (!dragRef.current.dragging) return;
+    dragRef.current.dragging = false;
+    setDragging(false);
+  };
+
+  // A mouse with a wheel still gets the usual vertical-delta-to-horizontal
+  // redirect as a bonus, alongside the drag.
+  const handleWheel = (e) => {
+    if (e.deltaY === 0) return;
+    e.currentTarget.scrollLeft += e.deltaY;
+  };
+
   if (!hours || hours.length === 0) return null;
+
   return (
-    <div className={classes.strip}>
+    <div
+      ref={stripRef}
+      className={dragging ? `${classes.strip} ${classes.dragging}` : classes.strip}
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={endDrag}
+      onMouseLeave={endDrag}
+    >
       {hours.map((h) => {
         const { icon } = describeWeatherCode(h.weatherCode, h.isDay);
         // h.time is a local wall-clock string for the queried location (no
