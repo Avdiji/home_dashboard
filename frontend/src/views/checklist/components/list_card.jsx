@@ -21,6 +21,12 @@ export default function ListCard(props) {
   } = props;
   const { t } = useTranslation();
   const [draft, setDraft] = useState("");
+  // Checked items auto-hide (view-only) after a grace window instead of being
+  // deleted — they stay done in the store, just out of view here.
+  const [hiddenIds, setHiddenIds] = useState(() => new Set());
+  const hideItem = (itemId) =>
+    setHiddenIds((cur) => new Set(cur).add(itemId));
+  const visibleItems = list.items.filter((i) => !hiddenIds.has(i.id));
   // Derive the remaining count from the items so it always reflects the actual
   // state, regardless of how the store mutates the list.
   const remaining = list.items.filter((i) => !i.is_done).length;
@@ -71,13 +77,14 @@ export default function ListCard(props) {
       </div>
 
       <ul className={classes.items}>
-        {list.items.map((item) => (
+        {visibleItems.map((item) => (
           <ListItem
             key={item.id}
             item={item}
             allChecked={allChecked}
             onToggle={() => onToggleItem(list.id, item.id)}
             onRemove={() => onRemoveItem(list.id, item.id)}
+            onHide={() => hideItem(item.id)}
           />
         ))}
       </ul>
