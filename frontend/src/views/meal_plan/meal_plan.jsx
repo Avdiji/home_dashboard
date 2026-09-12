@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import PageHeader from "../../components/page_header/page_header";
 import AddButton from "../../components/buttons/add_button";
 import SegmentedControl from "../../components/segmented_control/segmented_control";
 import layout from "../../components/layout/layout.module.css";
@@ -42,8 +41,6 @@ export default function MealPlan() {
 
   return (
     <div className={classes.view}>
-      <PageHeader title={t("mealPlan.title")} subtitle={t("mealPlan.subtitle")} />
-
       <div className={classes.toolbar}>
         <SegmentedControl
           items={TABS.map((tab) => ({ key: tab.key, label: t(tab.labelKey), value: tab.value }))}

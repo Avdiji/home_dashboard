@@ -2,12 +2,11 @@
   padding: 24px;
 }
 
-/* Page header + "New list" action sit on the same row so the create action is
-   anchored top-right (out of the filter row). */
+/* "New list" action anchored top-right, out of the filter row. */
 .header {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   flex-wrap: wrap;
 }

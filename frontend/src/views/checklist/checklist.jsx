@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import AddButton from "../../components/buttons/add_button";
-import PageHeader from "../../components/page_header/page_header";
 import layout from "../../components/layout/layout.module.css";
 import ListCard from "./components/list_card";
 import ListForm from "./components/list_form";
@@ -41,7 +40,6 @@ export default function Checklist() {
   return (
     <div className={classes.view}>
       <div className={classes.header}>
-        <PageHeader title={t("checklist.title")} subtitle={t("checklist.subtitle")} />
         <AddButton onClick={openNewList}>
           {t("checklist.newList")}
         </AddButton>

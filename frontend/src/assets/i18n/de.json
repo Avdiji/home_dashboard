@@ -86,8 +86,6 @@
     "saveAnyway": "Trotzdem speichern"
   },
   "checklist": {
-    "title": "Checkliste",
-    "subtitle": "Geteilte Checklisten",
     "all": "Alle",
     "newList": "+ Neue Liste",
     "listTitleAria": "Listentitel",
@@ -100,8 +98,6 @@
     "itemsLeft": "{{count}} offen"
   },
   "mealPlan": {
-    "title": "Essensplan",
-    "subtitle": "Rezepte & geplante Gerichte",
     "plannedDishes": "Geplante Gerichte",
     "recipes": "Rezepte",
     "newRecipe": "+ Neues Rezept",
