@@ -97,6 +97,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+.meridiem {
+  margin-left: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .weekday {
   font-size: 10px;
   font-weight: 700;

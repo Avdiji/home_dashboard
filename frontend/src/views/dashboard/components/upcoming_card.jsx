@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { formatTime24 } from "../../../core/utils/date_utils";
+import { formatTime } from "../../../core/utils/date_utils";
 import {
   MS_PER_MINUTE,
   MINUTES_PER_HOUR,
@@ -40,7 +40,7 @@ export default function UpcomingCard({ now, events, onEventClick }) {
             onClick={onEventClick ? () => onEventClick(e.id, e.start) : undefined}
             time={
               <>
-                {formatTime24(e.start)}{" "}
+                {formatTime(e.start)}{" "}
                 <span className={classes.rel}>
                   {rel.count != null ? t(rel.key, { count: rel.count }) : t(rel.key)}
                 </span>

@@ -158,8 +158,9 @@ only, no `Card` wrapper** — the mega panel is the only card.
 
 - **Live clock**: `now` in `useState`, a `setInterval(1000)` `useEffect` ticks it
   every second — the first ticking timer in the app. Derived in the hook as
-  `clock = { time (HH:MM via `formatTime24` — 24h, no am/pm), seconds, weekday
-  (WEEKDAYS_LONG_SUN[getDay()]), date (formatDate), greeting, dayProgress }`.
+  `clock = { time (HH:MM or H:MM via `formatClockParts`), meridiem, seconds,
+  weekday (WEEKDAYS_LONG_SUN[getDay()]), date (formatDate), greeting,
+  dayProgress }`.
   `dayProgress` is the % of 24h elapsed (drives the outer day arc). Greeting is
   time-of-day ("Good morning" / "afternoon" / "evening") and renders as the
   `PageHeader` subtitle. `ClockCard` is a **half-gauge clock** — a top
@@ -170,11 +171,16 @@ only, no `Card` wrapper** — the mega panel is the only card.
   sweeps + resets every minute — a continuous "seconds" breath inside the day
   arc. Time `HH:MM` (accent-2, tabular-nums) + weekday + date stack **below**
   the arc (not centered inside a ring). Gauge is 220×124 desktop, 180×102
-  `--until-desktop`; time 34px / 28px. **No am/pm anywhere on the dashboard** —
-  uses
-  `formatTime24` (added to `date_utils.js`, locale-independent 24h), not
-  `formatTime` (which is locale-dependent and shared with the calendar).
-  `WEEKDAYS_LONG` is Mon-first; `getDay()` is Sun-first, so the hook uses
+  `--until-desktop`; time 34px / 28px. **Time format follows the client
+  locale** — `getClientLocale()` (`core/locale.js`) combines the UI language
+  (i18n) with the region of the dashboard's picked weather location
+  (`countryCode`), so the same instant shows 24h ("17:30") for a German
+  region and 12h with AM/PM ("5:30 PM") for a US one. `formatTime` (renamed
+  from `formatTime24`) and `formatDate` in `date_utils.js` both format via
+  this locale; the dashboard clock uses `formatClockParts` instead of
+  `formatTime` so it can slot the live seconds readout between the minutes
+  and an optional `meridiem` suffix (`ClockCard` renders `.meridiem` only
+  when present). `WEEKDAYS_LONG` is Mon-first; `getDay()` is Sun-first, so the hook uses
   `WEEKDAYS_LONG_SUN` (added to `date_utils.js` for this) — do not index
   `WEEKDAYS_LONG` with `getDay()`.
 - **Weather**: live via `navigator.geolocation` + Open-Meteo (free, no API key).

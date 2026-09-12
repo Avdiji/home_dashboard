@@ -1,4 +1,4 @@
-import { formatTime24 } from "../../../core/utils/date_utils";
+import { formatTime } from "../../../core/utils/date_utils";
 import classes from "./event_chip.module.css";
 
 export default function EventChip({ occ, persons, onClick, variant = "month" }) {
@@ -25,7 +25,7 @@ export default function EventChip({ occ, persons, onClick, variant = "month" }) 
       onClick={handle}
       title={title}
     >
-      {variant !== "day" && <span className={classes.time}>{formatTime24(start)}</span>}
+      {variant !== "day" && <span className={classes.time}>{formatTime(start)}</span>}
       <span className={classes.label}>{title}</span>
       {variant === "month" && event.location && (
         <span className={classes.dot} title={event.location} />

@@ -4,7 +4,7 @@ import {
   isSameDay,
   startOfDay,
   endOfDay,
-  formatTime24,
+  formatTime,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
 import EventCard from "../../../components/event_card/event_card";
@@ -40,7 +40,7 @@ export default function DayView({ cursor, events, persons, onSelectOccurrence })
               key={`${event.id}-${start.toISOString()}`}
               as="li"
               onClick={() => onSelectOccurrence(occ)}
-              time={`${formatTime24(start)} – ${formatTime24(end)}`}
+              time={`${formatTime(start)} – ${formatTime(end)}`}
               title={event.title}
               location={event.location}
               description={event.description}

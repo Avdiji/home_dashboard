@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { describeWeatherCode } from "../../../core/utils/weather_codes";
-import { formatTime24 } from "../../../core/utils/date_utils";
+import { formatWallClockTime } from "../../../core/utils/date_utils";
 import HourlyStrip from "./hourly_strip";
 import classes from "./weather_card.module.css";
 
-const fmt = (iso) => (iso ? formatTime24(new Date(iso)) : "—");
+const fmt = (iso) => formatWallClockTime(iso) ?? "—";
 
 // The weather tile. Header carries the place + a "Change" action; the body is a
 // large icon badge beside the temperature + condition; a row of condition chips

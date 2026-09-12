@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { formatDate, formatTime24 } from "../../../core/utils/date_utils";
+import { formatDate, formatTime } from "../../../core/utils/date_utils";
 import modalClasses from "../../../components/modal/modal.module.css";
 import classes from "./overlap_warning.module.css";
 
@@ -21,7 +21,7 @@ export default function OverlapWarning({ conflicts, onConfirm, onClose }) {
             <li key={`${c.event.id}-${c.start.toISOString()}-${i}`} className={classes.item}>
               <span className={classes.item_title}>{c.event.title}</span>
               <span className={classes.item_time}>
-                {formatDate(c.start)} · {formatTime24(c.start)} – {formatTime24(c.end)}
+                {formatDate(c.start)} · {formatTime(c.start)} – {formatTime(c.end)}
               </span>
             </li>
           ))}

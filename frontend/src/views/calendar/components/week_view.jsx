@@ -6,7 +6,7 @@ import {
   startOfWeek,
   endOfWeek,
   addDay,
-  formatTime24,
+  formatTime,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
 import { groupOccurrencesByDay, dayKey } from "../utils/group_by_day";

@@ -1,4 +1,5 @@
 import i18n from "../i18n";
+import { getClientLocale, getClientTimeZone } from "../locale";
 
 export const MS_DAY = 86400000;
 
@@ -109,14 +110,50 @@ export function isSameMonth(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
+// `d` is an absolute instant (a real Date) — formatted in the client's
+// configured timezone (getClientTimeZone(), from the dashboard's picked
+// weather location) using the client's locale conventions (getClientLocale()):
+// 24h for regions that use it (e.g. de-DE: "17:30"), 12h with AM/PM for
+// regions that don't (e.g. en-US: "5:30 PM"). This is real timezone
+// CONVERSION, not just reformatting — the same instant reads as a different
+// clock time depending on the configured location (14:00 in a Berlin client
+// is 08:00 in a New York one).
 export function formatTime(d) {
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString(getClientLocale(), {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: getClientTimeZone(),
+  });
 }
 
-// 24-hour HH:MM, locale-independent. Used by the dashboard (no am/pm).
-export function formatTime24(d) {
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+// Splits a locale-formatted time into { main: "HH:MM" or "H:MM", meridiem }
+// so a caller can slot a live seconds readout between the minutes and the
+// AM/PM suffix (meridiem is null for 24h locales). Used by the dashboard clock.
+export function formatClockParts(d) {
+  const parts = new Intl.DateTimeFormat(getClientLocale(), {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: getClientTimeZone(),
+  }).formatToParts(d);
+  const hour = parts.find((p) => p.type === "hour")?.value ?? "00";
+  const minute = parts.find((p) => p.type === "minute")?.value ?? "00";
+  const meridiem = parts.find((p) => p.type === "dayPeriod")?.value ?? null;
+  return { main: `${hour}:${minute}`, meridiem };
+}
+
+// Formats a location-local wall-clock string that carries no UTC offset
+// (e.g. Open-Meteo's sunrise/sunset "YYYY-MM-DDTHH:MM", already expressed in
+// that location's own time) using the client locale's 12h/24h convention —
+// WITHOUT timezone conversion, since the string already IS the wall-clock
+// reading; converting it again would double-shift it.
+export function formatWallClockTime(iso) {
+  if (!iso) return null;
+  const [datePart, timePart] = iso.split("T");
+  if (!timePart) return null;
+  const [y, mo, da] = datePart.split("-").map(Number);
+  const [hh, mm] = timePart.split(":").map(Number);
+  const d = new Date(y, mo - 1, da, hh, mm);
+  return d.toLocaleTimeString(getClientLocale(), { hour: "2-digit", minute: "2-digit" });
 }
 
 export function formatMonthTitle(d) {
@@ -135,25 +172,64 @@ export function formatDayTitle(d) {
   return `${i18n.t(WEEKDAYS_LONG[(d.getDay() + 6) % 7])}, ${d.getDate()} ${i18n.t(MONTHS[d.getMonth()])} ${d.getFullYear()}`;
 }
 
-// datetime-local input value (YYYY-MM-DDTHH:MM), local time.
+// Converts wall-clock fields understood as being in `timeZone` (IANA name)
+// into the absolute instant (a Date) they represent. Standard "guess and
+// correct" trick: treat the fields as UTC, see how that instant actually
+// reads in `timeZone` (an offset-aware round trip via zonedParts), and shift
+// by the gap — DST-correct without a timezone database.
+function zonedTimeToUtc(y, mo, da, hh, mm, ss, timeZone) {
+  const guess = new Date(Date.UTC(y, mo, da, hh, mm, ss));
+  const read = zonedParts(guess, timeZone);
+  const readAsUtc = Date.UTC(read.year, read.month, read.day, read.hours, read.minutes, read.seconds);
+  return new Date(guess.getTime() + (guess.getTime() - readAsUtc));
+}
+
+// datetime-local input value (YYYY-MM-DDTHH:MM) showing `d` (an absolute
+// instant) as it reads in the client's configured timezone
+// (getClientTimeZone(), the dashboard's picked weather location) — falls
+// back to the browser's own zone when no location is set.
 export function toLocalInputValue(d) {
   const pad = (n) => String(n).padStart(2, "0");
-  return (
-    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
-    `T${pad(d.getHours())}:${pad(d.getMinutes())}`
-  );
+  const timeZone = getClientTimeZone();
+  const zp = timeZone && zonedParts(d, timeZone);
+  const y = zp ? zp.year : d.getFullYear();
+  const mo = zp ? zp.month : d.getMonth();
+  const da = zp ? zp.day : d.getDate();
+  const hh = zp ? zp.hours : d.getHours();
+  const mm = zp ? zp.minutes : d.getMinutes();
+  return `${y}-${pad(mo + 1)}-${pad(da)}T${pad(hh)}:${pad(mm)}`;
 }
 
+// Inverse of toLocalInputValue: `v` ("YYYY-MM-DDTHH:MM" typed into a form)
+// is understood as wall-clock time in the client's configured timezone (not
+// the browser's OS zone — the two can differ, e.g. testing a New York
+// dashboard from a machine physically in Berlin), and converted to the
+// absolute instant it represents. Falls back to plain `new Date(v)` (browser
+// zone) when no location is set.
 export function fromLocalInputValue(v) {
-  return new Date(v);
+  const timeZone = getClientTimeZone();
+  if (!timeZone) return new Date(v);
+  const [datePart, timePart] = v.split("T");
+  const [y, mo, da] = datePart.split("-").map(Number);
+  const [hh, mm] = timePart.split(":").map(Number);
+  return zonedTimeToUtc(y, mo - 1, da, hh, mm, 0, timeZone);
 }
 
-// dd-mm-yyyy display, e.g. 20-07-2026. Accepts a Date or an ISO "YYYY-MM-DD"
-// string (parsed as local to avoid UTC day-shift).
+// Locale-aware numeric date, e.g. "20.07.2026" (de-DE) or "07/20/2026"
+// (en-US). Accepts a Date (an absolute instant — converted to the client's
+// configured timezone, since a late-night instant can land on a different
+// calendar day in another zone) or a plain ISO "YYYY-MM-DD" calendar-date
+// string (parsed as local midnight and NOT zone-converted — it names a day,
+// not an instant, so there is nothing to convert).
 export function formatDate(d) {
-  const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()}`;
+  const isPlainDateString = typeof d === "string";
+  const date = isPlainDateString ? new Date(`${d}T00:00:00`) : d;
+  return date.toLocaleDateString(getClientLocale(), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    ...(isPlainDateString ? {} : { timeZone: getClientTimeZone() }),
+  });
 }
 
 // Short weekday label, e.g. "Mon". Accepts a Date or an ISO "YYYY-MM-DD" string.

@@ -13,6 +13,7 @@ import { WeatherDTO } from "../../../core/dto/weather.dto";
 import {
   WEEKDAYS_LONG_SUN,
   formatDate,
+  formatClockParts,
   zonedParts,
   MS_DAY,
 } from "../../../core/utils/date_utils";
@@ -88,14 +89,16 @@ export default function useDashboard() {
     const seconds = zp ? zp.seconds : now.getSeconds();
     const wd = zp && zp.weekday >= 0 ? zp.weekday : now.getDay();
     const elapsed = hours * SECONDS_PER_HOUR + minutes * SECONDS_PER_MINUTE + seconds;
-    const date = zp
-      ? `${pad(zp.day)}-${pad(zp.month + 1)}-${zp.year}`
-      : formatDate(now);
+    // formatClockParts/formatDate convert `now` (an absolute instant) into
+    // the client's configured timezone themselves (getClientTimeZone(), same
+    // location as `location.timezone` — both read the same persisted pick).
+    const { main: time, meridiem } = formatClockParts(now);
     return {
-      time: `${pad(hours)}:${pad(minutes)}`,
+      time,
+      meridiem,
       seconds: pad(seconds),
       weekday: WEEKDAYS_LONG_SUN[wd],
-      date,
+      date: formatDate(now),
       greetingKey: greetingKey(hours),
       dayProgress: (elapsed / SECONDS_PER_DAY) * 100,
     };

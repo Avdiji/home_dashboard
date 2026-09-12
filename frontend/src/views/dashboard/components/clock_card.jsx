@@ -60,6 +60,7 @@ export default function ClockCard({ clock }) {
           <div className={classes.time}>
             {clock.time}
             <span className={classes.seconds}>:{clock.seconds}</span>
+            {clock.meridiem && <span className={classes.meridiem}>{clock.meridiem}</span>}
           </div>
           <div className={classes.weekday}>{t(clock.weekday)}</div>
         </div>
