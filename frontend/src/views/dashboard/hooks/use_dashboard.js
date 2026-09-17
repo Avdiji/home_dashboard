@@ -15,6 +15,7 @@ import {
   formatDate,
   formatClockParts,
   zonedParts,
+  toLocalDateValue,
   MS_DAY,
 } from "../../../core/utils/date_utils";
 import { expandAll } from "../../../core/utils/recurrence";
@@ -262,9 +263,14 @@ export default function useDashboard() {
   // it tracks meal-plan mutations. Finds the meal whose date is today; if it
   // links to a recipe, resolves the recipe (label = recipe title, clickable →
   // deep-link). A free-text dish (no recipeId) is plain text, not clickable.
-  // null when no meal matches today.
+  // null when no meal matches today. "Today" is read in the same timezone as
+  // the rest of the dashboard (the picked weather location) via the shared
+  // toLocalDateValue — not UTC, which the meal form also used to default new
+  // meals to (core/utils/date_utils.js) — and depends on `now` so it rolls
+  // over at local midnight instead of staying stuck on whatever day the hook
+  // first rendered.
   const todaysDish = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = toLocalDateValue(now);
     const meal = meals.find((m) => m.date === today);
     if (!meal) return null;
     if (meal.recipeId != null) {
@@ -272,7 +278,7 @@ export default function useDashboard() {
       if (recipe) return { label: recipe.title, recipe };
     }
     return { label: meal.label, recipe: null };
-  }, [meals, recipes]);
+  }, [now, location, meals, recipes]);
 
   // Upcoming events — next 3 occurrences starting at/after `now`, recomputed
   // every tick so past events drop off and later ones roll in. Read from the

@@ -2,12 +2,11 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Modal from "../../../components/modal/modal";
 import controls from "../../../components/forms/form_controls.module.css";
-
-const today = () => new Date().toISOString().slice(0, 10);
+import { toLocalDateValue } from "../../../core/utils/date_utils";
 
 export default function MealForm({ recipes = [], initialDate = null, onClose, onSave }) {
   const { t } = useTranslation();
-  const [date, setDate] = useState(initialDate ?? today());
+  const [date, setDate] = useState(initialDate ?? toLocalDateValue());
   const [recipeId, setRecipeId] = useState("");
   const [label, setLabel] = useState("");
 

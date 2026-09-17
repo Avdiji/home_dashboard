@@ -46,11 +46,15 @@ export default function WeekView({ cursor, events, persons, onSelectOccurrence, 
             <div
               key={day.toISOString()}
               className={`${classes.col} ${isToday ? classes.today : ""}`}
+              onClick={() => onSelectDay?.(day)}
             >
               <button
                 type="button"
                 className={classes.dayhead}
-                onClick={() => onSelectDay?.(day)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectDay?.(day);
+                }}
               >
                 <span className={classes.wd}>{t(WEEKDAYS[(day.getDay() + DAYS_PER_WEEK - 1) % DAYS_PER_WEEK])}</span>
                 <span className={classes.dnum}>{day.getDate()}</span>

@@ -200,6 +200,24 @@ export function toLocalInputValue(d) {
   return `${y}-${pad(mo + 1)}-${pad(da)}T${pad(hh)}:${pad(mm)}`;
 }
 
+// Plain "YYYY-MM-DD" calendar-date value showing `d` (an absolute instant,
+// defaults to now) as it reads in the client's configured timezone
+// (getClientTimeZone(), the dashboard's picked weather location) — falls back
+// to the browser's own zone when no location is set. NOT `toISOString().slice(0,10)`,
+// which reads UTC and drifts a calendar day off local "today" for a large chunk
+// of the day in any non-UTC zone (worst around local evening/night, exactly when
+// dinner gets planned). Used wherever a date-only value must name the client's
+// "today" — the meal form's default date, the dashboard's today's-dish lookup.
+export function toLocalDateValue(d = new Date()) {
+  const pad = (n) => String(n).padStart(2, "0");
+  const timeZone = getClientTimeZone();
+  const zp = timeZone && zonedParts(d, timeZone);
+  const y = zp ? zp.year : d.getFullYear();
+  const mo = zp ? zp.month : d.getMonth();
+  const da = zp ? zp.day : d.getDate();
+  return `${y}-${pad(mo + 1)}-${pad(da)}`;
+}
+
 // Inverse of toLocalInputValue: `v` ("YYYY-MM-DDTHH:MM" typed into a form)
 // is understood as wall-clock time in the client's configured timezone (not
 // the browser's OS zone — the two can differ, e.g. testing a New York

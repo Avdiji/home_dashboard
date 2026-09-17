@@ -75,6 +75,7 @@ export const WEATHER_LOCATION_STORAGE_KEY = "home_dashboard_weather_location";
 // data-theme="light"|"dark" by core/theme.js before first render (no FOUC).
 export const THEME_MODE_STORAGE_KEY = "home_dashboard_theme_mode";
 export const THEME_SUN_STORAGE_KEY = "home_dashboard_theme_sun";
+export const CHECKLIST_HIDDEN_ITEMS_STORAGE_KEY = "home_dashboard_checklist_hidden_items";
 export const THEME_RESOLVE_INTERVAL_MS = 60 * 1000; // auto re-resolve cadence
 export const THEME_MODES = ["light", "dark", "auto"]; // cycle order
 

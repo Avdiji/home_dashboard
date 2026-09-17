@@ -62,6 +62,7 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
             <div
               key={day.toISOString()}
               className={`${classes.cell} ${inMonth ? "" : classes.out} ${isToday ? classes.today : ""}`}
+              onClick={() => onSelectDay?.(day)}
             >
               <div className={classes.daynum}>{day.getDate()}</div>
               <div className={classes.events}>

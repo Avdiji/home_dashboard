@@ -4,9 +4,31 @@ import Card from "../../../components/cards/card";
 import AddButton from "../../../components/buttons/add_button";
 import RemoveButton from "../../../components/buttons/remove_button";
 import AssignPicker from "../../../components/assign_picker/assign_picker";
-import { CHECKLIST_AUTO_DELETE_MS } from "../../../core/constants";
+import {
+  CHECKLIST_AUTO_DELETE_MS,
+  CHECKLIST_HIDDEN_ITEMS_STORAGE_KEY,
+} from "../../../core/constants";
 import ListItem from "./list_item";
 import classes from "./list_card.module.css";
+
+// Auto-hidden item ids are persisted (keyed by list id) so a checked-off item
+// stays hidden across a reload instead of reappearing until it re-hides.
+const readHiddenStore = () => {
+  try {
+    return JSON.parse(localStorage.getItem(CHECKLIST_HIDDEN_ITEMS_STORAGE_KEY)) || {};
+  } catch {
+    return {};
+  }
+};
+const writeHiddenIds = (listId, ids) => {
+  try {
+    const store = readHiddenStore();
+    store[listId] = ids;
+    localStorage.setItem(CHECKLIST_HIDDEN_ITEMS_STORAGE_KEY, JSON.stringify(store));
+  } catch {
+    /* localStorage may be unavailable (private mode) — hiding still works in-session */
+  }
+};
 
 export default function ListCard(props) {
   const {
@@ -22,10 +44,17 @@ export default function ListCard(props) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState("");
   // Checked items auto-hide (view-only) after a grace window instead of being
-  // deleted — they stay done in the store, just out of view here.
-  const [hiddenIds, setHiddenIds] = useState(() => new Set());
+  // deleted — they stay done in the store, just out of view here. Persisted to
+  // localStorage (keyed by list id) so a reload doesn't bring hidden items back.
+  const [hiddenIds, setHiddenIds] = useState(
+    () => new Set(readHiddenStore()[list.id] || []),
+  );
   const hideItem = (itemId) =>
-    setHiddenIds((cur) => new Set(cur).add(itemId));
+    setHiddenIds((cur) => {
+      const next = new Set(cur).add(itemId);
+      writeHiddenIds(list.id, [...next]);
+      return next;
+    });
   const visibleItems = list.items.filter((i) => !hiddenIds.has(i.id));
   // Derive the remaining count from the items so it always reflects the actual
   // state, regardless of how the store mutates the list.
