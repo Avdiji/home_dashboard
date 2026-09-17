@@ -127,7 +127,7 @@
 }
 
 .time {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--ink);
   line-height: 1;
@@ -172,6 +172,6 @@
     height: 188px;
   }
   .time {
-    font-size: 30px;
+    font-size: 20px;
   }
 }
