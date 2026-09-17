@@ -76,8 +76,54 @@
   padding: 8px 0;
 }
 
-@media (--until-desktop) {
+@media (--mobile) {
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet: one column keeps all 7 day rows symmetrical (7 doesn't split evenly into 2);
+   each row goes horizontal — day label as a left rail, events flowing beside it. */
+@media (--tablet-only) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .col {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .dayhead {
+    flex: 0 0 84px;
+    flex-direction: column;
+    gap: 4px;
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
+    padding: 10px 8px;
+  }
+
+  .wd {
+    font-size: 12px;
+  }
+
+  .dnum {
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .events {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .events > * {
+    flex: 0 1 auto;
+    width: auto;
   }
 }

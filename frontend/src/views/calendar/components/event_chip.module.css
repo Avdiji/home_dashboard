@@ -91,3 +91,21 @@
     font-weight: 600;
   }
 }
+
+/* Tablet: rows are horizontal now, so chips sit side by side — compact, inline. */
+@media (--tablet-only) {
+  .week {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    width: auto;
+  }
+
+  .week .label {
+    white-space: nowrap;
+  }
+
+  .week .who {
+    font-size: 10px;
+  }
+}
