@@ -78,3 +78,47 @@
   padding: 2px 4px;
   text-align: left;
 }
+
+@media (--until-desktop) {
+  .weekhead {
+    gap: 2px;
+  }
+
+  .wd {
+    font-size: 12px;
+    text-align: center;
+    padding: 0;
+  }
+
+  .grid {
+    gap: 2px;
+    grid-auto-rows: minmax(88px, 1fr);
+  }
+
+  .cell {
+    padding: 3px 1px;
+    gap: 5px;
+    border-radius: 6px;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .cell.today {
+    border-left: 2px solid var(--accent-2);
+    border-right: 2px solid var(--accent-2);
+  }
+
+  .daynum {
+    font-size: 14px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .events {
+    gap: 4px;
+  }
+
+  .more {
+    font-size: 11px;
+  }
+}

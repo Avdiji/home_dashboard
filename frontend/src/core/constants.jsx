@@ -30,6 +30,7 @@ export const MS_PER_MINUTE = 60000;
 
 // --- Date windows / thresholds --------------------------------------------
 export const UPCOMING_WINDOW_DAYS = 90; // forward window for expandAll (upcoming)
+export const UPCOMING_LIVE_FRACTION = 0.15; // keep a started event "now"-tagged until this fraction of its duration has elapsed
 export const TOMORROW_THRESHOLD_DAYS = 2; // < 2 days away → "tomorrow"
 export const GREETING_AFTERNOON_HOUR = 12; // hour < 12 → "Good morning"
 export const GREETING_EVENING_HOUR = 18; // hour < 18 → "Good afternoon"

@@ -74,3 +74,20 @@
 .day .time {
   color: var(--muted);
 }
+
+@media (--until-desktop) {
+  .chip {
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 5px;
+  }
+
+  .month .time,
+  .month .dot {
+    display: none;
+  }
+
+  .month .label {
+    font-weight: 600;
+  }
+}

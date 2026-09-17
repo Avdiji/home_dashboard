@@ -28,10 +28,13 @@
   min-width: 0;
 }
 
-@media (--mobile) {
+@media (--until-desktop) {
   .view {
-    padding: 16px;
+    padding: 16px 8px;
   }
+}
+
+@media (--mobile) {
   .toolbar {
     align-items: stretch;
   }

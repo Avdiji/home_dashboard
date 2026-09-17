@@ -24,6 +24,7 @@ import {
   WEATHER_REFETCH_MS,
   UPCOMING_LIMIT,
   UPCOMING_WINDOW_DAYS,
+  UPCOMING_LIVE_FRACTION,
   HOURLY_FORECAST_COUNT,
   SECONDS_PER_MINUTE,
   SECONDS_PER_HOUR,
@@ -284,15 +285,22 @@ export default function useDashboard() {
   // every tick so past events drop off and later ones roll in. Read from the
   // shared events store so a calendar mutation reflects here too. expandAll
   // over a 90-day forward window is enough to cover monthly recurrences.
-  // expandAll itself keeps anything still overlapping `now` (occurrence end >=
-  // now) — right for the calendar's range views, wrong here: an event whose
-  // start already passed (but whose end hasn't) must not linger as "upcoming",
-  // so filter by occurrence start explicitly.
+  // A just-started event stays visible (tagged "now" — see relativeKey in
+  // upcoming_card) until UPCOMING_LIVE_FRACTION of its own duration has
+  // elapsed, not just until its start passes — so it doesn't vanish from the
+  // list the instant it begins. expandAll already keeps the occurrence
+  // currently in progress (fastForward lands on the occurrence at/before
+  // `from`), so only the trailing filter needs to allow that grace window.
   const upcoming = useMemo(() => {
     const from = now;
     const to = new Date(now.getTime() + UPCOMING_WINDOW_DAYS * MS_DAY);
     return expandAll(events, from, to)
-      .filter((occ) => occ.start >= from)
+      .filter((occ) => {
+        if (occ.start >= from) return true;
+        const liveUntil =
+          occ.start.getTime() + (occ.end.getTime() - occ.start.getTime()) * UPCOMING_LIVE_FRACTION;
+        return from.getTime() <= liveUntil;
+      })
       .slice(0, UPCOMING_LIMIT)
       .map((occ) => ({
         id: occ.event.id,
