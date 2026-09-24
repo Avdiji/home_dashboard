@@ -71,6 +71,7 @@ export default function MonthView({ cursor, events, persons, onSelectOccurrence,
                     key={`${occ.event.id}-${occ.start.toISOString()}`}
                     occ={occ}
                     persons={persons}
+                    isStart={isSameDay(day, occ.start)}
                     onClick={onSelectOccurrence}
                   />
                 ))}

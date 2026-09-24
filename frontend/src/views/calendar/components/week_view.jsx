@@ -66,6 +66,7 @@ export default function WeekView({ cursor, events, persons, onSelectOccurrence, 
                     occ={occ}
                     persons={persons}
                     variant="week"
+                    isStart={isSameDay(day, occ.start)}
                     onClick={onSelectOccurrence}
                   />
                 ))}

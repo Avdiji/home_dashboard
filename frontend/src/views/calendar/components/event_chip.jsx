@@ -1,7 +1,7 @@
 import { formatTime } from "../../../core/utils/date_utils";
 import classes from "./event_chip.module.css";
 
-export default function EventChip({ occ, persons, onClick, variant = "month" }) {
+export default function EventChip({ occ, persons, onClick, variant = "month", isStart = true }) {
   const { event, start } = occ;
   const names = event.personIds
     .map((id) => persons.find((p) => p.id === id)?.name)
@@ -25,7 +25,12 @@ export default function EventChip({ occ, persons, onClick, variant = "month" }) 
       onClick={handle}
       title={title}
     >
-      {variant !== "day" && <span className={classes.time}>{formatTime(start)}</span>}
+      {variant !== "day" && isStart && (
+        <span className={classes.time}>{formatTime(start)}</span>
+      )}
+      {variant !== "day" && !isStart && (
+        <span className={classes.time}>&rarr;</span>
+      )}
       <span className={classes.label}>{title}</span>
       {variant === "month" && event.location && (
         <span className={classes.dot} title={event.location} />
