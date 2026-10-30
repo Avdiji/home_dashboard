@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   fileKind,
-  formatSize,
   KIND_AUDIO,
   KIND_HTML,
   KIND_ICONS,
@@ -57,27 +56,21 @@ export default function FilePreview({ file, src, downloadHref, onClose, onDelete
 
   return (
     <div className={classes.overlay} onClick={onClose}>
-      <div className={classes.dialog} onClick={(e) => e.stopPropagation()}>
-        <header className={classes.header}>
-          <span className={classes.icon} aria-hidden="true">{KIND_ICONS[fileKind(file.mimeType)]}</span>
-          <div className={classes.titles}>
-            <h2 className={classes.title} title={file.name}>{file.name}</h2>
-            <span className={classes.meta}>{formatSize(file.size)}</span>
-          </div>
-          <div className={classes.actions}>
-            <a className={classes.btn} href={downloadHref} download>
-              {t("files.download")}
-            </a>
-            <button type="button" className={`${classes.btn} ${classes.danger}`} onClick={onDelete}>
-              {t("files.delete")}
-            </button>
-            <button type="button" className={classes.close} onClick={onClose} title={t("files.close")}>
-              ✕
-            </button>
-          </div>
-        </header>
+      <div className={classes.dialog} role="dialog" aria-label={file.name} onClick={(e) => e.stopPropagation()}>
         <div className={classes.body}>
           <PreviewBody file={file} src={src} downloadHref={downloadHref} />
+        </div>
+        <div className={classes.actions}>
+          <a className={classes.action} href={downloadHref} download title={t("files.download")} aria-label={t("files.download")}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+            </svg>
+          </a>
+          <button type="button" className={`${classes.action} ${classes.delete}`} onClick={onDelete} title={t("files.delete")} aria-label={t("files.delete")}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
