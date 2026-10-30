@@ -16,7 +16,8 @@ type Checklist struct {
 // Fix the DTO + this schema + the `item_name` column mapping together if the
 // contract is normalized to snake_case.
 type ChecklistItem struct {
-	ID      int    `json:"id"`
-	ItemName string `json:"itemName"`
-	IsDone  bool   `json:"is_done"`
+	ID          int    `json:"id"`
+	ItemName    string `json:"itemName"`
+	IsDone      bool   `json:"is_done"`
+	Description string `json:"description"`
 }

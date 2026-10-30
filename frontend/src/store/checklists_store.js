@@ -22,6 +22,9 @@ export const useChecklists = create(() => ({
   // checklist.item.add — { listId, label }
   addItem: (listId, label) =>
     sendCommand("checklist.item.add", { listId, label }),
+  // checklist.item.updateDescription — { listId, itemId, description }
+  updateItemDescription: (listId, itemId, description) =>
+    sendCommand("checklist.item.updateDescription", { listId, itemId, description }),
   // checklist.updateTitle — { listId, title }
   updateTitle: (listId, title) =>
     sendCommand("checklist.updateTitle", { listId, title }),

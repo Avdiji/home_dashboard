@@ -3,6 +3,7 @@ import layout from "../../components/layout/layout.module.css";
 import ClockCard from "./components/clock_card";
 import WeatherCard from "./components/weather_card";
 import LocationPicker from "./components/location_picker";
+import PrayerTimesCard from "./components/prayer_times_card";
 import UpcomingCard from "./components/upcoming_card";
 import DishCard from "./components/dish_card";
 import ChecklistCard from "./components/checklist_card";
@@ -31,6 +32,7 @@ export default function Dashboard() {
     searchLocation,
     chooseLocation,
     changeLocation,
+    prayers,
     todaysDish,
     upcoming,
     goToEvent,
@@ -88,6 +90,10 @@ export default function Dashboard() {
               )}
             </div>
           </div>
+
+          <Section>
+            <PrayerTimesCard prayers={prayers} hasLocation={!!location} />
+          </Section>
 
           <div className={layout.twoColGrid}>
             <Section label={t("dashboard.sectionUpcoming")}>

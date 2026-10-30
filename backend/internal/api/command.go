@@ -74,6 +74,8 @@ func (d *Dispatcher) Dispatch(raw []byte) (events [][]byte, reply []byte) {
 		return d.itemToggle(cmd)
 	case "checklist.item.delete":
 		return d.itemDelete(cmd)
+	case "checklist.item.updateDescription":
+		return d.itemUpdateDescription(cmd)
 
 	// ---- recipes ----
 	case "recipe.add":
@@ -443,6 +445,24 @@ func (d *Dispatcher) itemDelete(cmd command) ([][]byte, []byte) {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "delete item: "+err.Error())
 	}
 	return [][]byte{marshalEvent(itemDeleted(p.ListID, id, cmd.RequestID))}, nil
+}
+
+type itemUpdateDescriptionPayload struct {
+	ListID      int    `json:"listId"`
+	ItemID      int    `json:"itemId"`
+	Description string `json:"description"`
+}
+
+func (d *Dispatcher) itemUpdateDescription(cmd command) ([][]byte, []byte) {
+	var p itemUpdateDescriptionPayload
+	if ok, err := decode(cmd, &p); !ok {
+		return nil, err
+	}
+	it, err := d.store.UpdateItemDescription(p.ListID, p.ItemID, p.Description)
+	if err != nil {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "update item description: "+err.Error())
+	}
+	return [][]byte{marshalEvent(itemUpdated(p.ListID, it, cmd.RequestID))}, nil
 }
 
 // ===== recipes =====

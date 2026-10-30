@@ -122,10 +122,10 @@ func (s *Store) AddItem(listID int, label string) (*model.ChecklistItem, error) 
 // ToggleItem backs checklist.item.toggle (toggleItem(listId, itemId)). Flips
 // is_done and returns the full updated item (broadcast carries the entity).
 func (s *Store) ToggleItem(listID, itemID int) (*model.ChecklistItem, error) {
-	var name string
+	var name, desc string
 	var cur int
-	err := s.db.QueryRow(`SELECT item_name, is_done FROM checklist_items WHERE id = ? AND list_id = ?`,
-		itemID, listID).Scan(&name, &cur)
+	err := s.db.QueryRow(`SELECT item_name, is_done, description FROM checklist_items WHERE id = ? AND list_id = ?`,
+		itemID, listID).Scan(&name, &cur, &desc)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
@@ -139,7 +139,29 @@ func (s *Store) ToggleItem(listID, itemID int) (*model.ChecklistItem, error) {
 	if _, err := s.db.Exec(`UPDATE checklist_items SET is_done = ? WHERE id = ?`, next, itemID); err != nil {
 		return nil, err
 	}
-	return &model.ChecklistItem{ID: itemID, ItemName: name, IsDone: next == 1}, nil
+	return &model.ChecklistItem{ID: itemID, ItemName: name, IsDone: next == 1, Description: desc}, nil
+}
+
+// UpdateItemDescription backs checklist.item.updateDescription
+// (updateItemDescription(listId, itemId, description)). Returns the full
+// updated item (broadcast carries the entity).
+func (s *Store) UpdateItemDescription(listID, itemID int, description string) (*model.ChecklistItem, error) {
+	res, err := s.db.Exec(`UPDATE checklist_items SET description = ? WHERE id = ? AND list_id = ?`,
+		description, itemID, listID)
+	if err != nil {
+		return nil, err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return nil, ErrNotFound
+	}
+	it := &model.ChecklistItem{ID: itemID, Description: description}
+	var done int
+	if err := s.db.QueryRow(`SELECT item_name, is_done FROM checklist_items WHERE id = ?`, itemID).
+		Scan(&it.ItemName, &done); err != nil {
+		return nil, err
+	}
+	it.IsDone = done == 1
+	return it, nil
 }
 
 // DeleteItem backs checklist.item.delete (removeItem(listId, itemId)).
@@ -182,7 +204,7 @@ func fillList(q qer, c *model.Checklist) error {
 		return err
 	}
 
-	irows, err := q.Query(`SELECT id, item_name, is_done FROM checklist_items WHERE list_id = ? ORDER BY id`, c.ID)
+	irows, err := q.Query(`SELECT id, item_name, is_done, description FROM checklist_items WHERE list_id = ? ORDER BY id`, c.ID)
 	if err != nil {
 		return err
 	}
@@ -190,7 +212,7 @@ func fillList(q qer, c *model.Checklist) error {
 	for irows.Next() {
 		var it model.ChecklistItem
 		var done int
-		if err := irows.Scan(&it.ID, &it.ItemName, &done); err != nil {
+		if err := irows.Scan(&it.ID, &it.ItemName, &done, &it.Description); err != nil {
 			return err
 		}
 		it.IsDone = done == 1

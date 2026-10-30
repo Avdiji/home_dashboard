@@ -12,6 +12,7 @@ export default function useChecklist() {
   const toggleItem = useChecklists((s) => s.toggleItem);
   const removeItem = useChecklists((s) => s.removeItem);
   const addItem = useChecklists((s) => s.addItem);
+  const updateItemDescription = useChecklists((s) => s.updateItemDescription);
   const updateTitle = useChecklists((s) => s.updateTitle);
   const addList = useChecklists((s) => s.addList);
   const removeList = useChecklists((s) => s.removeList);
@@ -40,6 +41,7 @@ export default function useChecklist() {
     toggleItem,
     removeItem,
     addItem,
+    updateItemDescription,
     updateTitle,
     addList,
     removeList,

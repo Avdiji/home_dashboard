@@ -68,6 +68,16 @@ export const OPEN_METEO_GEOCODE_SEARCH_URL = "https://geocoding-api.open-meteo.c
 // so the dashboard re-fetches weather for the same place without re-prompting.
 export const WEATHER_LOCATION_STORAGE_KEY = "home_dashboard_weather_location";
 
+// --- AlAdhan API config (prayer times) -------------------------------------
+// AlAdhan is a third-party API (not the project backend), free, no key. The
+// dashboard fetches today's prayer times for the weather location's coords;
+// with no `method` param AlAdhan picks the calculation authority nearest to
+// the coordinates. Path date is "DD-MM-YYYY".
+export const ALADHAN_TIMINGS_URL = "https://api.aladhan.com/v1/timings";
+// Timings shown on the dashboard, in day order. Sunrise isn't a prayer but
+// marks the end of Fajr, so it's shown (muted) and never the "next" prayer.
+export const PRAYER_KEYS = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+
 // --- Theme ----------------------------------------------------------------
 // The UI offers three modes: Light, Dark, Auto. Auto resolves light/dark from
 // the dashboard's fetched sunrise/sunset (cached in localStorage so it applies

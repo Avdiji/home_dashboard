@@ -1,11 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import RemoveButton from "../../../components/buttons/remove_button";
 import { CHECKLIST_AUTO_HIDE_MS } from "../../../core/constants";
+import linkify from "../utils/linkify";
 import classes from "./list_item.module.css";
 
 export default function ListItem(props) {
-  const { item, allChecked, onToggle, onRemove, onHide } = props;
+  const { item, allChecked, onToggle, onRemove, onHide, onUpdateDescription } = props;
   const { t } = useTranslation();
   const done = item.is_done;
 
@@ -24,6 +25,21 @@ export default function ListItem(props) {
     return () => clearTimeout(id);
   }, [done, allChecked]);
 
+  // Description editor: clicking the name opens an inline textarea seeded from
+  // the item. Blur / Enter saves (only when changed), Escape cancels. Shift+Enter
+  // inserts a newline.
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const openEditor = () => {
+    setDraft(item.description);
+    setEditing(true);
+  };
+  const saveDescription = () => {
+    setEditing(false);
+    const next = draft.trim();
+    if (next !== item.description) onUpdateDescription(next);
+  };
+
   return (
     <li className={done ? `${classes.item} ${classes.packing}` : classes.item}>
       <span
@@ -32,11 +48,36 @@ export default function ListItem(props) {
       >
         {done ? "✓" : ""}
       </span>
-      <span
-        className={done ? `${classes.name} ${classes.crossed}` : classes.name}
-      >
-        {item.itemName}
-      </span>
+      <div className={classes.body}>
+        <span
+          className={done ? `${classes.name} ${classes.crossed}` : classes.name}
+          title={t("checklist.editDescription")}
+          onClick={() => (editing ? saveDescription() : openEditor())}
+        >
+          {item.itemName}
+        </span>
+        {editing ? (
+          <textarea
+            className={classes.desc_input}
+            value={draft}
+            rows={2}
+            placeholder={t("checklist.descriptionPlaceholder")}
+            ref={(el) => el?.focus()}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={saveDescription}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                saveDescription();
+              } else if (e.key === "Escape") {
+                setEditing(false);
+              }
+            }}
+          />
+        ) : (
+          item.description && <span className={classes.desc}>{linkify(item.description, classes.link)}</span>
+        )}
+      </div>
       <RemoveButton title={t("checklist.removeItem")} size="sm" onClick={onRemove} />
     </li>
   );

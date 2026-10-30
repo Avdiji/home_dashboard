@@ -39,6 +39,7 @@ export default function ListCard(props) {
     onUpdateTitle,
     onRemoveList,
     onAddItem,
+    onUpdateItemDescription,
     onToggleAssignee,
   } = props;
   const { t } = useTranslation();
@@ -113,6 +114,7 @@ export default function ListCard(props) {
             allChecked={allChecked}
             onToggle={() => onToggleItem(list.id, item.id)}
             onRemove={() => onRemoveItem(list.id, item.id)}
+            onUpdateDescription={(desc) => onUpdateItemDescription(list.id, item.id, desc)}
             onHide={() => hideItem(item.id)}
           />
         ))}

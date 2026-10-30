@@ -10,10 +10,12 @@ import { CALENDAR_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH } from "../../../core/nav
 import { updateSun as updateThemeSun } from "../../../core/theme";
 import { transition } from "../../../core/utils/view_transition";
 import { WeatherDTO } from "../../../core/dto/weather.dto";
+import { PrayerTimesDTO } from "../../../core/dto/prayer_times.dto";
 import {
   WEEKDAYS_LONG_SUN,
   formatDate,
   formatClockParts,
+  formatWallClockTime,
   zonedParts,
   toLocalDateValue,
   MS_DAY,
@@ -41,6 +43,10 @@ import {
   OPEN_METEO_FORECAST_DAYS,
   OPEN_METEO_GEOCODE_SEARCH_URL,
   WEATHER_LOCATION_STORAGE_KEY,
+  ALADHAN_TIMINGS_URL,
+  PRAYER_KEYS,
+  MINUTES_PER_HOUR,
+  HOURS_PER_DAY,
 } from "../../../core/constants";
 
 const greetingKey = (h) => {
@@ -252,6 +258,71 @@ export default function useDashboard() {
       updateThemeSun(weather.sunrise, weather.sunset, location?.timezone);
   }, [weather, location]);
 
+  // Prayer times — AlAdhan (free, no key) for the weather location's coords,
+  // so the user sets one place and gets both weather and prayer times. Third
+  // party like Open-Meteo, not the project backend. Refetched whenever the
+  // location or the location-local day changes — `today` is a string that
+  // only changes at local midnight, so a long-running dashboard rolls over to
+  // the new day's times without a reload.
+  const today = toLocalDateValue(now);
+  const [prayerTimes, setPrayerTimes] = useState(null);
+  useEffect(() => {
+    if (!location) return;
+    const [y, m, d] = today.split("-");
+    const url =
+      `${ALADHAN_TIMINGS_URL}/${d}-${m}-${y}?latitude=${location.latitude}` +
+      `&longitude=${location.longitude}` +
+      (location.timezone ? `&timezonestring=${encodeURIComponent(location.timezone)}` : "");
+    let cancelled = false;
+    fetch(url)
+      .then((r) => r.json())
+      .then((res) => {
+        if (cancelled || !res?.data?.timings) return;
+        setPrayerTimes(new PrayerTimesDTO({ ...res.data, day: today }).toModel());
+      })
+      .catch((e) => console.error("AlAdhan fetch failed", e));
+    return () => {
+      cancelled = true;
+    };
+  }, [location, today]);
+
+  // Today's timings in day order + which prayer is next, with a live
+  // countdown. Compared as location-local minutes-of-day (the timings are the
+  // location's wall-clock strings; `now` is read in the location's zone, like
+  // the clock). After Isha the next prayer is tomorrow's Fajr (approximated
+  // with today's Fajr — they differ by a minute or two). null without a
+  // location or before the first fetch lands.
+  const prayers = useMemo(() => {
+    if (!location || !prayerTimes) return null;
+    const minutesPerDay = MINUTES_PER_HOUR * HOURS_PER_DAY;
+    const toMinutes = (hm) => {
+      const [h, m] = hm.split(":").map(Number);
+      return h * MINUTES_PER_HOUR + m;
+    };
+    const zp = location.timezone ? zonedParts(now, location.timezone) : null;
+    const nowMinutes =
+      (zp ? zp.hours : now.getHours()) * MINUTES_PER_HOUR + (zp ? zp.minutes : now.getMinutes());
+    const list = PRAYER_KEYS.filter((key) => prayerTimes.timings[key]).map((key) => ({
+      key,
+      time: formatWallClockTime(`${prayerTimes.date}T${prayerTimes.timings[key]}`),
+      minutes: toMinutes(prayerTimes.timings[key]),
+      isPrayer: key !== "Sunrise",
+    }));
+    const next =
+      list.find((p) => p.isPrayer && p.minutes > nowMinutes) ?? list.find((p) => p.isPrayer);
+    return {
+      items: list.map((p) => ({
+        key: p.key,
+        time: p.time,
+        isPrayer: p.isPrayer,
+        isNext: p.key === next?.key,
+      })),
+      nextIn: next ? (next.minutes - nowMinutes + minutesPerDay) % minutesPerDay : null,
+      hijri: prayerTimes.hijri,
+      method: prayerTimes.method,
+    };
+  }, [prayerTimes, now, location]);
+
   // personById — derived from the store roster so it stays in sync as members
   // change (once the backend lands). Used to resolve the person chips on
   // upcoming event rows.
@@ -380,6 +451,7 @@ export default function useDashboard() {
     searchLocation,
     chooseLocation,
     changeLocation,
+    prayers,
     todaysDish,
     upcoming,
     goToEvent,

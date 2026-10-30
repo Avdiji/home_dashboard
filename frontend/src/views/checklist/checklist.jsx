@@ -19,6 +19,7 @@ export default function Checklist() {
     toggleItem,
     removeItem,
     addItem,
+    updateItemDescription,
     updateTitle,
     addList,
     removeList,
@@ -79,6 +80,7 @@ export default function Checklist() {
             onUpdateTitle={updateTitle}
             onRemoveList={removeList}
             onAddItem={addItem}
+            onUpdateItemDescription={updateItemDescription}
             onToggleAssignee={toggleListAssignee}
           />
         ))}

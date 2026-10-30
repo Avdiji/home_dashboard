@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS checklist_items (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
     list_id  INTEGER NOT NULL REFERENCES checklists(id) ON DELETE CASCADE,
     item_name TEXT NOT NULL,
-    is_done  INTEGER NOT NULL DEFAULT 0  -- 0/1 boolean
+    is_done  INTEGER NOT NULL DEFAULT 0, -- 0/1 boolean
+    description TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS recipes (

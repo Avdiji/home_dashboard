@@ -29,9 +29,44 @@
   border-color: var(--ok);
 }
 
-.name {
+.body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  cursor: pointer;
+}
+
+.desc {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.link {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+.desc_input {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12px;
+  background: var(--panel);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.desc_input:focus {
+  outline: 2px solid var(--accent);
+  border-color: transparent;
 }
 
 .crossed {
