@@ -10,6 +10,8 @@
   --line: #e3e6ee;
   --line-strong: #c3c7d4;
   --on-accent: #ffffff;
+  --nav-icon: #000000;
+  --nav-icon-active: #000000;
   --overlay: rgba(0, 0, 0, 0.4);
   --preview-bg: #ffffff; /* file preview page bg — documents assume white */
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.07);
@@ -35,6 +37,8 @@
   --line: #2a2f3a;
   --line-strong: #3a4050;
   --on-accent: #ffffff;
+  --nav-icon: #ffffff;
+  --nav-icon-active: #000000;
   --overlay: rgba(0, 0, 0, 0.6);
   --preview-bg: #ffffff;
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
