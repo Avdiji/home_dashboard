@@ -1,0 +1,98 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.time {
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* Sunrise â€” not a prayer, only marks the end of Fajr. */
+.muted .time {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Already passed today — recede so the next prayer stands out. */
+.past {
+  opacity: 0.5;
+}
+
+/* Next prayer — solid accent tile, the highest-contrast element in the row. */
+.next {
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-2) 40%, transparent);
+  transform: translateY(-2px);
+}
+
+.next .name,
+.next .time,
+.next .countdown {
+  color: var(--on-accent);
+}
+
+.next .time {
+  font-weight: 700;
+}
+
+.countdown {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty {
+  padding: 18px;
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-align: center;
+}
+
+@media (--until-desktop) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

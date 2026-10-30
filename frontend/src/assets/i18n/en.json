@@ -32,6 +32,7 @@
     "hijriDate": "{{day}} {{month}} {{year}} AH",
     "sectionUpcoming": "Upcoming",
     "sectionTodaysDish": "Today's dish",
+    "sectionPrayerTimes": "Prayer times",
     "sectionChecklists": "Checklists",
     "sectionMembers": "Members",
     "setLocationPrompt": "📍 Set a location for the weather",

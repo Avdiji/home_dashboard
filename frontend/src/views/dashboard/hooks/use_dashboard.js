@@ -314,9 +314,9 @@ export default function useDashboard() {
       items: list.map((p) => ({
         key: p.key,
         time: p.time,
-        minutes: p.minutes,
         isPrayer: p.isPrayer,
         isNext: p.key === next?.key,
+        isPast: p.minutes <= nowMinutes && p.key !== next?.key,
       })),
       nextIn: next ? (next.minutes - nowMinutes + minutesPerDay) % minutesPerDay : null,
       hijri: prayerTimes.hijri,
