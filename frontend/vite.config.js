@@ -12,6 +12,12 @@ const backendHost = process.env.BACKEND_HOST || 'localhost'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // Never inline SVGs as data: URIs — in the Android (Capacitor) WebView the
+    // inlined feature-panel icons got swapped for one another between route
+    // changes. Emitting each as its own hashed file gives every icon a distinct URL.
+    assetsInlineLimit: (filePath) => (filePath.endsWith('.svg') ? false : undefined),
+  },
   server: {
     host: true,
     // Allows the tailnet MagicDNS hostname (e.g. home-dashboard.<tailnet>.ts.net)
