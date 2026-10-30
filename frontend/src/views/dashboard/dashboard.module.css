@@ -108,15 +108,6 @@
   min-height: 0;
 }
 
-.sectionLabel {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 /* Mobile only: the two tiles stack (clock tile, then weather tile). Each
    tile already centers its own content, so the stacking is handled by the
    single-column grid above. Tablet keeps the desktop layout. */

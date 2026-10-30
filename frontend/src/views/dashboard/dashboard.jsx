@@ -12,12 +12,7 @@ import MemberForm from "./components/member_form";
 import useDashboard from "./hooks/use_dashboard";
 import classes from "./dashboard.module.css";
 
-const Section = ({ label, children }) => (
-  <section className={classes.section}>
-    {label && <h3 className={classes.sectionLabel}>{label}</h3>}
-    {children}
-  </section>
-);
+const Section = ({ children }) => <section className={classes.section}>{children}</section>;
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -91,24 +86,24 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <Section label={t("dashboard.sectionPrayerTimes")}>
+          <Section>
             <PrayerTimesCard prayers={prayers} hasLocation={!!location} />
           </Section>
 
           <div className={layout.twoColGrid}>
-            <Section label={t("dashboard.sectionUpcoming")}>
+            <Section>
               <UpcomingCard now={now} events={upcoming} onEventClick={goToEvent} />
             </Section>
-            <Section label={t("dashboard.sectionRecentFiles")}>
+            <Section>
               <RecentFilesCard files={recentFiles} onFileClick={goToFile} />
             </Section>
           </div>
 
-          <Section label={t("dashboard.sectionChecklists")}>
+          <Section>
             <ChecklistCard lists={checklists} onOpen={goToChecklist} />
           </Section>
 
-          <Section label={t("dashboard.sectionMembers")}>
+          <Section>
             <MembersCard
               persons={persons}
               onAdd={openNewMember}

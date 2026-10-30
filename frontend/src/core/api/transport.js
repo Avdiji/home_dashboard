@@ -14,8 +14,11 @@ import { WS_URL } from "../constants";
 
 let ws = null;
 let connected = false;
+let everConnected = false; // distinguishes a reconnect from the first open
+let reconnectTimer = null;
 const queue = []; // outbound commands waiting for OPEN
 const subscribers = new Set();
+const openSubscribers = new Set();
 let backoff = 1000;
 const BACKOFF_MAX = 15000;
 
@@ -53,31 +56,44 @@ const sendRaw = (cmd) => {
 };
 
 const open = () => {
-  ws = new WebSocket(WS_URL);
+  const sock = new WebSocket(WS_URL);
+  ws = sock;
 
-  ws.onopen = () => {
+  sock.onopen = () => {
     connected = true;
     backoff = 1000;
+    const reconnected = everConnected;
+    everConnected = true;
     flush();
+    for (const cb of openSubscribers) {
+      try {
+        cb(reconnected);
+      } catch (e) {
+        console.error("ws: open subscriber threw", e);
+      }
+    }
   };
 
-  ws.onmessage = (e) => dispatch(e.data);
+  sock.onmessage = (e) => dispatch(e.data);
 
-  ws.onclose = () => {
+  sock.onclose = () => {
+    if (ws !== sock) return; // a newer socket already replaced this one
     connected = false;
     ws = null;
     scheduleReconnect();
   };
 
-  ws.onerror = (e) => {
+  sock.onerror = (e) => {
     console.error("ws: socket error", e);
     // close handler will reconnect
   };
 };
 
 const scheduleReconnect = () => {
-  setTimeout(() => {
-    if (!connected) open();
+  clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    if (!ws) open();
   }, backoff);
   backoff = Math.min(backoff * 2, BACKOFF_MAX);
 };
@@ -86,6 +102,25 @@ const scheduleReconnect = () => {
 export function connectWS() {
   if (ws || connected) return;
   open();
+}
+
+// reconnectNow skips any pending backoff and reconnects immediately if the
+// socket is down (e.g. the tab/app just came back to the foreground). No-op
+// while a socket is open or opening.
+export function reconnectNow() {
+  if (ws) return;
+  clearTimeout(reconnectTimer);
+  reconnectTimer = null;
+  backoff = 1000;
+  open();
+}
+
+// onOpen registers a callback fired on every successful open with
+// `reconnected` (false on the first open). Events broadcast while the socket
+// was down are lost, so subscribers use this to resync. Returns an unsubscribe.
+export function onOpen(cb) {
+  openSubscribers.add(cb);
+  return () => openSubscribers.delete(cb);
 }
 
 // sendCommand enqueues a command for the server. `action` names the noop

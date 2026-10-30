@@ -71,6 +71,11 @@ export default function FilePreview({ file, src, downloadHref, onClose, onDelete
               <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
             </svg>
           </button>
+          <button type="button" className={classes.action} onClick={onClose} title={t("files.close")} aria-label={t("files.close")}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
