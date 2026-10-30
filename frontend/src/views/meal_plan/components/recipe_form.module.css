@@ -1,8 +1,0 @@
-/* Form-specific layout only — field/button/overlay styles live in
-   components/modal + components/forms/form_controls. */
-
-.meta {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}

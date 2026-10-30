@@ -32,8 +32,6 @@ Env overrides:
 - `GET /api/persons`
 - `GET /api/events`
 - `GET /api/checklists`
-- `GET /api/recipes`
-- `GET /api/meals`
 - `GET /healthz`
 
 **WebSocket — realtime:**
@@ -77,4 +75,3 @@ A failed command returns an `error` message to the originating client only
   "absent vs null" distinction would need a presence flag if the form ever
   sends partial updates.
 - **CORS is permissive** (`*`, GET/OPTIONS). Tighten for production.
-- **No `meal.update`** — matches the store; change = delete + add.

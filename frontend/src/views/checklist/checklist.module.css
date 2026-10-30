@@ -12,7 +12,7 @@
 }
 
 /* Member filter — same underline-tab style as SegmentedControl (calendar view
-   switcher, meal plan tabs): no background/border box at all, just a row of
+   switcher): no background/border box at all, just a row of
    plain text buttons. Selected ones get accent-2 text + a colored underline.
    No fill/box ever changes size, so selecting never shifts anything below. */
 .filter {

@@ -4,9 +4,8 @@ import { useTranslation } from "react-i18next";
 import { usePersons } from "../../../store/persons_store";
 import { useEvents } from "../../../store/events_store";
 import { useChecklists } from "../../../store/checklists_store";
-import { useMeals } from "../../../store/meals_store";
-import { useRecipes } from "../../../store/recipes_store";
-import { CALENDAR_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH } from "../../../core/nav_config";
+import { useFiles } from "../../../store/files_store";
+import { CALENDAR_PATH, CHECKLIST_PATH, FILES_PATH } from "../../../core/nav_config";
 import { updateSun as updateThemeSun } from "../../../core/theme";
 import { transition } from "../../../core/utils/view_transition";
 import { WeatherDTO } from "../../../core/dto/weather.dto";
@@ -28,6 +27,7 @@ import {
   UPCOMING_WINDOW_DAYS,
   UPCOMING_LIVE_FRACTION,
   HOURLY_FORECAST_COUNT,
+  RECENT_FILES_LIMIT,
   SECONDS_PER_MINUTE,
   SECONDS_PER_HOUR,
   SECONDS_PER_DAY,
@@ -35,7 +35,7 @@ import {
   GREETING_EVENING_HOUR,
   STATE_KEY_EDIT_EVENT_ID,
   STATE_KEY_EVENT_START,
-  STATE_KEY_EDIT_RECIPE_ID,
+  STATE_KEY_PREVIEW_FILE_ID,
   OPEN_METEO_FORECAST_URL,
   OPEN_METEO_CURRENT_FIELDS,
   OPEN_METEO_HOURLY_FIELDS,
@@ -58,7 +58,7 @@ const greetingKey = (h) => {
 export default function useDashboard() {
   const { t, i18n } = useTranslation();
   // Entity state lives in the centralized stores — the dashboard is a view
-  // over the same persons/events/checklists/meals/recipes the other features
+  // over the same persons/events/checklists/files the other features
   // mutate, so it re-renders when any of them changes (once the backend lands
   // and the noop actions fill in). Noop action signatures come from the store.
   const persons = usePersons((s) => s.persons);
@@ -68,8 +68,7 @@ export default function useDashboard() {
 
   const events = useEvents((s) => s.events);
   const lists = useChecklists((s) => s.lists);
-  const meals = useMeals((s) => s.meals);
-  const recipes = useRecipes((s) => s.recipes);
+  const files = useFiles((s) => s.files);
 
   // Live clock — first ticking timer in the app. Ticks every second so the
   // seconds readout, day-progress bar and upcoming relative times stay live.
@@ -332,26 +331,13 @@ export default function useDashboard() {
     [persons],
   );
 
-  // Today's planned dish — derived from the shared meals + recipes stores, so
-  // it tracks meal-plan mutations. Finds the meal whose date is today; if it
-  // links to a recipe, resolves the recipe (label = recipe title, clickable →
-  // deep-link). A free-text dish (no recipeId) is plain text, not clickable.
-  // null when no meal matches today. "Today" is read in the same timezone as
-  // the rest of the dashboard (the picked weather location) via the shared
-  // toLocalDateValue — not UTC, which the meal form also used to default new
-  // meals to (core/utils/date_utils.js) — and depends on `now` so it rolls
-  // over at local midnight instead of staying stuck on whatever day the hook
-  // first rendered.
-  const todaysDish = useMemo(() => {
-    const today = toLocalDateValue(now);
-    const meal = meals.find((m) => m.date === today);
-    if (!meal) return null;
-    if (meal.recipeId != null) {
-      const recipe = recipes.find((r) => r.id === meal.recipeId);
-      if (recipe) return { label: recipe.title, recipe };
-    }
-    return { label: meal.label, recipe: null };
-  }, [now, location, meals, recipes]);
+  // Recently uploaded files — newest first, sliced to RECENT_FILES_LIMIT.
+  // Read from the shared files store so uploads/deletes from any client show
+  // up here. A row click deep-links to the file's preview (see goToFile).
+  const recentFiles = useMemo(
+    () => [...files].sort((a, b) => b.createdAt - a.createdAt).slice(0, RECENT_FILES_LIMIT),
+    [files],
+  );
 
   // Upcoming events — next 3 occurrences starting at/after `now`, recomputed
   // every tick so past events drop off and later ones roll in. Read from the
@@ -386,8 +372,8 @@ export default function useDashboard() {
       }));
   }, [now, events, personById]);
 
-  // Deep-link navigation: clicking an upcoming row / the dish jumps to the
-  // owning feature and opens its edit modal (the target view reads the state
+  // Deep-link navigation: clicking an upcoming row / a recent file jumps to the
+  // owning feature and opens its edit modal / preview (the target view reads the state
   // on mount). The upcoming row passes the occurrence start so the calendar
   // lands on that day (recurring events: occurrence start != base start).
   const navigate = useNavigate();
@@ -398,9 +384,9 @@ export default function useDashboard() {
         [STATE_KEY_EVENT_START]: start.toISOString(),
       },
     });
-  const goToRecipe = (recipeId) =>
-    navigate(MEAL_PLAN_PATH, {
-      state: { [STATE_KEY_EDIT_RECIPE_ID]: recipeId },
+  const goToFile = (fileId) =>
+    navigate(FILES_PATH, {
+      state: { [STATE_KEY_PREVIEW_FILE_ID]: fileId },
     });
   const goToChecklist = () => navigate(CHECKLIST_PATH);
 
@@ -453,10 +439,10 @@ export default function useDashboard() {
     chooseLocation,
     changeLocation,
     prayers,
-    todaysDish,
+    recentFiles,
     upcoming,
     goToEvent,
-    goToRecipe,
+    goToFile,
     goToChecklist,
     checklists,
     persons,

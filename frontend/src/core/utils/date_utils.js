@@ -11,11 +11,6 @@ export const WEEKDAYS = [
   "dates.weekdayMon", "dates.weekdayTue", "dates.weekdayWed", "dates.weekdayThu",
   "dates.weekdayFri", "dates.weekdaySat", "dates.weekdaySun",
 ];
-// Sun-first (matches Date#getDay, 0=Sun). Used by meal row's weekday label.
-export const WEEKDAYS_SUN = [
-  "dates.weekdaySun", "dates.weekdayMon", "dates.weekdayTue", "dates.weekdayWed",
-  "dates.weekdayThu", "dates.weekdayFri", "dates.weekdaySat",
-];
 export const WEEKDAYS_LONG = [
   "dates.weekdayLongMon", "dates.weekdayLongTue", "dates.weekdayLongWed", "dates.weekdayLongThu",
   "dates.weekdayLongFri", "dates.weekdayLongSat", "dates.weekdayLongSun",
@@ -205,9 +200,9 @@ export function toLocalInputValue(d) {
 // (getClientTimeZone(), the dashboard's picked weather location) — falls back
 // to the browser's own zone when no location is set. NOT `toISOString().slice(0,10)`,
 // which reads UTC and drifts a calendar day off local "today" for a large chunk
-// of the day in any non-UTC zone (worst around local evening/night, exactly when
-// dinner gets planned). Used wherever a date-only value must name the client's
-// "today" — the meal form's default date, the dashboard's today's-dish lookup.
+// of the day in any non-UTC zone (worst around local evening/night). Used
+// wherever a date-only value must name the client's "today" — e.g. the
+// dashboard's prayer-times day.
 export function toLocalDateValue(d = new Date()) {
   const pad = (n) => String(n).padStart(2, "0");
   const timeZone = getClientTimeZone();
@@ -248,12 +243,6 @@ export function formatDate(d) {
     year: "numeric",
     ...(isPlainDateString ? {} : { timeZone: getClientTimeZone() }),
   });
-}
-
-// Short weekday label, e.g. "Mon". Accepts a Date or an ISO "YYYY-MM-DD" string.
-export function formatWeekdayShort(d) {
-  const date = typeof d === "string" ? new Date(`${d}T00:00:00`) : d;
-  return i18n.t(WEEKDAYS_SUN[date.getDay()]);
 }
 
 // Wall-clock parts of `date` as they read in `timeZone` (IANA name, e.g.

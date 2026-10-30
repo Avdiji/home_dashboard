@@ -9,7 +9,7 @@ import { FEATURES } from "../../core/nav_config";
 // Active feature is derived from the current route, not held in local state —
 // so it stays correct on a full page reload (e.g. reloading /calendar keeps
 // Calendar active) and when another view navigates via useNavigate (e.g. the
-// dashboard's upcoming/dish deep-links jumping to /calendar or /meals).
+// dashboard's upcoming/recent-file deep-links jumping to /calendar or /files).
 const activeIndex = (pathname) => {
   let best = 0;
   let bestLen = 0;

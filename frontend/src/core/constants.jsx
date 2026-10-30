@@ -1,6 +1,6 @@
 // Centralized behavioral constants for the app. Magic strings/numbers that
 // affect runtime behavior live here as named constants — timers, slice limits,
-// time-math units, deep-link state keys, tab keys, and the Open-Meteo API
+// time-math units, deep-link state keys, and the Open-Meteo API
 // config. Seed/content data, CSS values, and already-extracted enums
 // (nav_config paths, view_modes Symbols, frequency values, WMO weather codes,
 // MS_DAY in date_utils) stay where they are.
@@ -12,8 +12,8 @@ export const WEATHER_REFETCH_MS = 15 * 60 * 1000; // 15 min — Open-Meteo `curr
 // --- Display limits / slices ---------------------------------------------
 export const UPCOMING_LIMIT = 3; // dashboard upcoming events shown
 export const HOURLY_FORECAST_COUNT = 10; // hourly forecast entries extracted (scrollable strip)
+export const RECENT_FILES_LIMIT = 4; // dashboard recently uploaded files shown
 export const CHECKLIST_GLANCE_LIMIT = 6; // dashboard checklist glance cap
-export const RECIPE_INGREDIENTS_VISIBLE_LIMIT = 5; // ingredient chips shown before a recipe card collapses the rest
 export const CHECKLIST_AUTO_HIDE_MS = 3000; // grace window to uncheck before a checked item auto-hides
 export const CHECKLIST_AUTO_DELETE_MS = 3000; // grace window before an all-checked list auto-deletes
 export const MONTH_CELL_MAX_EVENTS = 3; // event chips per month cell before "+N more"
@@ -41,14 +41,10 @@ export const EXPAND_OCCURRENCE_GUARD = 1000; // max occurrences per event in exp
 
 // --- Cross-feature deep-link state keys ----------------------------------
 // Set by the dashboard on navigate(); read by the target feature's hook on
-// mount, then cleared. See use_dashboard.goToEvent / goToRecipe.
+// mount, then cleared. See use_dashboard.goToEvent / goToFile.
 export const STATE_KEY_EDIT_EVENT_ID = "editEventId";
 export const STATE_KEY_EVENT_START = "eventStart";
-export const STATE_KEY_EDIT_RECIPE_ID = "editRecipeId";
-
-// --- Meal plan tab keys ---------------------------------------------------
-export const TAB_PLANNED = "planned";
-export const TAB_RECIPES = "recipes";
+export const STATE_KEY_PREVIEW_FILE_ID = "previewFileId";
 
 // --- Open-Meteo API config ------------------------------------------------
 // Open-Meteo is a third-party API (not the project backend); the URL + field
@@ -104,8 +100,6 @@ export const API_ENDPOINTS = {
   persons: "/api/persons",
   events: "/api/events",
   checklists: "/api/checklists",
-  recipes: "/api/recipes",
-  meals: "/api/meals",
   folders: "/api/folders",
   files: "/api/files",
 };

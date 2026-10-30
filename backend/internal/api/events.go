@@ -12,7 +12,7 @@ import (
 // originating command's id when present.
 type Event struct {
 	Type      string          `json:"type"`       // "<entity>.<created|updated|deleted>"
-	Entity    string          `json:"entity"`     // person|event|checklist|checklist_item|recipe|meal|folder|file
+	Entity    string          `json:"entity"`     // person|event|checklist|checklist_item|folder|file
 	ID        int             `json:"id"`
 	ListID    *int            `json:"listId,omitempty"`
 	RequestID string          `json:"requestId,omitempty"`
@@ -70,23 +70,6 @@ func itemUpdated(listID int, it *model.ChecklistItem, reqID string) *Event {
 func itemDeleted(listID, itemID int, reqID string) *Event {
 	lid := listID
 	return &Event{Type: "checklist_item.deleted", Entity: "checklist_item", ID: itemID, ListID: &lid, RequestID: reqID, Data: json.RawMessage("null")}
-}
-
-func recipeCreated(r *model.Recipe, reqID string) *Event {
-	return &Event{Type: "recipe.created", Entity: "recipe", ID: r.ID, RequestID: reqID, Data: mustJSON(r)}
-}
-func recipeUpdated(r *model.Recipe, reqID string) *Event {
-	return &Event{Type: "recipe.updated", Entity: "recipe", ID: r.ID, RequestID: reqID, Data: mustJSON(r)}
-}
-func recipeDeleted(id int, reqID string) *Event {
-	return &Event{Type: "recipe.deleted", Entity: "recipe", ID: id, RequestID: reqID, Data: json.RawMessage("null")}
-}
-
-func mealCreated(m *model.Meal, reqID string) *Event {
-	return &Event{Type: "meal.created", Entity: "meal", ID: m.ID, RequestID: reqID, Data: mustJSON(m)}
-}
-func mealDeleted(id int, reqID string) *Event {
-	return &Event{Type: "meal.deleted", Entity: "meal", ID: id, RequestID: reqID, Data: json.RawMessage("null")}
 }
 
 func folderCreated(f *model.Folder, reqID string) *Event {

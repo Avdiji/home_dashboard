@@ -10,7 +10,7 @@ import {
   KIND_PDF,
   KIND_TEXT,
   KIND_VIDEO,
-} from "../utils/file_kind";
+} from "../../../core/utils/file_kind";
 import classes from "./file_preview.module.css";
 
 // Full-size in-browser viewer. The browser renders the file itself from its

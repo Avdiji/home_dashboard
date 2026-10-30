@@ -1,8 +1,11 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useFiles } from "../../../store/files_store";
 import { fileContentUrl } from "../../../core/api/files";
 import { transition } from "../../../core/utils/view_transition";
+import { FILES_PATH } from "../../../core/nav_config";
+import { STATE_KEY_PREVIEW_FILE_ID } from "../../../core/constants";
 
 const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base", numeric: true });
 
@@ -125,6 +128,22 @@ export default function useFilesView() {
     if (!window.confirm(t("files.confirmDeleteFolder", { name: folder.name }))) return;
     removeFolder(folder.id);
   };
+
+  // Cross-feature deep link: the dashboard's recent files list navigates here
+  // with `{ previewFileId }` — open the file's folder and its preview. Waits
+  // for the file to be in the store (a cold load hydrates after mount).
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const id = location.state?.[STATE_KEY_PREVIEW_FILE_ID];
+    if (id == null) return;
+    const found = files.find((f) => f.id === id);
+    if (!found) return;
+    setFolderId(found.folderId);
+    transition(() => setPreviewId(found.id));
+    // Consume the state so a back/forward re-entry doesn't reopen the preview.
+    navigate(FILES_PATH, { replace: true, state: null });
+  }, [location.state, files, navigate]);
 
   const contentUrl = (file) => fileContentUrl(file.id);
   const downloadUrl = (file) => fileContentUrl(file.id, { download: true });

@@ -5,7 +5,7 @@ import WeatherCard from "./components/weather_card";
 import LocationPicker from "./components/location_picker";
 import PrayerTimesCard from "./components/prayer_times_card";
 import UpcomingCard from "./components/upcoming_card";
-import DishCard from "./components/dish_card";
+import RecentFilesCard from "./components/recent_files_card";
 import ChecklistCard from "./components/checklist_card";
 import MembersCard from "./components/members_card";
 import MemberForm from "./components/member_form";
@@ -33,10 +33,10 @@ export default function Dashboard() {
     chooseLocation,
     changeLocation,
     prayers,
-    todaysDish,
+    recentFiles,
     upcoming,
     goToEvent,
-    goToRecipe,
+    goToFile,
     goToChecklist,
     checklists,
     persons,
@@ -99,11 +99,8 @@ export default function Dashboard() {
             <Section label={t("dashboard.sectionUpcoming")}>
               <UpcomingCard now={now} events={upcoming} onEventClick={goToEvent} />
             </Section>
-            <Section label={t("dashboard.sectionTodaysDish")}>
-              <DishCard
-                dish={todaysDish}
-                onClick={todaysDish?.recipe ? goToRecipe : undefined}
-              />
+            <Section label={t("dashboard.sectionRecentFiles")}>
+              <RecentFilesCard files={recentFiles} onFileClick={goToFile} />
             </Section>
           </div>
 

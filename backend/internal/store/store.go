@@ -7,7 +7,6 @@ package store
 
 import (
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -87,28 +86,4 @@ func setIDs(txn *sql.Tx, table, ownerCol string, ownerID int, ids []int) error {
 		}
 	}
 	return nil
-}
-
-// jsonStrings marshals a []string for the recipes.ingredients column.
-func jsonStrings(ss []string) string {
-	b, err := json.Marshal(ss)
-	if err != nil {
-		return "[]"
-	}
-	return string(b)
-}
-
-// parseStrings unmarshals the ingredients JSON array.
-func parseStrings(raw string) []string {
-	if raw == "" {
-		return []string{}
-	}
-	var out []string
-	if err := json.Unmarshal([]byte(raw), &out); err != nil {
-		return []string{}
-	}
-	if out == nil {
-		return []string{}
-	}
-	return out
 }

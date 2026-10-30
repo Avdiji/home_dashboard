@@ -5,7 +5,7 @@
   box-shadow: var(--shadow-card);
   padding: 18px;
   min-width: 0;
-  /* Fills the stretched height of a grid item (recipe/list cards in
+  /* Fills the stretched height of a grid item (list cards in
      layout.twoColGrid) so same-row cards render at equal height; a no-op
      everywhere else since percentage height collapses to auto without a
      definite-height ancestor. */

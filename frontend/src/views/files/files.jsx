@@ -6,7 +6,7 @@ import FolderForm from "./components/folder_form";
 import FilePreview from "./components/file_preview";
 import useFilesView from "./hooks/use_files";
 import { formatDate } from "../../core/utils/date_utils";
-import { fileKind, formatSize, KIND_FOLDER, KIND_ICONS } from "./utils/file_kind";
+import { fileKind, formatSize, KIND_FOLDER, KIND_ICONS } from "../../core/utils/file_kind";
 import classes from "./files.module.css";
 
 export default function Files() {

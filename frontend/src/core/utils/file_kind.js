@@ -1,5 +1,6 @@
-// Feature-local file helpers: how a mime type previews in the browser, its
-// row icon, and a human-readable size. Only the files feature uses these.
+// File helpers: how a mime type previews in the browser, its row icon, and a
+// human-readable size. Used by the files feature and the dashboard's recent
+// files glance.
 
 export const KIND_FOLDER = "folder";
 export const KIND_PDF = "pdf";

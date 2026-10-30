@@ -45,28 +45,10 @@ CREATE TABLE IF NOT EXISTS checklist_items (
     description TEXT NOT NULL DEFAULT ''
 );
 
-CREATE TABLE IF NOT EXISTS recipes (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    title       TEXT NOT NULL,
-    description TEXT NOT NULL DEFAULT '',
-    ingredients  TEXT NOT NULL DEFAULT '[]',  -- JSON array of strings
-    servings    INTEGER NULL,
-    minutes     INTEGER NULL
-);
-
-CREATE TABLE IF NOT EXISTS meals (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    date      TEXT NOT NULL,           -- ISO "YYYY-MM-DD"
-    recipe_id INTEGER NULL REFERENCES recipes(id) ON DELETE SET NULL,
-    label     TEXT NOT NULL DEFAULT ''
-);
-
 -- Helpful read paths.
 CREATE INDEX IF NOT EXISTS idx_events_persons_person ON events_persons(person_id);
 CREATE INDEX IF NOT EXISTS idx_checklists_persons_person ON checklists_persons(person_id);
 CREATE INDEX IF NOT EXISTS idx_checklist_items_list ON checklist_items(list_id);
-CREATE INDEX IF NOT EXISTS idx_meals_date ON meals(date);
-CREATE INDEX IF NOT EXISTS idx_meals_recipe ON meals(recipe_id);
 -- File storage. Folders nest via parent_id (NULL = root); deleting a folder
 -- cascades its subtree + file rows. File bytes live on disk (named by id under
 -- the files dir), not in SQLite — the row is metadata only.

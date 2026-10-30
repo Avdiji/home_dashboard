@@ -47,8 +47,6 @@ func (s *Server) routes() {
 	s.serveMux.HandleFunc("/api/persons", jsonList(s.store.ListPersons))
 	s.serveMux.HandleFunc("/api/events", jsonList(s.store.ListEvents))
 	s.serveMux.HandleFunc("/api/checklists", jsonList(s.store.ListChecklists))
-	s.serveMux.HandleFunc("/api/recipes", jsonList(s.store.ListRecipes))
-	s.serveMux.HandleFunc("/api/meals", jsonList(s.store.ListMeals))
 	s.serveMux.HandleFunc("/api/folders", jsonList(s.store.ListFolders))
 
 	// Files: list + upload share the path (method-routed); bytes are served

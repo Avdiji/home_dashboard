@@ -101,7 +101,7 @@
   min-width: 0;
 }
 
-/* The card fills its Section so the two grid columns (upcoming + dish) match
+/* The card fills its Section so the two grid columns (upcoming + recent files) match
    height — the row height is set by the taller one and the other stretches. */
 .section > :last-child {
   flex: 1 1 auto;

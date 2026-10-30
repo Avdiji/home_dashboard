@@ -1,6 +1,7 @@
 /*
   Shared form field CSS — consumed by the modal forms (calendar event_form,
-  meal_plan recipe_form + meal_form). Apply via className={controls.row} etc.
+  checklist list_form, dashboard member_form, files folder_form). Apply via
+  className={controls.row} etc.
   Class names are snake_case to match the repo's CSS-module convention.
 */
 
