@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   fileKind,
@@ -12,16 +12,34 @@ import {
 } from "../../../core/utils/file_kind";
 import classes from "./file_preview.module.css";
 
-// Full-size in-browser viewer. The browser renders the file itself from its
-// content URL: PDFs via the built-in PDF viewer (iframe — must NOT be
-// sandboxed or Chrome refuses to render it), HTML in a sandboxed iframe (its
+// pdf.js is large — load it only when a PDF is actually previewed.
+const PdfViewer = lazy(() => import("./pdf_viewer"));
+
+function NoPreview({ file, downloadHref }) {
+  const { t } = useTranslation();
+  return (
+    <div className={classes.none}>
+      <span className={classes.noneIcon}>{KIND_ICONS[fileKind(file.mimeType)]}</span>
+      <span>{t("files.noPreview")}</span>
+      <a className={classes.btnPrimary} href={downloadHref} download>
+        {t("files.download")}
+      </a>
+    </div>
+  );
+}
+
+// Full-size in-browser viewer. PDFs render via pdf.js (mobile browsers and the
+// APK WebView have no built-in PDF viewer); HTML in a sandboxed iframe (its
 // own opaque origin; the server also sends a CSP sandbox), text in a
 // script-less iframe, media in native players. Anything else offers a download.
 function PreviewBody({ file, src, downloadHref }) {
-  const { t } = useTranslation();
   switch (fileKind(file.mimeType)) {
     case KIND_PDF:
-      return <iframe className={classes.frame} src={src} title={file.name} />;
+      return (
+        <Suspense fallback={null}>
+          <PdfViewer src={src} fallback={<NoPreview file={file} downloadHref={downloadHref} />} />
+        </Suspense>
+      );
     case KIND_HTML:
       return <iframe className={classes.frame} src={src} title={file.name} sandbox="allow-scripts" />;
     case KIND_TEXT:
@@ -33,15 +51,7 @@ function PreviewBody({ file, src, downloadHref }) {
     case KIND_AUDIO:
       return <audio className={classes.audio} src={src} controls autoPlay />;
     default:
-      return (
-        <div className={classes.none}>
-          <span className={classes.noneIcon}>{KIND_ICONS[fileKind(file.mimeType)]}</span>
-          <span>{t("files.noPreview")}</span>
-          <a className={classes.btnPrimary} href={downloadHref} download>
-            {t("files.download")}
-          </a>
-        </div>
-      );
+      return <NoPreview file={file} downloadHref={downloadHref} />;
   }
 }
 

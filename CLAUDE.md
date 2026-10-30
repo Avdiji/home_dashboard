@@ -348,7 +348,10 @@ to avoid colliding with the store name.
   `HOME_DASHBOARD_FILES` (default `./files`, `/data/files` in compose) named by
   file id — user file names never touch the filesystem.
 - **Preview** (`file_preview`): kind from mime (`utils/file_kind.js`). PDF →
-  plain iframe (must NOT be sandboxed or Chrome won't render it); HTML →
+  `pdf_viewer` (pdf.js / `pdfjs-dist`, lazy-loaded, every page drawn to a canvas
+  at container width; not an iframe — Android Chrome / the APK WebView have no
+  built-in PDF viewer and iOS shows only page 1; falls back to the download
+  block on load error); HTML →
   `sandbox="allow-scripts"` iframe (server also sends `CSP: sandbox` for
   html/svg/xml so uploaded pages run in an opaque origin); text → script-less
   iframe; image/video/audio → native elements; else a download button.

@@ -1,0 +1,17 @@
+/* Scrollable stack of rendered pages, filling the preview body. */
+.pages {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Pages assume a white sheet — keep it white in dark mode too. */
+.page {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--preview-bg);
+}
