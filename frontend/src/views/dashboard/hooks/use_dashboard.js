@@ -314,6 +314,7 @@ export default function useDashboard() {
       items: list.map((p) => ({
         key: p.key,
         time: p.time,
+        minutes: p.minutes,
         isPrayer: p.isPrayer,
         isNext: p.key === next?.key,
       })),
