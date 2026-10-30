@@ -11,7 +11,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   gap: 10px;
 }
 
@@ -20,10 +21,20 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  justify-content: center;
+  min-width: 0;
   padding: 12px 8px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
+  text-align: center;
+  container-type: inline-size;
+}
+
+.name,
+.countdown {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .name {
@@ -34,7 +45,9 @@
 }
 
 .time {
-  font-size: 20px;
+  /* Shrinks with the tile so "12:45 PM" never spills out on narrow screens. */
+  font-size: clamp(14px, 22cqi, 20px);
+  white-space: nowrap;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -93,6 +106,6 @@
 
 @media (--until-desktop) {
   .grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
