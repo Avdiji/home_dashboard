@@ -11,4 +11,6 @@ COPY . .
 
 EXPOSE 5173
 
-CMD ["npm", "run", "dev"]
+# node_modules is a named volume in compose, which Docker only seeds from the
+# image once — sync it on every start so newly added deps show up.
+CMD ["sh", "-c", "npm install --no-audit --no-fund && npm run dev"]
