@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"homedashboard/internal/model"
 	"homedashboard/internal/store"
@@ -90,6 +91,16 @@ func (d *Dispatcher) Dispatch(raw []byte) (events [][]byte, reply []byte) {
 		return d.mealAdd(cmd)
 	case "meal.delete":
 		return d.mealDelete(cmd)
+
+	// ---- files ----
+	// Uploads go over HTTP (POST /api/files — binary bodies don't belong on
+	// the socket); everything else is a normal command.
+	case "folder.add":
+		return d.folderAdd(cmd)
+	case "folder.delete":
+		return d.folderDelete(cmd)
+	case "file.delete":
+		return d.fileDelete(cmd)
 
 	default:
 		return nil, marshalError(cmd.Action, cmd.RequestID, "unknown action: "+cmd.Action)
@@ -577,6 +588,70 @@ func (d *Dispatcher) mealDelete(cmd command) ([][]byte, []byte) {
 		return nil, marshalError(cmd.Action, cmd.RequestID, "delete meal: "+err.Error())
 	}
 	return [][]byte{marshalEvent(mealDeleted(id, cmd.RequestID))}, nil
+}
+
+// ===== files =====
+
+type folderAddPayload struct {
+	Name     string `json:"name"`
+	ParentID *int   `json:"parent_id"`
+}
+
+func (d *Dispatcher) folderAdd(cmd command) ([][]byte, []byte) {
+	var p folderAddPayload
+	if ok, err := decode(cmd, &p); !ok {
+		return nil, err
+	}
+	name := strings.TrimSpace(p.Name)
+	if name == "" {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "name is required")
+	}
+	f, err := d.store.CreateFolder(name, p.ParentID)
+	if err != nil {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "create folder: "+err.Error())
+	}
+	return [][]byte{marshalEvent(folderCreated(f, cmd.RequestID))}, nil
+}
+
+type folderDeletePayload struct {
+	FolderID int `json:"folderId"`
+}
+
+// folderDelete removes the folder subtree and broadcasts a deleted event for
+// every file and folder in it, so clients never hold orphans.
+func (d *Dispatcher) folderDelete(cmd command) ([][]byte, []byte) {
+	var p folderDeletePayload
+	if ok, err := decode(cmd, &p); !ok {
+		return nil, err
+	}
+	folderIDs, fileIDs, err := d.store.DeleteFolder(p.FolderID)
+	if err != nil {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "delete folder: "+err.Error())
+	}
+	events := make([][]byte, 0, len(folderIDs)+len(fileIDs))
+	for _, id := range fileIDs {
+		events = append(events, marshalEvent(fileDeleted(id, cmd.RequestID)))
+	}
+	for _, id := range folderIDs {
+		events = append(events, marshalEvent(folderDeleted(id, cmd.RequestID)))
+	}
+	return events, nil
+}
+
+type fileDeletePayload struct {
+	FileID int `json:"fileId"`
+}
+
+func (d *Dispatcher) fileDelete(cmd command) ([][]byte, []byte) {
+	var p fileDeletePayload
+	if ok, err := decode(cmd, &p); !ok {
+		return nil, err
+	}
+	id, err := d.store.DeleteFile(p.FileID)
+	if err != nil {
+		return nil, marshalError(cmd.Action, cmd.RequestID, "delete file: "+err.Error())
+	}
+	return [][]byte{marshalEvent(fileDeleted(id, cmd.RequestID))}, nil
 }
 
 // ===== helpers =====

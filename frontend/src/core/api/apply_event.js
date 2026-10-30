@@ -17,12 +17,15 @@ import { useEvents } from "../../store/events_store";
 import { useChecklists } from "../../store/checklists_store";
 import { useRecipes } from "../../store/recipes_store";
 import { useMeals } from "../../store/meals_store";
+import { useFiles } from "../../store/files_store";
 import { PersonDTO } from "../dto/person.dto";
 import { EventDTO } from "../dto/event.dto";
 import { ChecklistDTO } from "../dto/checklist.dto";
 import { ChecklistItemDTO } from "../dto/checklist_item.dto";
 import { RecipeDTO } from "../dto/recipe.dto";
 import { MealDTO } from "../dto/meal.dto";
+import { FolderDTO } from "../dto/folder.dto";
+import { FileEntryDTO } from "../dto/file_entry.dto";
 import { transition } from "../utils/view_transition";
 
 // upsert by id: replace if present, else append.
@@ -101,6 +104,26 @@ const meals = (evt) => {
   useMeals.setState((s) => ({ meals: upsert(s.meals, model) }));
 };
 
+// A folder.delete broadcasts a deleted event for every file and folder in the
+// removed subtree, so each reducer only ever drops its own id.
+const folders = (evt) => {
+  if (evt.type === "folder.deleted") {
+    useFiles.setState((s) => ({ folders: remove(s.folders, evt.id) }));
+    return;
+  }
+  const model = new FolderDTO(evt.data).toModel();
+  useFiles.setState((s) => ({ folders: upsert(s.folders, model) }));
+};
+
+const files = (evt) => {
+  if (evt.type === "file.deleted") {
+    useFiles.setState((s) => ({ files: remove(s.files, evt.id) }));
+    return;
+  }
+  const model = new FileEntryDTO(evt.data).toModel();
+  useFiles.setState((s) => ({ files: upsert(s.files, model) }));
+};
+
 // applyEvent routes one inbound message to the right store. Error replies
 // (type:"error", sent only to the originator) are logged, not applied. The
 // store mutation is wrapped in a View Transition so entity spawn/vanish
@@ -120,6 +143,8 @@ export function applyEvent(msg) {
     if (entity === "checklist" || entity === "checklist_item") return checklists(msg);
     if (entity === "recipe") return recipes(msg);
     if (entity === "meal") return meals(msg);
+    if (entity === "folder") return folders(msg);
+    if (entity === "file") return files(msg);
     console.warn("ws: unknown event entity", msg);
   };
   transition(route);

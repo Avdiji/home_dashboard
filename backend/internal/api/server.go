@@ -49,6 +49,13 @@ func (s *Server) routes() {
 	s.serveMux.HandleFunc("/api/checklists", jsonList(s.store.ListChecklists))
 	s.serveMux.HandleFunc("/api/recipes", jsonList(s.store.ListRecipes))
 	s.serveMux.HandleFunc("/api/meals", jsonList(s.store.ListMeals))
+	s.serveMux.HandleFunc("/api/folders", jsonList(s.store.ListFolders))
+
+	// Files: list + upload share the path (method-routed); bytes are served
+	// per id. Deletes are websocket commands like every other mutation.
+	s.serveMux.HandleFunc("GET /api/files", jsonList(s.store.ListFiles))
+	s.serveMux.HandleFunc("POST /api/files", s.uploadFiles)
+	s.serveMux.HandleFunc("GET /api/files/{id}/content", s.fileContent)
 }
 
 // ServeHTTP makes Server usable directly as an http.Handler.
@@ -99,6 +106,6 @@ func jsonList[T any](fn lister[T]) http.HandlerFunc {
 func cors(w http.ResponseWriter, _ *http.Request) {
 	h := w.Header()
 	h.Set("Access-Control-Allow-Origin", "*")
-	h.Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	h.Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	h.Set("Access-Control-Allow-Headers", "Content-Type")
 }

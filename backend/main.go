@@ -1,6 +1,7 @@
 // Command home-dashboard-backend opens the SQLite DB, starts the websocket
 // hub, and serves the REST + WS API on :8080 (override with
-// HOME_DASHBOARD_ADDR). Tables start empty; data is created entirely through
+// HOME_DASHBOARD_ADDR). Uploaded file blobs go under HOME_DASHBOARD_FILES
+// (default ./files). Tables start empty; data is created entirely through
 // the API. Run `go mod tidy` first to fetch gorilla/websocket + modernc.org/sqlite,
 // then `go run .`.
 package main
@@ -30,13 +31,21 @@ func main() {
 		dbPath = "home_dashboard.db"
 	}
 
+	filesDir := os.Getenv("HOME_DASHBOARD_FILES")
+	if filesDir == "" {
+		filesDir = "files"
+	}
+	if err := os.MkdirAll(filesDir, 0o755); err != nil {
+		log.Fatalf("create files dir: %v", err)
+	}
+
 	d, err := db.Open(dbPath)
 	if err != nil {
 		log.Fatalf("open db: %v", err)
 	}
 	defer d.Close()
 
-	s := store.New(d)
+	s := store.New(d, filesDir)
 
 	hub := ws.NewHub()
 	go hub.Run()

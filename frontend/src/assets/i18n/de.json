@@ -3,7 +3,8 @@
     "home": "Start",
     "calendar": "Kalender",
     "checklist": "Checkliste",
-    "mealPlan": "Essensplan"
+    "mealPlan": "Essensplan",
+    "files": "Dateien"
   },
   "common": {
     "delete": "Löschen",
@@ -134,6 +135,27 @@
     "onePerLine": "Eine pro Zeile",
     "showMore": "+{{count}} weitere",
     "showLess": "Weniger anzeigen"
+  },
+  "files": {
+    "root": "Dateien",
+    "upload": "⬆ Hochladen",
+    "uploading": "Lade {{count}} hoch…",
+    "newFolder": "+ Neuer Ordner",
+    "newFolderTitle": "Neuer Ordner",
+    "nameLabel": "Name",
+    "folderNamePlaceholder": "Ordnername",
+    "empty": "Noch leer — Dateien hierher ziehen oder hochladen",
+    "dropHint": "Dateien zum Hochladen ablegen",
+    "download": "Herunterladen",
+    "delete": "Löschen",
+    "close": "Schließen",
+    "removeFile": "Datei löschen",
+    "removeFolder": "Ordner löschen",
+    "confirmDeleteFile": "„{{name}}“ löschen?",
+    "confirmDeleteFolder": "Ordner „{{name}}“ und den gesamten Inhalt löschen?",
+    "noPreview": "Keine Vorschau für diesen Dateityp",
+    "uploadFailed": "Hochladen fehlgeschlagen",
+    "itemsCount": "{{count}} Elemente"
   },
   "weather": {
     "unknown": "Unbekannt",

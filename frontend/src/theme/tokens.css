@@ -11,6 +11,7 @@
   --line-strong: #c3c7d4;
   --on-accent: #ffffff;
   --overlay: rgba(0, 0, 0, 0.4);
+  --preview-bg: #ffffff; /* file preview page bg — documents assume white */
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.07);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -35,6 +36,7 @@
   --line-strong: #3a4050;
   --on-accent: #ffffff;
   --overlay: rgba(0, 0, 0, 0.6);
+  --preview-bg: #ffffff;
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);

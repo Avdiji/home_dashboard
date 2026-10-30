@@ -106,4 +106,6 @@ export const API_ENDPOINTS = {
   checklists: "/api/checklists",
   recipes: "/api/recipes",
   meals: "/api/meals",
+  folders: "/api/folders",
+  files: "/api/files",
 };

@@ -3,7 +3,8 @@
     "home": "Home",
     "calendar": "Calendar",
     "checklist": "Checklist",
-    "mealPlan": "Meal Plan"
+    "mealPlan": "Meal Plan",
+    "files": "Files"
   },
   "common": {
     "delete": "Delete",
@@ -134,6 +135,27 @@
     "onePerLine": "One per line",
     "showMore": "+{{count}} more",
     "showLess": "Show less"
+  },
+  "files": {
+    "root": "Files",
+    "upload": "⬆ Upload",
+    "uploading": "Uploading {{count}}…",
+    "newFolder": "+ New folder",
+    "newFolderTitle": "New folder",
+    "nameLabel": "Name",
+    "folderNamePlaceholder": "Folder name",
+    "empty": "Nothing here yet — drop files or upload",
+    "dropHint": "Drop files to upload",
+    "download": "Download",
+    "delete": "Delete",
+    "close": "Close",
+    "removeFile": "Delete file",
+    "removeFolder": "Delete folder",
+    "confirmDeleteFile": "Delete \"{{name}}\"?",
+    "confirmDeleteFolder": "Delete folder \"{{name}}\" and everything in it?",
+    "noPreview": "No preview for this file type",
+    "uploadFailed": "Upload failed",
+    "itemsCount": "{{count}} items"
   },
   "weather": {
     "unknown": "Unknown",

@@ -41,6 +41,7 @@ services:
     network_mode: service:tailscale
     environment:
       - HOME_DASHBOARD_DB=/data/home_dashboard.db
+      - HOME_DASHBOARD_FILES=/data/files
     volumes:
       - ./backend:/app
       - backend-db:/data

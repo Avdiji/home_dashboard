@@ -8,6 +8,7 @@ services:
       - "8080:8080"
     environment:
       - HOME_DASHBOARD_DB=/data/home_dashboard.db
+      - HOME_DASHBOARD_FILES=/data/files
     volumes:
       - ./backend:/app
       - go-mod-cache:/go/pkg/mod

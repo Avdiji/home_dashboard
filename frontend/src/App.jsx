@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/layout";
 import Dashboard from "./views/dashboard/dashboard";
 
-import {CALENDAR_PATH, DASHBOARD_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH} from "./core/nav_config";
+import {CALENDAR_PATH, DASHBOARD_PATH, CHECKLIST_PATH, MEAL_PLAN_PATH, FILES_PATH} from "./core/nav_config";
 import Calendar from "./views/calendar/calendar";
 import Checklist from "./views/checklist/checklist";
 import MealPlan from "./views/meal_plan/meal_plan";
+import Files from "./views/files/files";
 import { initRealtime } from "./core/api/init";
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
           <Route path={CALENDAR_PATH} element={<Calendar/>}/>
           <Route path={CHECKLIST_PATH} element={<Checklist/>}/>
           <Route path={MEAL_PLAN_PATH} element={<MealPlan/>}/>
+          <Route path={FILES_PATH} element={<Files/>}/>
         </Routes>
       </Layout>
     </Router>

@@ -25,3 +25,5 @@
 .idea/
 .vscode/
 .DS_Store
+# Uploaded file blobs (local state, not committed)
+/files/

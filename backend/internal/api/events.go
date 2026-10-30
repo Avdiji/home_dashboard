@@ -12,7 +12,7 @@ import (
 // originating command's id when present.
 type Event struct {
 	Type      string          `json:"type"`       // "<entity>.<created|updated|deleted>"
-	Entity    string          `json:"entity"`     // person|event|checklist|checklist_item|recipe|meal
+	Entity    string          `json:"entity"`     // person|event|checklist|checklist_item|recipe|meal|folder|file
 	ID        int             `json:"id"`
 	ListID    *int            `json:"listId,omitempty"`
 	RequestID string          `json:"requestId,omitempty"`
@@ -87,6 +87,20 @@ func mealCreated(m *model.Meal, reqID string) *Event {
 }
 func mealDeleted(id int, reqID string) *Event {
 	return &Event{Type: "meal.deleted", Entity: "meal", ID: id, RequestID: reqID, Data: json.RawMessage("null")}
+}
+
+func folderCreated(f *model.Folder, reqID string) *Event {
+	return &Event{Type: "folder.created", Entity: "folder", ID: f.ID, RequestID: reqID, Data: mustJSON(f)}
+}
+func folderDeleted(id int, reqID string) *Event {
+	return &Event{Type: "folder.deleted", Entity: "folder", ID: id, RequestID: reqID, Data: json.RawMessage("null")}
+}
+
+func fileCreated(f *model.File, reqID string) *Event {
+	return &Event{Type: "file.created", Entity: "file", ID: f.ID, RequestID: reqID, Data: mustJSON(f)}
+}
+func fileDeleted(id int, reqID string) *Event {
+	return &Event{Type: "file.deleted", Entity: "file", ID: id, RequestID: reqID, Data: json.RawMessage("null")}
 }
 
 // marshalEvent wraps an Event envelope as a broadcast-ready JSON message.

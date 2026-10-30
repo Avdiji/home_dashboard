@@ -377,6 +377,36 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
 `updateRecipe(recipeId, { ... })`, `removeRecipe(recipeId)`,
 `addMeal({ date, recipeId, label })`, `removeMeal(mealId)`.
 
+### Files (`views/files/`)
+
+Shared family file storage: nested folders + uploaded files, browse /
+upload / download / delete / preview in the browser. Store `useFiles`
+(`store/files_store.js`) holds flat `folders` (`parentId`, null = root) and
+`files` (`folderId`, metadata only — `FileEntry` model, named so it never
+shadows the global `File`). The hook is `useFilesView` (`hooks/use_files.js`)
+to avoid colliding with the store name.
+
+- **Bytes travel over HTTP, not the WS**: upload = `POST /api/files`
+  multipart (`folder_id` field first, then `file` parts); view/download =
+  `GET /api/files/{id}/content` (`?download=1` → attachment), URLs built by
+  `fileContentUrl` (`core/api/files.js`). The upload still lands via the
+  `file.created` broadcast. `folder.add` / `folder.delete` / `file.delete` are
+  normal WS commands; `folder.delete` broadcasts a deleted event for every
+  file + folder in the subtree.
+- **Backend storage**: rows in SQLite, bytes on disk under
+  `HOME_DASHBOARD_FILES` (default `./files`, `/data/files` in compose) named by
+  file id — user file names never touch the filesystem.
+- **Preview** (`file_preview`): kind from mime (`utils/file_kind.js`). PDF →
+  plain iframe (must NOT be sandboxed or Chrome won't render it); HTML →
+  `sandbox="allow-scripts"` iframe (server also sends `CSP: sandbox` for
+  html/svg/xml so uploaded pages run in an opaque origin); text → script-less
+  iframe; image/video/audio → native elements; else a download button.
+  Documents sit on `--preview-bg` (white in both themes).
+- Upload via button (hidden `<input type=file multiple>`) or drag & drop onto
+  the view. Deletes confirm via `window.confirm` (irreversible).
+  An open folder / previewed file deleted by another client falls back to
+  root / closes (derived from the store, not held).
+
 ## Shared components
 
 - **`FeaturePanel`** (`components/feature_panel/feature_panel`): the left nav of
@@ -435,6 +465,14 @@ Noop handlers: `addRecipe({ title, description, ingredients, servings, minutes }
   responsive grid (`repeat(2, 1fr)`, `gap: 20px`, collapses to 1 col on `--mobile`)
   used by meal plan recipes and checklist lists. Both features used it verbatim —
   one shared class now.
+- **`AnimatedList`** (`components/animated_list/animated_list`): adapted from
+  React Bits (needs the `motion` dep). Props `{ items, getKey, renderItem(item,
+  index, selected), onItemSelect, showGradients, className }`. Items scale+fade
+  in on scroll, hover/tap/arrow-keys select, click/Enter → `onItemSelect`. It
+  fills its parent's height and scrolls internally (edge gradients fade into
+  `--bg`). Keyboard nav is scoped to the focused list — do not restore the
+  original's window-level Tab hijack (it breaks modals). Item-internal buttons
+  must `stopPropagation`. Used by the Files list.
 - **`group_by_day`** (`views/calendar/utils/group_by_day`): `dayKey(d)` +
   `groupOccurrencesByDay(days, occurrences)` (a `Map<dayKey, occ[]>` pre-seeded
   with one empty bucket per day). Feature-local to calendar (per the `core/` rule) —

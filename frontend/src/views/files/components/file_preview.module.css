@@ -1,0 +1,175 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 16px;
+  animation: fadeIn 0.18s ease both;
+}
+
+.dialog {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  width: min(1100px, 100%);
+  height: calc(100vh - 32px);
+  height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popIn 0.22s ease both;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.icon {
+  flex: 0 0 auto;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--panel-2);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.close {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--ink);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  background: var(--panel-2);
+}
+
+/* Documents assume a white page — keep it white in dark mode too. */
+.frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--preview-bg);
+}
+
+.media {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.audio {
+  width: min(480px, 90%);
+}
+
+.none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.noneIcon {
+  font-size: 48px;
+}
+
+.btnPrimary {
+  border-radius: 8px;
+  background: var(--accent-2);
+  color: var(--on-accent);
+  padding: 8px 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btnPrimary:hover {
+  filter: brightness(0.95);
+}
+
+@media (--mobile) {
+  .overlay {
+    padding: 0;
+  }
+
+  .dialog {
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .close {
+    margin-left: auto;
+  }
+}

@@ -13,11 +13,14 @@ import { useEvents } from "../../store/events_store";
 import { useChecklists } from "../../store/checklists_store";
 import { useRecipes } from "../../store/recipes_store";
 import { useMeals } from "../../store/meals_store";
+import { useFiles } from "../../store/files_store";
 import { PersonDTO } from "../dto/person.dto";
 import { EventDTO } from "../dto/event.dto";
 import { ChecklistDTO } from "../dto/checklist.dto";
 import { RecipeDTO } from "../dto/recipe.dto";
 import { MealDTO } from "../dto/meal.dto";
+import { FolderDTO } from "../dto/folder.dto";
+import { FileEntryDTO } from "../dto/file_entry.dto";
 import { API_BASE, API_ENDPOINTS } from "../constants";
 
 const fetchJSON = async (path) => {
@@ -36,6 +39,8 @@ export async function loadAll() {
   const setLists = (rows) => useChecklists.setState({ lists: toModels(rows, ChecklistDTO) });
   const setRecipes = (rows) => useRecipes.setState({ recipes: toModels(rows, RecipeDTO) });
   const setMeals = (rows) => useMeals.setState({ meals: toModels(rows, MealDTO) });
+  const setFolders = (rows) => useFiles.setState({ folders: toModels(rows, FolderDTO) });
+  const setFiles = (rows) => useFiles.setState({ files: toModels(rows, FileEntryDTO) });
 
   const jobs = [
     [API_ENDPOINTS.persons, setPersons, "persons"],
@@ -43,6 +48,8 @@ export async function loadAll() {
     [API_ENDPOINTS.checklists, setLists, "checklists"],
     [API_ENDPOINTS.recipes, setRecipes, "recipes"],
     [API_ENDPOINTS.meals, setMeals, "meals"],
+    [API_ENDPOINTS.folders, setFolders, "folders"],
+    [API_ENDPOINTS.files, setFiles, "files"],
   ];
 
   await Promise.all(

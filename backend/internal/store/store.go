@@ -16,11 +16,12 @@ import (
 // modernc/sqlite serializes via SetMaxOpenConns(1) and a mutex here guards
 // reads-vs-writes within a request.
 type Store struct {
-	db *sql.DB
+	db       *sql.DB
+	filesDir string // uploaded file blobs, one per file row, named by id
 }
 
-func New(db *sql.DB) *Store {
-	return &Store{db: db}
+func New(db *sql.DB, filesDir string) *Store {
+	return &Store{db: db, filesDir: filesDir}
 }
 
 // DB exposes the underlying connection for callers that need raw queries.

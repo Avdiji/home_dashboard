@@ -1,0 +1,102 @@
+/* Fills the scrolling content area; the AnimatedList scrolls inside .block. */
+.view {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar_right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.crumbPart {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.crumb {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.crumb:hover {
+  color: var(--accent-2);
+}
+
+.crumbSep {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.crumbCurrent {
+  color: var(--ink);
+}
+
+.status {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.block {
+  flex: 1;
+  min-height: 0;
+  margin-top: 24px;
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--muted);
+  border: 2px dashed var(--line-strong);
+  border-radius: 12px;
+}
+
+/* Drag-over overlay — pointer-events off so the drop lands on .view. */
+.drop {
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--accent-2);
+  border-radius: 12px;
+  background: var(--accent-2-soft);
+  color: var(--accent-2);
+  font-weight: 700;
+  font-size: 18px;
+  pointer-events: none;
+  animation: fadeIn 0.12s ease both;
+}

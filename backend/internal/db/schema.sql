@@ -67,3 +67,23 @@ CREATE INDEX IF NOT EXISTS idx_checklists_persons_person ON checklists_persons(p
 CREATE INDEX IF NOT EXISTS idx_checklist_items_list ON checklist_items(list_id);
 CREATE INDEX IF NOT EXISTS idx_meals_date ON meals(date);
 CREATE INDEX IF NOT EXISTS idx_meals_recipe ON meals(recipe_id);
+-- File storage. Folders nest via parent_id (NULL = root); deleting a folder
+-- cascades its subtree + file rows. File bytes live on disk (named by id under
+-- the files dir), not in SQLite — the row is metadata only.
+CREATE TABLE IF NOT EXISTS folders (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT    NOT NULL,
+    parent_id INTEGER NULL REFERENCES folders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS files (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    folder_id  INTEGER NULL REFERENCES folders(id) ON DELETE CASCADE,
+    name       TEXT    NOT NULL,
+    mime_type  TEXT    NOT NULL DEFAULT 'application/octet-stream',
+    size       INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT    NOT NULL           -- RFC 3339
+);
+
+CREATE INDEX IF NOT EXISTS idx_folders_parent ON folders(parent_id);
+CREATE INDEX IF NOT EXISTS idx_files_folder ON files(folder_id);
