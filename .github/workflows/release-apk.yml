@@ -1,0 +1,115 @@
+# Builds the frontend into an Android APK (Capacitor) and publishes it as a
+# GitHub release whenever a tag is pushed:
+#
+#   git tag v1.2.0 && git push origin v1.2.0
+#
+# The APK bundles the built React app, so it has no same-origin backend — the
+# backend URL is baked in at build time. Override it with repository variables
+# (Settings → Secrets and variables → Actions → Variables):
+#   BACKEND_URL     default http://home-dashboard:8080   (tailnet MagicDNS)
+#   BACKEND_WS_URL  default BACKEND_URL with http→ws + /ws
+#
+# Signing: set these repository secrets to get a release-signed APK that
+# installs as an update over the previous version:
+#   ANDROID_KEYSTORE_BASE64   base64 of the .jks keystore
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_ALIAS
+#   ANDROID_KEY_PASSWORD
+# Without them a debug-signed APK is built. Its throwaway key changes every
+# run, so a new version has to be installed after uninstalling the old one.
+
+name: Release APK
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      BACKEND_URL: ${{ vars.BACKEND_URL || 'http://home-dashboard:8080' }}
+      BACKEND_WS_URL: ${{ vars.BACKEND_WS_URL }}
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: |
+          ws="${BACKEND_WS_URL:-$(echo "$BACKEND_URL" | sed 's|^http|ws|')/ws}"
+          VITE_API_BASE="$BACKEND_URL" VITE_WS_URL="$ws" npm run build
+
+      - name: Generate Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+          # Launcher icon + splash from the browser favicon (black glyph, so
+          # white backgrounds in both light and dark mode).
+          mkdir -p .icon && cp public/home.svg .icon/logo.svg
+          npx @capacitor/assets generate --android --assetPath .icon \
+            --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff' \
+            --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#ffffff'
+          # Version from the tag (v1.2.0 → 1.2.0); versionCode must increase
+          # for Android to accept an update, so use the run number.
+          version="${GITHUB_REF_NAME#v}"
+          sed -i \
+            -e "s/versionCode 1$/versionCode ${GITHUB_RUN_NUMBER}/" \
+            -e "s/versionName \"1.0\"/versionName \"${version}\"/" \
+            android/app/build.gradle
+          # The backend is plain http on the tailnet; Android blocks cleartext
+          # traffic unless the app opts in.
+          sed -i 's/<application/<application android:usesCleartextTraffic="true"/' \
+            android/app/src/main/AndroidManifest.xml
+
+      - name: Build signed release APK
+        if: env.HAS_KEYSTORE == 'true'
+        working-directory: frontend/android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.jks" \
+            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/home-dashboard-${GITHUB_REF_NAME}.apk"
+
+      - name: Build debug APK
+        if: env.HAS_KEYSTORE != 'true'
+        working-directory: frontend/android
+        run: |
+          ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/home-dashboard-${GITHUB_REF_NAME}.apk"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ runner.temp }}/home-dashboard-${{ github.ref_name }}.apk
+          generate_release_notes: true

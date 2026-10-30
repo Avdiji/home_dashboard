@@ -1,0 +1,9 @@
+{
+  "appId": "com.avdiji.homedashboard",
+  "appName": "Home Dashboard",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}

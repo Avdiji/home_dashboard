@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor Android project — generated in CI (.github/workflows/release-apk.yml)
+android

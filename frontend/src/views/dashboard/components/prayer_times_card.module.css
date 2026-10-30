@@ -59,12 +59,12 @@
   font-weight: 500;
 }
 
-/* Already passed today — recede so the next prayer stands out. */
+/* Already passed today â€” recede so the next prayer stands out. */
 .past {
   opacity: 0.5;
 }
 
-/* Next prayer — solid accent tile, the highest-contrast element in the row. */
+/* Next prayer â€” solid accent tile, the highest-contrast element in the row. */
 .next {
   background: var(--accent-2);
   border-color: var(--accent-2);
